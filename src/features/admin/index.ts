@@ -1,0 +1,6 @@
+export * from './types'
+export * from './services/adminService'
+export { AdminPage, AdminPage as default } from './AdminPage'
+export { UserManagementTab } from './components/UserManagementTab'
+export { RolePermissionsTab } from './components/RolePermissionsTab'
+export { SystemSettingsTab } from './components/SystemSettingsTab'

@@ -1,0 +1,243 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+/*
+ * ==========================================================================
+ * Taiga Design System — Design Tokens
+ * Source of Truth:
+ * - Colors: design/system/color-primitives.png (11 color ramps 0–900 + whiteboard)
+ * - Typography: design/system/typography.png (10 text styles, Inter font)
+ * ==========================================================================
+ */
+
+@theme {
+  /* ── Font Family ── */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* ── Whiteboard ── */
+  --color-whiteboard: #ffffff;
+
+  /* ── Primary (FE main color · #076859) ── */
+  --color-primary-0: #ffffff;
+  --color-primary-50: #f4fffa;
+  --color-primary-100: #cff9ef;
+  --color-primary-200: #a2f2df;
+  --color-primary-300: #86d5c2;
+  --color-primary-400: #2f8172;
+  --color-primary-500: #076859;
+  --color-primary-600: #005045;
+  --color-primary-700: #003e35;
+  --color-primary-800: #002f28;
+  --color-primary-900: #00201b;
+
+  /* ── Secondary (Warm neutral) ── */
+  --color-secondary-0: #ffffff;
+  --color-secondary-50: #f9f7f6;
+  --color-secondary-100: #e7e1de;
+  --color-secondary-200: #e4dfdb;
+  --color-secondary-300: #cbc5c2;
+  --color-secondary-400: #918b88;
+  --color-secondary-500: #615e5b;
+  --color-secondary-600: #494644;
+  --color-secondary-700: #3a3735;
+  --color-secondary-800: #2b2927;
+  --color-secondary-900: #1d1b19;
+
+  /* ── Tertiary (Terracotta accent) ── */
+  --color-tertiary-0: #ffffff;
+  --color-tertiary-50: #fff7f4;
+  --color-tertiary-100: #ffdad2;
+  --color-tertiary-200: #ffb4a3;
+  --color-tertiary-300: #d58b7a;
+  --color-tertiary-400: #a96150;
+  --color-tertiary-500: #8c4939;
+  --color-tertiary-600: #723526;
+  --color-tertiary-700: #5b281b;
+  --color-tertiary-800: #48190e;
+  --color-tertiary-900: #3a0b02;
+
+  /* ── Neutral (Background, borders, text, sidebar) ── */
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #f6f6f6;
+  --color-neutral-100: #efefed;
+  --color-neutral-200: #dddcda;
+  --color-neutral-300: #c5c2be;
+  --color-neutral-400: #a8a39c;
+  --color-neutral-500: #7a746b;
+  --color-neutral-600: #615e5b;
+  --color-neutral-700: #494644;
+  --color-neutral-800: #34322e;
+  --color-neutral-900: #22201e;
+
+  /* ── Paper (Warm UI surfaces) ── */
+  --color-paper-0: #ffffff;
+  --color-paper-50: #fef8f2;
+  --color-paper-100: #f8f3ec;
+  --color-paper-200: #f5f0ea;
+  --color-paper-300: #f2ede7;
+  --color-paper-400: #ede7e1;
+  --color-paper-500: #e7e2db;
+  --color-paper-600: #ded9d3;
+  --color-paper-700: #b7b1aa;
+  --color-paper-800: #6f6961;
+  --color-paper-900: #32302c;
+
+  /* ── Success (Completion / Done) ── */
+  --color-success-0: #ffffff;
+  --color-success-50: #f7fbfa;
+  --color-success-100: #e9f2f0;
+  --color-success-200: #b8d8d1;
+  --color-success-300: #a9cdc5;
+  --color-success-400: #75aea3;
+  --color-success-500: #3f8f7f;
+  --color-success-600: #357c6e;
+  --color-success-700: #2b685c;
+  --color-success-800: #235047;
+  --color-success-900: #183630;
+
+  /* ── Danger (Critical / Delete) ── */
+  --color-danger-0: #ffffff;
+  --color-danger-50: #fdf8f8;
+  --color-danger-100: #f9eceb;
+  --color-danger-200: #e6b3af;
+  --color-danger-300: #e4b1ae;
+  --color-danger-400: #d5827d;
+  --color-danger-500: #c4524a;
+  --color-danger-600: #a94740;
+  --color-danger-700: #8d3b35;
+  --color-danger-800: #6e2e29;
+  --color-danger-900: #4a1f1c;
+
+  /* ── Warning (Notice / Pending review) ── */
+  --color-warning-0: #ffffff;
+  --color-warning-50: #fdfaf7;
+  --color-warning-100: #f9f3ea;
+  --color-warning-200: #e8cf9f;
+  --color-warning-300: #e5caa0;
+  --color-warning-400: #d5ab66;
+  --color-warning-500: #c58a2b;
+  --color-warning-600: #a97725;
+  --color-warning-700: #8e631f;
+  --color-warning-800: #6e4d18;
+  --color-warning-900: #4b3410;
+
+  /* ── Info (In-progress / Informational) ── */
+  --color-info-0: #ffffff;
+  --color-info-50: #f8fafb;
+  --color-info-100: #ebf2f7;
+  --color-info-200: #afc8dd;
+  --color-info-300: #aec4d7;
+  --color-info-400: #7da0bf;
+  --color-info-500: #4a7ba6;
+  --color-info-600: #406a8f;
+  --color-info-700: #355978;
+  --color-info-800: #29455d;
+  --color-info-900: #1c2f3f;
+
+  /* ── Error (Form validation error) ── */
+  --color-error-0: #ffffff;
+  --color-error-50: #fcf6f6;
+  --color-error-100: #ffdad6;
+  --color-error-200: #eec6c6;
+  --color-error-300: #e09898;
+  --color-error-400: #cd5a5a;
+  --color-error-500: #ba1a1a;
+  --color-error-600: #a01616;
+  --color-error-700: #93000a;
+  --color-error-800: #680f0f;
+  --color-error-900: #470a0a;
+}
+
+/*
+ * ==========================================================================
+ * Typography Utilities — 10 Defined Text Styles from Figma
+ * ==========================================================================
+ */
+
+@utility text-headline-lg {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+@utility text-headline-md {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+@utility text-headline-sm {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+@utility text-body-lg {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 400;
+  letter-spacing: 0em;
+}
+
+@utility text-body-default {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 0em;
+}
+
+@utility text-body-medium {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  letter-spacing: 0em;
+}
+
+@utility text-body-sm {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 400;
+  letter-spacing: 0em;
+}
+
+@utility text-label-default {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+@utility text-label-meta {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+  letter-spacing: 0em;
+}
+
+@utility text-label-uppercase {
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ── Base resets ── */
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-neutral-800);
+  background-color: var(--color-whiteboard);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
