@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Icon } from '@/components/ui'
 import { adminService } from '../services/adminService'
-import type { AdminUser, AdminRole } from '../types'
+import type { AdminUser } from '../types'
 import { CreateUserModal } from './CreateUserModal'
 import { LockUserModal } from './LockUserModal'
 import { UnlockUserModal } from './UnlockUserModal'
@@ -40,7 +40,7 @@ export function UserManagementTab({ onNavigateToPermissions }: UserManagementTab
       role: roleFilter,
       status: statusFilter,
     })
-  }, [searchTerm, roleFilter, statusFilter, users])
+  }, [searchTerm, roleFilter, statusFilter])
 
   const totalPages = Math.max(1, Math.ceil(filteredUsers.length / pageSize))
   const paginatedUsers = useMemo(() => {

@@ -149,6 +149,13 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: 'admin',
+        lazy: async () => {
+          const Component = (await import('@/features/admin/AdminPage')).default
+          return { Component }
+        },
+      },
+      {
         path: 'icons',
         lazy: async () => {
           const Component = (await import('@/features/dev/IconGalleryPage')).default

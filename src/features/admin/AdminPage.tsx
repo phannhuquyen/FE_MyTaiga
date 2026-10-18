@@ -11,8 +11,7 @@ export type AdminTab = 'users' | 'permissions' | 'settings'
 
 export function AdminPage() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const initialTab = (searchParams.get('tab') as AdminTab) || 'users'
-  const [activeTab, setActiveTab] = useState<AdminTab>(initialTab)
+  const activeTab = (searchParams.get('tab') as AdminTab) || 'users'
 
   // Listen for service changes to trigger re-render
   const [, setTick] = useState(0)
@@ -23,15 +22,7 @@ export function AdminPage() {
     return unsubscribe
   }, [])
 
-  useEffect(() => {
-    const currentParam = searchParams.get('tab') as AdminTab
-    if (currentParam && currentParam !== activeTab) {
-      setActiveTab(currentParam)
-    }
-  }, [searchParams, activeTab])
-
   const handleTabChange = (tab: AdminTab) => {
-    setActiveTab(tab)
     setSearchParams({ tab })
   }
 

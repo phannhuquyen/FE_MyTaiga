@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react'
 import { Icon } from '@/components/ui'
 import { adminService } from '../services/adminService'
 import type { PermissionGroup } from '../types'
-import { cn } from '@/lib/utils'
 
 export function RolePermissionsTab() {
   const [permissionGroups, setPermissionGroups] = useState<PermissionGroup[]>(() =>

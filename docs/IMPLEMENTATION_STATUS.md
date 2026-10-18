@@ -16,7 +16,11 @@
 - [x] Track 4.2: Epics Management completed (6/6 reference screens)
 - [x] Track 4.3: Sprint Planning & Execution completed (11/11 reference screens)
 - [x] Track 4.4: Kanban Board & WIP System & Task Management completed (23/23 reference screens across Flows 8 & 9)
-- [ ] Remaining tracks (Track 5: Bugs & Flow Metrics, ...)
+- [x] Track 5A: Bug Management completed (13/13 reference screens — Flow 10)
+- [x] Track 5B: Flow Metrics completed (9/9 reference screens — Flow 11)
+- [x] Track 5C: Chat completed (12/12 reference screens — Flow 13)
+- [x] Track 5D: Notifications & Activity completed (5/5 reference screens — Flow 12)
+- [x] Track 6: Admin & Permissions completed (7/7 reference screens — Flow 14)
 - [ ] Visual QA completed
 - [x] Build/lint/typecheck successful
 
@@ -38,6 +42,7 @@
 - [x] epicService with complete Epic CRUD, color palette picker, multi-status progress breakdown, technical task linking, PBI linking/unlinking, and safety reassignment upon deletion
 - [x] sprintService with Sprint CRUD, getActiveSprint, startSprint, closeSprint (unfinished items routing), deleteSprint (safe PBI return), addWorkItemToSprint, assignBacklogItemsToSprint, removeItemFromSprint, toggleWorkItemStatus, and burndown data seeding
 - [x] kanbanService with column management, configurable WIP limits, limit violation detection, HTML5 drag-and-drop card movement across columns, Quick Create Task modal, Task Detail drawer (title/description inline editing, assignees, priorities, subtask checklist with completion % bar, file attachments list, discussion feed with @mention mock support), and delete confirmation dialog
+- [x] adminService with reactive mock singleton: 24 users, permission matrix (4 groups × 11 operations), system settings (flow thresholds, attachment storage, security & session); self-lock guard, lock/unlock with reason & audit note, role/status filters, createUser, savePermissionGroups, saveSettings, resetSettings
 
 ## Screen status
 | Screen/route | Figma frame | Implemented | Interactions | Responsive | Visual QA | Remaining issues |
@@ -122,12 +127,19 @@
 | `/chat` (S13-10: Đính kèm tệp) | `Đính kèm tệp & Modal Xem trước tệp - ScrumBan Flow.png` | Yes | Thẻ đính kèm tệp tài liệu trong luồng chat kèm dung lượng và icon định dạng | Yes | Verified against reference | None |
 | `/chat` (S13-11: Xem trước tệp đính kèm) | `Xem trước Tệp đính kèm - ScrumBan Flow.png` | Yes | Lightbox xem trước tài liệu PDF/báo cáo SLA với zoom phóng to/thu nhỏ, điều hướng trang, nút In và Tải xuống | Yes | Verified against reference | None |
 | `/chat` (S13-12: Cảnh báo dung lượng tệp) | `Tệp đính kèm & Cảnh báo dung lượng - ScrumBan Flow.png` | Yes | Kiểm tra dung lượng tải lên tối đa 25MB, banner cảnh báo đỏ lỗi vượt ngưỡng dung lượng | Yes | Verified against reference | None |
+| `/admin?tab=users` (S14-01: Quản lý Người dùng) | `Quản lý người dùng - ScrumBan Flow.png` | Yes | Bảng 24 người dùng phân trang 5/trang, 3 KPI cards (Đang hoạt động / Bị khóa / Quản trị viên), lọc Vai trò & Trạng thái, tìm kiếm họ tên/email, đánh dấu hàng chọn, nút Khóa/Mở khóa/Chỉnh sửa quyền | Yes | Not yet verified | None |
+| `/admin?tab=users` (S14-02: Modal Tạo người dùng) | `Tạo người dùng mới - ScrumBan Flow.png` | Yes | Form họ tên, email, vai trò dropdown, phòng ban, nút Tạo người dùng với validation bắt buộc | Yes | Not yet verified | None |
+| `/admin?tab=users` (S14-03: Xác nhận Khóa tài khoản) | `Xác nhận khóa tài khoản - ScrumBan Flow.png` | Yes | Modal cảnh báo đỏ, dropdown lý do khóa (5 lý do), trường ghi chú kiểm toán, hiển thị UUID & email người bị khóa | Yes | Not yet verified | None |
+| `/admin?tab=users` (S14-04: Xác nhận Mở khóa tài khoản) | `Xác nhận mở khóa tài khoản - ScrumBan Flow.png` | Yes | Modal cảnh báo xanh dương, hiển thị lý do khóa cũ, UUID, danh sách dự án bị ảnh hưởng | Yes | Not yet verified | None |
+| `/admin?tab=users` (S14-05: Lỗi tự khóa tài khoản) | `Lỗi tự khóa tài khoản - ScrumBan Flow.png` | Yes | Modal lỗi đỏ khi Admin cố tự khóa chính mình, giải thích lý do bảo mật | Yes | Not yet verified | None |
+| `/admin?tab=permissions` (S14-06: Ma trận Phân quyền) | `Phân quyền vai trò - ScrumBan Flow.png` | Yes | Bảng checkbox ma trận 4 nhóm × 11 thao tác, bộ đếm thay đổi chưa lưu, thanh Lưu sticky, nút Đặt lại mặc định | Yes | Not yet verified | None |
+| `/admin?tab=settings` (S14-07: Cấu hình Hệ thống) | `Cấu hình hệ thống - ScrumBan Flow.png` | Yes | 3 section (Ngưỡng Flow, Lưu trữ tệp đính kèm, Bảo mật & Phiên), 3 KPI cards (dung lượng/cảnh báo cũ/kiểm toán), modal Nhật ký kiểm toán | Yes | Not yet verified | None |
 
 ## Test commands and results
 | Command | Date | Result | Notes |
 |---|---|---|---|
-| `npm run build` (tsc -b && vite build) | 2026-10-18 | ✅ Pass | 0 errors, 0 warnings (147 modules, ChatPage 67.27 kB, NotificationsPage 21.23 kB, ActivityTimelinePage 14.36 kB) |
-| `npm run lint` (oxlint) | 2026-10-18 | ✅ Pass | 0 warnings, 0 errors across 151 files |
+| `npm run build` (tsc -b && vite build) | 2026-10-18 | ✅ Pass | 0 errors, 156 modules transformed. AdminPage 84.22 kB, BugsPage 89.14 kB, SprintsPage 93.53 kB |
+| `npm run lint` (oxlint) | 2026-10-18 | ✅ Pass | 0 warnings, 0 errors across 162 files |
 
 ## Next action
-Track 5 (Chat & Notifications) hoàn thành xuất sắc đúng 100% thiết kế tham chiếu Flow 12 và Flow 13. Sẵn sàng nhận yêu cầu tiếp theo từ người dùng.
+Track 6 (Admin & Permissions — S14-01 → S14-07) hoàn thành. Toàn bộ 6 track đã triển khai đầy đủ. Sẵn sàng nhận yêu cầu Visual QA hoặc tính năng bổ sung.

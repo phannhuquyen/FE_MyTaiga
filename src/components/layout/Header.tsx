@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Icon } from '@/components/ui'
 import { NotificationBellDropdown } from '@/features/notifications'
 import { cn } from '@/lib/utils'
@@ -18,6 +18,9 @@ export function Header({
   onSearchChange,
   className,
 }: HeaderProps) {
+  const location = useLocation()
+  const isAdminRoute = location.pathname.startsWith('/admin')
+
   return (
     <header
       className={cn(
@@ -36,27 +39,40 @@ export function Header({
           <Icon name="menu" size={20} />
         </button>
 
-        {/* Breadcrumb matching Group 1.png: Dự án / ScrumBan Core / Tổng quan */}
+        {/* Breadcrumb */}
         <nav
           className="flex items-center gap-1.5 text-body-sm text-neutral-500 overflow-hidden whitespace-nowrap"
           aria-label="Breadcrumb"
         >
-          <Link to="/projects" className="hover:text-neutral-800 transition-colors cursor-pointer">
-            Dự án
-          </Link>
-          <span className="text-neutral-400">/</span>
-          <span className="hover:text-neutral-800 transition-colors cursor-pointer">
-            ScrumBan Core
-          </span>
-          <span className="text-neutral-400">/</span>
-          <span className="font-semibold text-neutral-900">Tổng quan</span>
+          {isAdminRoute ? (
+            <>
+              <span className="flex items-center gap-1 text-neutral-600">
+                <Icon name="shield" size={14} className="text-neutral-500" />
+                <span>Hệ thống</span>
+              </span>
+              <span className="text-neutral-400">/</span>
+              <span className="font-semibold text-neutral-900">Quản trị</span>
+            </>
+          ) : (
+            <>
+              <Link to="/projects" className="hover:text-neutral-800 transition-colors cursor-pointer">
+                Dự án
+              </Link>
+              <span className="text-neutral-400">/</span>
+              <span className="hover:text-neutral-800 transition-colors cursor-pointer">
+                ScrumBan Core
+              </span>
+              <span className="text-neutral-400">/</span>
+              <span className="font-semibold text-neutral-900">Tổng quan</span>
+            </>
+          )}
         </nav>
       </div>
 
-      {/* Right: Quick Search, Notification Bell & Create Button */}
+      {/* Right: Quick Search, Admin Badge, Notification Bell & Create Button */}
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Search input with Ctrl+K shortcut badge */}
-        <div className="relative hidden sm:block w-64 md:w-72">
+        <div className="relative hidden sm:block w-64 md:w-80">
           <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-neutral-400">
             <Icon name="search" size={16} />
           </span>
@@ -64,23 +80,37 @@ export function Header({
             type="text"
             value={searchTerm}
             onChange={(e) => onSearchChange?.(e.target.value)}
-            placeholder="Tìm kiếm nhanh (Ctrl+K)..."
-            className="w-full pl-8 pr-3 py-1.5 text-body-sm bg-paper-50 hover:bg-whiteboard focus:bg-whiteboard border border-neutral-200 rounded focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-all placeholder:text-neutral-400 text-neutral-800"
+            placeholder={
+              isAdminRoute
+                ? 'Tìm kiếm tham số, tài khoản, quyền hạn...'
+                : 'Tìm kiếm nhanh (Ctrl+K)...'
+            }
+            className="w-full pl-8 pr-3 py-1.5 text-body-sm bg-paper-50 hover:bg-whiteboard focus:bg-whiteboard border border-neutral-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-all placeholder:text-neutral-400 text-neutral-800"
           />
         </div>
 
         {/* Notification Bell Dropdown (S12-02) */}
         <NotificationBellDropdown />
 
-        {/* + Tạo button matching design */}
-        <button
-          type="button"
-          onClick={onQuickCreate}
-          className="inline-flex items-center gap-1 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-whiteboard text-body-sm font-medium px-3 py-1.5 rounded transition-colors shadow-xs cursor-pointer shrink-0"
-        >
-          <Icon name="plus" size={16} />
-          <span>Tạo</span>
-        </button>
+        {/* Admin Pill Badge (S14-01, S14-05, S14-06, S14-07) */}
+        {isAdminRoute && (
+          <div className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 border border-rose-200 text-rose-700 shadow-2xs shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-600" />
+            <span>Admin: Quốc Bảo (Quản trị viên)</span>
+          </div>
+        )}
+
+        {/* + Tạo button */}
+        {!isAdminRoute && (
+          <button
+            type="button"
+            onClick={onQuickCreate}
+            className="inline-flex items-center gap-1 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-whiteboard text-body-sm font-medium px-3 py-1.5 rounded transition-colors shadow-xs cursor-pointer shrink-0"
+          >
+            <Icon name="plus" size={16} />
+            <span>Tạo</span>
+          </button>
+        )}
       </div>
     </header>
   )

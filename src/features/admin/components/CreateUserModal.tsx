@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Icon } from '@/components/ui'
 import type { AdminRole, CreateAdminUserPayload } from '../types'
 
@@ -27,11 +27,10 @@ export function CreateUserModal({ isOpen, onClose, onCreateUser }: CreateUserMod
   const [activateImmediately, setActivateImmediately] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (isOpen) {
-      setError(null)
-    }
-  }, [isOpen])
+  const handleClose = () => {
+    setError(null)
+    onClose()
+  }
 
   if (!isOpen) return null
 
@@ -75,7 +74,7 @@ export function CreateUserModal({ isOpen, onClose, onCreateUser }: CreateUserMod
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 p-1.5 rounded-lg transition-colors cursor-pointer"
           >
             <Icon name="close" size={20} />
@@ -225,7 +224,7 @@ export function CreateUserModal({ isOpen, onClose, onCreateUser }: CreateUserMod
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={onClose}
+                onClick={handleClose}
                 className="px-4 py-2 rounded-xl text-xs font-semibold border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer"
               >
                 Hủy
