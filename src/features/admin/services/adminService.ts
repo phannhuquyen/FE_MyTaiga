@@ -5,6 +5,7 @@ import type {
   SystemSettings,
   UserFilterOptions,
 } from '../types'
+import { api } from '@/services/api'
 
 const INITIAL_USERS: AdminUser[] = [
   {
@@ -574,37 +575,77 @@ class AdminService {
     return newUser
   }
 
-  lockUser(id: string, reason: string, auditNote?: string): { success: boolean; error?: string } {
+  /**
+   * Khóa tài khoản người dùng.
+   * BE: PATCH /api/v1/admin/users/{userId}/lock  [Requires ADMIN role]
+   * Đồng thời cập nhật state local để UI phản ánh ngay lập tức.
+   */
+  async lockUser(id: string, reason: string, auditNote?: string): Promise<{ success: boolean; error?: string }> {
     const user = this.users.find((u) => u.id === id)
     if (!user) return { success: false, error: 'Không tìm thấy người dùng' }
 
-    // S14-05 Rule: Cannot lock current logged-in user (Nguyễn Quốc Bảo)
-    if (user.isSelf || user.email === 'quocbao.admin@scrumban.io') {
+    if (user.isSelf) {
       return {
         success: false,
-        error:
-          'Không thể khóa tài khoản của chính bạn (Nguyễn Quốc Bảo). Để tránh gián đoạn quản trị hệ thống, hãy bàn giao đặc quyền Quản trị viên tối cao cho thành viên khác trước khi vô hiệu hóa tài khoản này.',
+        error: 'Không thể khóa tài khoản của chính bạn. Hãy bàn giao đặc quyền Quản trị viên tối cao trước.',
       }
     }
 
-    user.status = 'locked'
-    user.lockedReason = reason
-    user.lockedBy = 'Admin'
-    user.auditNote = auditNote
-    this.notify()
-    return { success: true }
+    try {
+      const numericId = parseInt(id.replace(/\D/g, ''), 10)
+      if (numericId > 0) {
+        await api.adminUsers.lockUser(numericId)
+      }
+
+      // Cập nhật local state
+      user.status = 'locked'
+      user.lockedReason = reason
+      user.lockedBy = 'Admin'
+      user.auditNote = auditNote
+      this.notify()
+      return { success: true }
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { status?: number; data?: { message?: string } } }
+      const beMessage = errorObj.response?.data?.message
+      const status = errorObj.response?.status
+
+      if (status === 403) return { success: false, error: 'Không đủ quyền để khóa tài khoản này.' }
+      if (status === 409) return { success: false, error: 'Tài khoản đã ở trạng thái bị khóa.' }
+      if (status === 404) return { success: false, error: 'Không tìm thấy tài khoản.' }
+      return { success: false, error: beMessage ?? 'Lỗi khi khóa tài khoản.' }
+    }
   }
 
-  unlockUser(id: string): { success: boolean; error?: string } {
+  /**
+   * Mở khóa tài khoản người dùng.
+   * BE: PATCH /api/v1/admin/users/{userId}/unlock  [Requires ADMIN role]
+   */
+  async unlockUser(id: string): Promise<{ success: boolean; error?: string }> {
     const user = this.users.find((u) => u.id === id)
     if (!user) return { success: false, error: 'Không tìm thấy người dùng' }
 
-    user.status = 'active'
-    user.lockedReason = undefined
-    user.lockedBy = undefined
-    user.auditNote = undefined
-    this.notify()
-    return { success: true }
+    try {
+      const numericId = parseInt(id.replace(/\D/g, ''), 10)
+      if (numericId > 0) {
+        await api.adminUsers.unlockUser(numericId)
+      }
+
+      user.status = 'active'
+      user.lockedReason = undefined
+      user.lockedBy = undefined
+      user.auditNote = undefined
+      this.notify()
+      return { success: true }
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { status?: number; data?: { message?: string } } }
+      const beMessage = errorObj.response?.data?.message
+      const status = errorObj.response?.status
+
+      if (status === 403) return { success: false, error: 'Không đủ quyền để mở khóa tài khoản này.' }
+      if (status === 409) return { success: false, error: 'Tài khoản đã ở trạng thái hoạt động.' }
+      if (status === 404) return { success: false, error: 'Không tìm thấy tài khoản.' }
+      return { success: false, error: beMessage ?? 'Lỗi khi mở khóa tài khoản.' }
+    }
   }
 
   // ── PERMISSIONS MATRIX ──

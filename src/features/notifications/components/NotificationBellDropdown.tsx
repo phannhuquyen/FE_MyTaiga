@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Icon } from '@/components/ui'
-import { notificationService } from '../services/notificationService'
+import { notificationService, resolveNotificationLink } from '../services/notificationService'
 import type { NotificationItem } from '../types'
 import { cn } from '@/lib/utils'
 
@@ -49,7 +49,7 @@ export function NotificationBellDropdown({ className }: NotificationBellDropdown
     notificationService.markAsRead(item.id)
     setIsOpen(false)
     if (item.targetLink) {
-      navigate(item.targetLink)
+      navigate(resolveNotificationLink(item.targetLink))
     }
   }
 

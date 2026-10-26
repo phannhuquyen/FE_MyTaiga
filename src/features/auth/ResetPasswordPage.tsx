@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Icon } from '@/components/ui'
 import { AuthCard } from './components/AuthCard'
 import { AuthLayout } from './components/AuthLayout'
@@ -7,6 +7,8 @@ import { authService } from './services/authService'
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const token = searchParams.get('token') || ''
 
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -38,7 +40,7 @@ export default function ResetPasswordPage() {
 
     setIsLoading(true)
     try {
-      await authService.resetPassword({ password, confirmPassword })
+      await authService.resetPassword({ token, password, confirmPassword })
       // Navigate to login on success
       navigate('/login')
     } catch {

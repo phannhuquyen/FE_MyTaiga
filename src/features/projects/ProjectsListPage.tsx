@@ -263,7 +263,9 @@ export default function ProjectsListPage() {
                 <div className="col-span-12 md:col-span-5 flex items-start gap-3.5 min-w-0">
                   {/* Square key badge */}
                   <div
-                    onClick={() => navigate('/dashboard')}
+                    onClick={() => {
+                      navigate(`/projects/${project.id}/dashboard`)
+                    }}
                     className={`w-11 h-11 rounded-xl flex items-center justify-center font-bold text-body-sm shrink-0 shadow-xs border border-neutral-200/80 cursor-pointer hover:scale-105 transition-transform ${project.colorClass}`}
                     title="Truy cập bảng điều khiển dự án"
                   >
@@ -273,7 +275,7 @@ export default function ProjectsListPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <Link
-                        to="/dashboard"
+                        to={`/projects/${project.id}/dashboard`}
                         className="text-body-medium font-bold text-neutral-900 hover:text-primary-600 transition-colors truncate"
                       >
                         {project.name}

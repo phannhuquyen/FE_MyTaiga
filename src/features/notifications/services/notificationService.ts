@@ -3,6 +3,27 @@ import type {
   NotificationFilterOptions,
   ActivityItem,
 } from '../types'
+import { projectService } from '@/features/projects/services/projectService'
+
+export function resolveNotificationLink(targetLink?: string): string {
+  if (!targetLink) return ''
+  const projectScopedPrefixes = [
+    '/kanban',
+    '/sprints',
+    '/epics',
+    '/bugs',
+    '/backlog',
+    '/metrics',
+    '/members',
+    '/dashboard',
+  ]
+  const matched = projectScopedPrefixes.some((p) => targetLink.startsWith(p))
+  if (matched) {
+    const activeId = projectService.getActiveProjectId()
+    return activeId ? `/projects/${activeId}${targetLink}` : '/projects'
+  }
+  return targetLink
+}
 
 const INITIAL_NOTIFICATIONS: NotificationItem[] = [
   {

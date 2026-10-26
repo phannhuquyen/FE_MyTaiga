@@ -200,9 +200,12 @@ export default function LoginPage() {
         {/* Footer info */}
         <div className="mt-8 pt-4 border-t border-neutral-100 text-center text-body-sm text-neutral-500">
           Chưa có tài khoản?{' '}
-          <span className="text-neutral-800 font-medium underline cursor-pointer hover:text-primary-600">
-            Liên hệ Quản trị viên dự án
-          </span>
+          <Link
+            to="/register"
+            className="text-primary-600 hover:text-primary-700 font-semibold underline cursor-pointer"
+          >
+            Đăng ký tài khoản mới
+          </Link>
         </div>
       </AuthCard>
     </AuthLayout>

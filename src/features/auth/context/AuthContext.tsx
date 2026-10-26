@@ -1,39 +1,122 @@
-import { useState, type ReactNode } from 'react'
+import { useState, useEffect, type ReactNode } from 'react'
 import type { AuthState, AuthUser, LoginCredentials } from '../types'
 import { authService } from '../services/authService'
 import { AuthContext } from './authContextDef'
+import { authStorage } from '@/lib/tokenStorage'
+import { api } from '@/services/api'
 
-const DEFAULT_USER: AuthUser = {
-  id: 'usr-000',
-  name: 'ADMIN',
-  email: 'admin@scrumflow.io',
-  role: 'Quản trị viên',
-  avatarCode: 'AD',
+function buildAvatarCode(fullName: string): string {
+  const parts = fullName.trim().split(/\s+/)
+  return parts.length > 1
+    ? `${parts[parts.length - 2][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+    : fullName.slice(0, 2).toUpperCase()
+}
+
+// Lấy thông tin user đã lưu tạm từ localStorage để khởi tạo state nhanh chóng
+const cachedToken = authStorage.getToken()
+const cachedUser = authStorage.getUser()
+
+const INITIAL_STATE: AuthState = {
+  isAuthenticated: !!cachedToken,
+  user: cachedUser
+    ? {
+        id: String(cachedUser.userId),
+        name: cachedUser.fullName,
+        email: cachedUser.email,
+        role: cachedUser.systemRole === 'ADMIN' ? 'Quản trị viên' : 'Thành viên',
+        avatarCode: buildAvatarCode(cachedUser.fullName),
+        avatar: cachedUser.avatar ?? undefined,
+      }
+    : null,
+  token: cachedToken,
+  isLoading: !!cachedToken,
+  error: null,
+  attemptsLeft: 5,
+  isLocked: false,
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AuthState>({
-    isAuthenticated: true, // Default to true for easy prototype navigation, but full login flow works
-    user: DEFAULT_USER,
-    token: 'mock-session-token',
-    isLoading: false,
-    error: null,
-    attemptsLeft: 5,
-    isLocked: false,
-    lastLoggedOutUser: {
-      email: 'quannm@techcorp.vn',
-      timestamp: '17:30, Hôm nay',
-    },
-  })
+  const [state, setState] = useState<AuthState>(INITIAL_STATE)
+
+  useEffect(() => {
+    const savedToken = authStorage.getToken()
+    if (!savedToken) {
+      setState((prev) => ({ ...prev, isLoading: false }))
+      return
+    }
+
+    api.users
+      .getMe()
+      .then((res) => {
+        const { data } = res
+        const user: AuthUser = {
+          id: String(data.userId),
+          name: data.fullName,
+          email: data.email,
+          role: data.systemRole === 'ADMIN' ? 'Quản trị viên' : 'Thành viên',
+          avatarCode: buildAvatarCode(data.fullName),
+          avatar: data.avatar ?? undefined,
+        }
+
+        // Cập nhật lại thông tin mới nhất vào localStorage
+        authStorage.setUser({
+          userId: data.userId,
+          fullName: data.fullName,
+          email: data.email,
+          systemRole: data.systemRole,
+          avatar: data.avatar,
+        })
+
+        setState({
+          isAuthenticated: true,
+          user,
+          token: savedToken,
+          isLoading: false,
+          error: null,
+          attemptsLeft: 5,
+          isLocked: false,
+        })
+      })
+      .catch(() => {
+        authStorage.clearAll()
+        setState({
+          isAuthenticated: false,
+          user: null,
+          token: null,
+          isLoading: false,
+          error: null,
+          attemptsLeft: 5,
+          isLocked: false,
+        })
+      })
+  }, [])
 
   const login = async (credentials: LoginCredentials) => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }))
     try {
       const { user, token } = await authService.login(credentials)
+
+      // Lấy thêm thông tin avatar từ users/me
+      const meRes = await api.users.getMe()
+      const meData = meRes.data
+      const fullUser: AuthUser = {
+        ...user,
+        avatar: meData.avatar ?? undefined,
+      }
+
+      // Cập nhật lại localStorage với thông tin đầy đủ
+      authStorage.setUser({
+        userId: meData.userId,
+        fullName: meData.fullName,
+        email: meData.email,
+        systemRole: meData.systemRole,
+        avatar: meData.avatar,
+      })
+
       setState((prev) => ({
         ...prev,
         isAuthenticated: true,
-        user,
+        user: fullUser,
         token,
         isLoading: false,
         error: null,
@@ -41,23 +124,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLocked: false,
       }))
     } catch (err: unknown) {
-      const errorObj = err as { code?: string; message?: string; attemptsLeft?: number }
-      if (errorObj.code === 'ACCOUNT_LOCKED') {
+      const errorObj = err as {
+        response?: { status?: number; data?: { message?: string } }
+        message?: string
+      }
+
+      const status = errorObj.response?.status
+      const beMessage = errorObj.response?.data?.message
+
+      if (status === 400 && beMessage?.toLowerCase().includes('khóa')) {
         setState((prev) => ({
           ...prev,
           isLoading: false,
           isLocked: true,
-          error: 'Tài khoản đã bị khóa do nhập sai mật khẩu quá 5 lần liên tiếp.',
+          error: 'Tài khoản đã bị khóa.',
         }))
-        throw err
+        const lockedErr = new Error('ACCOUNT_LOCKED') as Error & { code: string }
+        lockedErr.code = 'ACCOUNT_LOCKED'
+        throw lockedErr
       }
 
-      const attempts = errorObj.attemptsLeft ?? 3
+      // Bắt lỗi kết nối mạng (Network Error)
+      const isNetworkError = !errorObj.response && (errorObj.message?.includes('Network Error') || errorObj.message?.includes('ERR_CONNECTION'))
+      const fallbackMsg = isNetworkError
+        ? 'Không thể kết nối đến máy chủ Backend. Vui lòng kiểm tra Backend đã chạy chưa.'
+        : 'Email hoặc mật khẩu không đúng.'
+
+      const remaining = state.attemptsLeft - 1
       setState((prev) => ({
         ...prev,
         isLoading: false,
-        attemptsLeft: attempts,
-        error: errorObj.message || 'Email hoặc mật khẩu không đúng.',
+        attemptsLeft: remaining,
+        error: beMessage || fallbackMsg,
       }))
       throw err
     }
@@ -65,7 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     setState((prev) => ({ ...prev, isLoading: true }))
-    const currentEmail = state.user?.email || 'quannm@techcorp.vn'
+    const currentEmail = state.user?.email ?? ''
     await authService.logout()
     setState((prev) => ({
       ...prev,
@@ -76,7 +174,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       error: null,
       lastLoggedOutUser: {
         email: currentEmail,
-        timestamp: `${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}, Hôm nay`,
+        timestamp: `${new Date().toLocaleTimeString('vi-VN', {
+          hour: '2-digit',
+          minute: '2-digit',
+        })}, Hôm nay`,
       },
     }))
   }
@@ -88,10 +189,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateUser = (updated: Partial<AuthUser>) => {
     setState((prev) => {
       if (!prev.user) return prev
-      return {
-        ...prev,
-        user: { ...prev.user, ...updated },
-      }
+      return { ...prev, user: { ...prev.user, ...updated } }
     })
   }
 

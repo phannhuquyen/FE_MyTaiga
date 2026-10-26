@@ -1,6 +1,5 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
-import DashboardPage from '@/features/dashboard/DashboardPage'
 
 export const router = createBrowserRouter([
   // ── Authentication Routes (Standalone AuthLayout) ──
@@ -8,6 +7,13 @@ export const router = createBrowserRouter([
     path: '/login',
     lazy: async () => {
       const Component = (await import('@/features/auth/LoginPage')).default
+      return { Component }
+    },
+  },
+  {
+    path: '/register',
+    lazy: async () => {
+      const Component = (await import('@/features/auth/RegisterPage')).default
       return { Component }
     },
   },
@@ -52,67 +58,17 @@ export const router = createBrowserRouter([
     path: '/',
     element: <AppLayout />,
     children: [
+      // ── Root redirect ──
       {
         index: true,
         element: <Navigate to="/projects" replace />,
       },
+
+      // ── Tier 1: Account-level routes (no project required) ──
       {
         path: 'projects',
         lazy: async () => {
           const Component = (await import('@/features/projects/ProjectsListPage')).default
-          return { Component }
-        },
-      },
-      {
-        path: 'dashboard',
-        element: <DashboardPage />,
-      },
-      {
-        path: 'kanban',
-        lazy: async () => {
-          const Component = (await import('@/features/kanban/KanbanPage')).default
-          return { Component }
-        },
-      },
-      {
-        path: 'backlog',
-        lazy: async () => {
-          const Component = (await import('@/features/backlog/BacklogPage')).default
-          return { Component }
-        },
-      },
-      {
-        path: 'sprints',
-        lazy: async () => {
-          const Component = (await import('@/features/sprints/SprintsPage')).default
-          return { Component }
-        },
-      },
-      {
-        path: 'epics',
-        lazy: async () => {
-          const Component = (await import('@/features/epics/EpicsPage')).default
-          return { Component }
-        },
-      },
-      {
-        path: 'bugs',
-        lazy: async () => {
-          const Component = (await import('@/features/bugs/BugsPage')).default
-          return { Component }
-        },
-      },
-      {
-        path: 'metrics',
-        lazy: async () => {
-          const Component = (await import('@/features/metrics/FlowMetricsPage')).default
-          return { Component }
-        },
-      },
-      {
-        path: 'members',
-        lazy: async () => {
-          const Component = (await import('@/features/members/MembersPage')).default
           return { Component }
         },
       },
@@ -162,6 +118,79 @@ export const router = createBrowserRouter([
           return { Component }
         },
       },
+
+      // ── Tier 2: Project-scoped routes (requires :projectId in URL) ──
+      {
+        path: 'projects/:projectId',
+        lazy: async () => {
+          const Component = (await import('@/features/projects/ProjectLayout')).default
+          return { Component }
+        },
+        children: [
+          // /projects/:projectId → redirect to dashboard
+          {
+            index: true,
+            element: <Navigate to="dashboard" replace />,
+          },
+          {
+            path: 'dashboard',
+            lazy: async () => {
+              const Component = (await import('@/features/dashboard/DashboardPage')).default
+              return { Component }
+            },
+          },
+          {
+            path: 'kanban',
+            lazy: async () => {
+              const Component = (await import('@/features/kanban/KanbanPage')).default
+              return { Component }
+            },
+          },
+          {
+            path: 'backlog',
+            lazy: async () => {
+              const Component = (await import('@/features/backlog/BacklogPage')).default
+              return { Component }
+            },
+          },
+          {
+            path: 'sprints',
+            lazy: async () => {
+              const Component = (await import('@/features/sprints/SprintsPage')).default
+              return { Component }
+            },
+          },
+          {
+            path: 'epics',
+            lazy: async () => {
+              const Component = (await import('@/features/epics/EpicsPage')).default
+              return { Component }
+            },
+          },
+          {
+            path: 'bugs',
+            lazy: async () => {
+              const Component = (await import('@/features/bugs/BugsPage')).default
+              return { Component }
+            },
+          },
+          {
+            path: 'metrics',
+            lazy: async () => {
+              const Component = (await import('@/features/metrics/FlowMetricsPage')).default
+              return { Component }
+            },
+          },
+          {
+            path: 'members',
+            lazy: async () => {
+              const Component = (await import('@/features/members/MembersPage')).default
+              return { Component }
+            },
+          },
+        ],
+      },
+
       // Fallback
       {
         path: '*',

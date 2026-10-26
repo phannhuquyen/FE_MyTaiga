@@ -2,8 +2,11 @@ export interface AuthUser {
   id: string
   name: string
   email: string
+  /** "Quản trị viên" | "Thành viên" — map từ systemRole của BE */
   role: string
+  /** URL ảnh đại diện từ BE (yêu cầu Bearer token để load) */
   avatar?: string
+  /** 2 ký tự đầu tên, dùng khi chưa có ảnh */
   avatarCode: string
 }
 

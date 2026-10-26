@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { Badge } from '@/components/ui/Badge'
 import { cn } from '@/lib/utils'
 import type { TaskItem, TaskStatus, TaskType } from '../types'
@@ -18,6 +18,8 @@ export function MyTasksCard({
   onSelectTask,
   searchTerm = '',
 }: MyTasksCardProps) {
+  const { projectId } = useParams<{ projectId: string }>()
+  const kanbanPath = projectId ? `/projects/${projectId}/kanban` : '/projects'
   const getStatusColor = (status: TaskStatus) => {
     switch (status) {
       case 'Đang làm':
@@ -59,7 +61,7 @@ export function MyTasksCard({
           </Badge>
         </div>
         <Link
-          to="/kanban"
+          to={kanbanPath}
           className="text-body-sm font-medium text-primary-500 hover:text-primary-600 flex items-center gap-1 transition-colors cursor-pointer"
         >
           <span>Đến bảng Kanban</span>

@@ -123,10 +123,10 @@ export function CreateProjectModal({
                 autoFocus
               />
             </div>
-            <div className="w-32">
+            <div className="w-32" title="Mã khóa tự sinh trên giao diện (chờ BE bổ sung cột Key riêng)">
               <div className="flex items-center justify-between text-[11px] mb-1.5">
                 <span className="font-semibold text-neutral-800">Mã khóa</span>
-                <span className="text-neutral-400 font-bold tracking-wider">TỰ ĐỘNG</span>
+                <span className="text-primary-600 font-bold tracking-wider text-[10px]" title="Chờ BE hỗ trợ lưu key riêng">*TỰ SINH</span>
               </div>
               <div className="relative">
                 <input

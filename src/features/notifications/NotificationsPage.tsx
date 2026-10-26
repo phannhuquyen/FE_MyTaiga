@@ -1,12 +1,14 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Icon } from '@/components/ui'
-import { notificationService } from './services/notificationService'
+import { notificationService, resolveNotificationLink } from './services/notificationService'
+import { projectService } from '@/features/projects/services/projectService'
 import type { NotificationCategory } from './types'
 import { cn } from '@/lib/utils'
 
 export function NotificationsPage() {
   const navigate = useNavigate()
+  const activeProjectId = projectService.getActiveProjectId()
   const [activeTab, setActiveTab] = useState<NotificationCategory>('all')
   const [search, setSearch] = useState('')
   const [projectFilter, setProjectFilter] = useState('all')
@@ -313,7 +315,7 @@ export function NotificationsPage() {
               <span>Xem tất cả thông báo đã lưu</span>
             </button>
             <Link
-              to="/kanban"
+              to={activeProjectId ? `/projects/${activeProjectId}/kanban` : '/projects'}
               className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 hover:underline inline-flex items-center gap-1 cursor-pointer"
             >
               <span>Quay lại Bảng Kanban</span>
@@ -345,7 +347,7 @@ export function NotificationsPage() {
                   <tr
                     key={notif.id}
                     onClick={() => {
-                      if (notif.targetLink) navigate(notif.targetLink)
+                      if (notif.targetLink) navigate(resolveNotificationLink(notif.targetLink))
                     }}
                     className={cn(
                       'hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors cursor-pointer group',
@@ -430,7 +432,7 @@ export function NotificationsPage() {
                         </button>
                         {notif.targetLink && (
                           <Link
-                            to={notif.targetLink}
+                            to={resolveNotificationLink(notif.targetLink)}
                             onClick={(e) => e.stopPropagation()}
                             title="Đi tới mục liên quan"
                             className="p-1.5 rounded text-neutral-400 hover:text-primary-600 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
@@ -551,7 +553,7 @@ export function NotificationsPage() {
                 <td className="py-3 px-3 text-right">
                   <button
                     type="button"
-                    onClick={() => navigate('/kanban?taskId=task-218')}
+                    onClick={() => navigate(activeProjectId ? `/projects/${activeProjectId}/kanban?taskId=task-218` : '/projects')}
                     className="px-2.5 py-1 text-xs border border-neutral-300 dark:border-neutral-700 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer font-medium"
                   >
                     Điều chỉnh hạn
@@ -583,7 +585,7 @@ export function NotificationsPage() {
                 <td className="py-3 px-3 text-right">
                   <button
                     type="button"
-                    onClick={() => navigate('/kanban')}
+                    onClick={() => navigate(activeProjectId ? `/projects/${activeProjectId}/kanban` : '/projects')}
                     className="px-2.5 py-1 text-xs border border-neutral-300 dark:border-neutral-700 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer font-medium"
                   >
                     Điều chỉnh hạn

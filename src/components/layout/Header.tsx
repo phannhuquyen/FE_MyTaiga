@@ -21,6 +21,37 @@ export function Header({
   const location = useLocation()
   const isAdminRoute = location.pathname.startsWith('/admin')
 
+  // Parse path segments for dynamic breadcrumb
+  const pathParts = location.pathname.split('/').filter(Boolean)
+  const isProjectScoped = pathParts[0] === 'projects' && pathParts.length >= 2 && !isNaN(Number(pathParts[1]))
+  const projectId = isProjectScoped ? pathParts[1] : null
+  const projectSubPage = isProjectScoped ? pathParts[2] || 'dashboard' : null
+
+  const getSubPageTitle = (sub: string) => {
+    switch (sub) {
+      case 'dashboard': return 'Tổng quan'
+      case 'backlog': return 'Backlog'
+      case 'sprints': return 'Sprint'
+      case 'epics': return 'Epic'
+      case 'kanban': return 'Bảng Kanban'
+      case 'bugs': return 'Lỗi (Bug)'
+      case 'metrics': return 'Flow Metrics'
+      case 'members': return 'Thành viên'
+      default: return sub
+    }
+  }
+
+  const getTier1Title = (path: string) => {
+    switch (path) {
+      case 'projects': return 'Dự án của tôi'
+      case 'chat': return 'Trao đổi'
+      case 'notifications': return 'Thông báo'
+      case 'activity': return 'Hoạt động'
+      case 'icons': return 'Thư viện Icon'
+      default: return 'Không gian làm việc'
+    }
+  }
+
   return (
     <header
       className={cn(
@@ -53,17 +84,23 @@ export function Header({
               <span className="text-neutral-400">/</span>
               <span className="font-semibold text-neutral-900">Quản trị</span>
             </>
-          ) : (
+          ) : isProjectScoped ? (
             <>
               <Link to="/projects" className="hover:text-neutral-800 transition-colors cursor-pointer">
                 Dự án
               </Link>
               <span className="text-neutral-400">/</span>
-              <span className="hover:text-neutral-800 transition-colors cursor-pointer">
-                ScrumBan Core
-              </span>
+              <Link to={`/projects/${projectId}/dashboard`} className="hover:text-neutral-800 transition-colors cursor-pointer">
+                Dự án #{projectId}
+              </Link>
               <span className="text-neutral-400">/</span>
-              <span className="font-semibold text-neutral-900">Tổng quan</span>
+              <span className="font-semibold text-neutral-900">{getSubPageTitle(projectSubPage || 'dashboard')}</span>
+            </>
+          ) : (
+            <>
+              <span className="text-neutral-500">Không gian làm việc</span>
+              <span className="text-neutral-400">/</span>
+              <span className="font-semibold text-neutral-900">{getTier1Title(pathParts[0] || 'projects')}</span>
             </>
           )}
         </nav>

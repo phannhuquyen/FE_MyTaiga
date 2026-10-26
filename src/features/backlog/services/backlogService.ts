@@ -1,3 +1,9 @@
+import {
+  api,
+  type BacklogRequest,
+  type ProductBacklogItemData,
+} from '@/services/api'
+import { projectService } from '@/features/projects/services/projectService'
 import type {
   PBI,
   EpicSummary,
@@ -5,432 +11,93 @@ import type {
   CreatePBIPayload,
   UpdatePBIPayload,
   BacklogSummaryMetrics,
+  PBIPriority,
+  PBIStatus,
 } from '../types'
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+function priorityToNumber(p?: PBIPriority): number {
+  switch (p) {
+    case 'urgent': return 1
+    case 'high': return 2
+    case 'medium': return 3
+    case 'low': return 4
+    default: return 3
+  }
+}
 
-const INITIAL_EPICS: EpicSummary[] = [
-  {
-    id: 'epic-1',
-    name: 'Cổng xác thực & IAM',
-    color: '#0284c7', // Sky / blue
-    description: 'Hạ tầng xác thực, SSO & quản lý danh tính đa kênh',
-    pbiCount: 6,
-  },
-  {
-    id: 'epic-2',
-    name: 'Core Infrastructure',
-    color: '#076859', // Primary teal
-    description: 'Hạ tầng hệ thống, vi dịch vụ và tối ưu hiệu năng',
-    pbiCount: 8,
-  },
-  {
-    id: 'epic-3',
-    name: 'Thanh toán & Thuê bao',
-    color: '#7c3aed', // Purple
-    description: 'Tích hợp VNPay, Momo, Stripe và cổng đối soát giao dịch',
-    pbiCount: 5,
-  },
-  {
-    id: 'epic-4',
-    name: 'Dashboard & Báo cáo',
-    color: '#ea580c', // Orange
-    description: 'Biểu đồ dòng chảy, báo cáo Sprint và trích xuất dữ liệu',
-    pbiCount: 5,
-  },
-]
+function numberToPriority(n: number): PBIPriority {
+  switch (n) {
+    case 1: return 'urgent'
+    case 2: return 'high'
+    case 3: return 'medium'
+    case 4: return 'low'
+    default: return 'medium'
+  }
+}
 
-const INITIAL_SPRINTS: SprintSummary[] = [
-  {
-    id: 'sprint-14',
-    name: 'Sprint 14: Tối ưu luồng & Đồng bộ',
-    status: 'active',
-    dateRange: '14/10 - 28/10',
-    daysLeft: 'Còn 4 ngày',
-    capacity: 24,
-    assignedSP: 18,
-    pbiCount: 4,
-  },
-  {
-    id: 'sprint-15',
-    name: 'Sprint 15: Mở rộng SSO & API Gateway',
-    status: 'planned',
-    dateRange: '29/10 - 12/11',
-    capacity: 25,
-    assignedSP: 8,
-    pbiCount: 2,
-  },
-  {
-    id: 'sprint-16',
-    name: 'Sprint 16: Tự động hóa Báo cáo',
-    status: 'draft',
-    dateRange: '13/11 - 27/11 (Dự thảo)',
-    capacity: 25,
-    assignedSP: 0,
-    pbiCount: 0,
-  },
-]
+function statusToBe(s?: PBIStatus): 'NEW' | 'READY' | 'IN_SPRINT' | 'DONE' {
+  switch (s) {
+    case 'new': return 'NEW'
+    case 'ready': return 'READY'
+    case 'in_progress':
+    case 'review':
+    case 'locked':
+      return 'IN_SPRINT'
+    case 'done': return 'DONE'
+    default: return 'NEW'
+  }
+}
 
-const INITIAL_PBIS: PBI[] = [
-  {
-    id: 'pbi-142',
-    code: 'SB-142',
-    title: 'Tối ưu hóa pipeline xử lý ảnh đại diện & nén WebP',
-    description:
-      'Hệ thống cần tự động sinh 3 kích thước avatar (32px, 64px, 128px) và chuyển đổi sang định dạng WebP để giảm 70% dung lượng tải trang. Tích hợp CDN caching trong 30 ngày.',
-    itemType: 'feature',
-    priority: 'high',
-    status: 'ready',
-    storyPoints: 5,
-    epicId: 'epic-2',
-    epicName: 'Core Infrastructure',
-    epicColor: '#076859',
-    sprintId: undefined, // in unassigned Backlog
-    sprintName: undefined,
-    assigneeId: 'u-1',
-    assigneeName: 'Nguyễn Minh Quân',
-    assigneeAvatar: 'MQ',
-    reporterName: 'Nguyễn Minh Quân',
-    reporterAvatar: 'MQ',
-    reporterRole: 'Manager',
-    createdAt: '15/10/2024',
-    updatedAt: '2 giờ trước',
-    subtasks: [
-      { id: 't-201', code: 'TASK-201', title: 'Cài đặt thư viện Sharp image processing', status: 'done', assigneeName: 'Minh Quân' },
-      { id: 't-202', code: 'TASK-202', title: 'Tạo Cloudflare worker xử lý resize ảnh dynamic', status: 'done', assigneeName: 'Minh Quân' },
-      { id: 't-203', code: 'TASK-203', title: 'Viết migration script chuyển ảnh cũ sang WebP', status: 'in_progress', assigneeName: 'Minh Quân' },
-      { id: 't-204', code: 'TASK-204', title: 'Kiểm thử tải 500 ảnh avatar đồng thời', status: 'todo', assigneeName: 'Minh Quân' },
-    ],
-    acceptanceCriteria: [
-      { id: 'ac-1', text: 'Đạt độ nén tối thiểu 65% dung lượng gốc không giảm chất lượng visual Retina.', isMet: true },
-      { id: 'ac-2', text: 'Thời gian chuyển đổi dưới 120ms trên Cloudflare Worker.', isMet: true },
-      { id: 'ac-3', text: 'Có fallback sang JPEG/PNG nếu trình duyệt client không hỗ trợ WebP.', isMet: false },
-    ],
-    comments: [
-      {
-        id: 'c-1',
-        authorName: 'Quang Huy (Tech Lead)',
-        authorRole: 'Tech Lead',
-        authorAvatar: 'QH',
-        timestamp: 'Hôm qua, 14:20',
-        content: 'Lưu ý mã hóa Secret Key khi tích hợp CDN caching và kiểm tra header Cache-Control.',
-      },
-    ],
-    tags: ['Performance', 'Media'],
-  },
-  {
-    id: 'pbi-143',
-    code: 'SB-143',
-    title: 'Xây dựng luồng đăng nhập SSO SAML 2.0 cho doanh nghiệp',
-    description:
-      'Hỗ trợ tích hợp Single Sign-On dựa trên SAML 2.0 với các nhà cung cấp IdP phổ biến như Okta, Azure AD, và Google Workspace.',
-    itemType: 'feature',
-    priority: 'high',
-    status: 'in_progress',
-    storyPoints: 8,
-    epicId: 'epic-1',
-    epicName: 'Cổng xác thực & IAM',
-    epicColor: '#0284c7',
-    sprintId: 'sprint-14',
-    sprintName: 'Sprint 14',
-    assigneeId: 'u-2',
-    assigneeName: 'Lê Tuấn Đức',
-    assigneeAvatar: 'TĐ',
-    reporterName: 'Nguyễn Minh Quân',
-    reporterAvatar: 'MQ',
-    reporterRole: 'Manager',
-    createdAt: '12/10/2024',
-    updatedAt: '1 ngày trước',
-    subtasks: [
-      { id: 't-205', code: 'TASK-205', title: 'Cấu hình Metadata parser cho XML SAML', status: 'done', assigneeName: 'Tuấn Đức' },
-      { id: 't-206', code: 'TASK-206', title: 'Endpoint callback ACS và xác thực chữ ký số X.509', status: 'in_progress', assigneeName: 'Tuấn Đức' },
-    ],
-    acceptanceCriteria: [
-      { id: 'ac-4', text: 'Xác thực thành công Assertion từ IdP trong vòng 500ms.', isMet: true },
-      { id: 'ac-5', text: 'Tự động tạo tài khoản người dùng nội bộ nếu chưa tồn tại.', isMet: true },
-    ],
-    comments: [],
-    tags: ['Security', 'SSO'],
-  },
-  {
-    id: 'pbi-145',
-    code: 'SB-145',
-    title: 'Thiết kế giao diện Drawer xem trước task và checklist DoD',
-    description:
-      'Tạo ngăn kéo trượt mượt mà hiển thị đầy đủ thông tin nhiệm vụ, danh mục Definition of Done và bình luận theo thời gian thực.',
+function statusToFe(s: string): PBIStatus {
+  switch (s) {
+    case 'NEW': return 'new'
+    case 'READY': return 'ready'
+    case 'IN_SPRINT': return 'in_progress'
+    case 'DONE': return 'done'
+    default: return 'ready'
+  }
+}
+
+function formatDate(iso?: string | null): string {
+  if (!iso) return 'Chưa xác định'
+  const parts = iso.split('T')[0].split('-')
+  if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`
+  return iso
+}
+
+function mapBePbiToFe(
+  item: ProductBacklogItemData,
+  epicNameMap: Map<number, string>,
+): PBI {
+  const epicName = epicNameMap.get(item.epicId) || `Epic ${item.epicId}`
+  return {
+    id: String(item.pbiId),
+    code: `SB-${item.pbiId}`,
+    title: item.title,
+    description: item.description || '',
     itemType: 'user_story',
-    priority: 'medium',
-    status: 'ready',
-    storyPoints: 5,
-    epicId: 'epic-2',
-    epicName: 'Core Infrastructure',
-    epicColor: '#076859',
-    sprintId: undefined,
-    sprintName: undefined,
-    assigneeId: 'u-3',
-    assigneeName: 'Trần Lan Anh',
-    assigneeAvatar: 'LA',
-    reporterName: 'Nguyễn Minh Quân',
-    reporterAvatar: 'MQ',
-    reporterRole: 'Manager',
-    createdAt: '14/10/2024',
-    updatedAt: '3 giờ trước',
-    subtasks: [
-      { id: 't-207', code: 'TASK-207', title: 'Component Drawer trượt từ mép phải với backdrop', status: 'done', assigneeName: 'Lan Anh' },
-      { id: 't-208', code: 'TASK-208', title: 'Kết nối toggle checklist DoD với lưu trữ state', status: 'in_progress', assigneeName: 'Lan Anh' },
-    ],
-    acceptanceCriteria: [
-      { id: 'ac-6', text: 'Hỗ trợ phím tắt Escape để đóng drawer.', isMet: true },
-      { id: 'ac-7', text: 'Responsive mượt mà trên màn hình điện thoại dưới 768px.', isMet: false },
-    ],
-    comments: [],
-    tags: ['UI/UX', 'Component'],
-  },
-  {
-    id: 'pbi-146',
-    code: 'SB-146',
-    title: 'Cơ chế debounce ô tìm kiếm thành viên và phân trang ảo',
-    description:
-      'Giảm thiểu số lần trigger tìm kiếm bằng debounce 300ms, đồng thời triển khai virtual scrolling để xử lý mượt danh bạ trên 5,000 nhân sự.',
-    itemType: 'technical_debt',
-    priority: 'medium',
-    status: 'new',
-    storyPoints: 2,
-    epicId: 'epic-2',
-    epicName: 'Core Infrastructure',
-    epicColor: '#076859',
-    sprintId: undefined,
-    sprintName: undefined,
-    assigneeId: 'u-4',
-    assigneeName: 'Hoàng Nam',
-    assigneeAvatar: 'HN',
-    reporterName: 'Nguyễn Minh Quân',
-    reporterAvatar: 'MQ',
-    reporterRole: 'Manager',
-    createdAt: '16/10/2024',
-    updatedAt: '5 giờ trước',
-    subtasks: [
-      { id: 't-209', code: 'TASK-209', title: 'Viết hook useDebounce custom', status: 'done', assigneeName: 'Hoàng Nam' },
-      { id: 't-210', code: 'TASK-210', title: 'Benchmark hiệu năng render bảng 1,000 hàng', status: 'todo', assigneeName: 'Hoàng Nam' },
-      { id: 't-211', code: 'TASK-211', title: 'Viết unit test cho hàm debounce timer', status: 'todo', assigneeName: 'Hoàng Nam' },
-    ],
-    acceptanceCriteria: [
-      { id: 'ac-8', text: 'Thời gian trễ gõ phím được triệt tiêu hoàn toàn.', isMet: true },
-    ],
-    comments: [],
-    tags: ['Optimization'],
-  },
-  {
-    id: 'pbi-148',
-    code: 'SB-148',
-    title: 'Thông báo qua Webhook khi thẻ công việc chuyển sang Cần duyệt',
-    description:
-      'Gửi payload JSON chuẩn xác thực HMAC SHA256 tới các URL webhook đã đăng ký của bên thứ ba khi trạng thái thẻ chuyển thành Chờ duyệt.',
-    itemType: 'feature',
-    priority: 'urgent',
-    status: 'new',
-    storyPoints: 5,
-    epicId: 'epic-2',
-    epicName: 'Core Infrastructure',
-    epicColor: '#076859',
-    sprintId: undefined,
-    sprintName: undefined,
-    assigneeId: 'u-5',
-    assigneeName: 'Đặng Huy',
-    assigneeAvatar: 'ĐH',
-    reporterName: 'Nguyễn Minh Quân',
-    reporterAvatar: 'MQ',
-    reporterRole: 'Manager',
-    createdAt: '16/10/2024',
-    updatedAt: 'Hôm qua',
-    subtasks: [],
-    acceptanceCriteria: [
-      { id: 'ac-9', text: 'Có cơ chế retry tối đa 3 lần với exponential backoff.', isMet: false },
-    ],
-    comments: [],
-    tags: ['Webhook', 'Integration'],
-  },
-  {
-    id: 'pbi-150',
-    code: 'SB-150',
-    title: 'Xuất báo cáo tiến độ Sprint ra định dạng CSV và JSON',
-    description:
-      'Cung cấp tính năng tải xuống tệp dữ liệu chứa chi tiết các đầu việc, burn-down data, story points cam kết và thực tế để kiểm toán.',
-    itemType: 'user_story',
-    priority: 'low',
-    status: 'ready',
-    storyPoints: 3,
-    epicId: 'epic-4',
-    epicName: 'Dashboard & Báo cáo',
-    epicColor: '#ea580c',
-    sprintId: undefined,
-    sprintName: undefined,
-    assigneeId: 'u-6',
-    assigneeName: 'Quốc Bảo',
-    assigneeAvatar: 'QB',
-    reporterName: 'Nguyễn Minh Quân',
-    reporterAvatar: 'MQ',
-    reporterRole: 'Manager',
-    createdAt: '17/10/2024',
-    updatedAt: '1 ngày trước',
-    subtasks: [],
-    acceptanceCriteria: [],
-    comments: [],
-    tags: ['Report', 'Export'],
-  },
-  {
-    id: 'pbi-152',
-    code: 'SB-152',
-    title: 'Tự động gán người kiểm thử khi di chuyển sang cột Testing',
-    description:
-      'Khi một thẻ chuyển vào cột Testing trên Kanban board, hệ thống tự động gán QA member phụ trách dự án và gửi thông báo nhắc việc.',
-    itemType: 'feature',
-    priority: 'low',
-    status: 'new',
-    storyPoints: 2,
-    epicId: 'epic-2',
-    epicName: 'Core Infrastructure',
-    epicColor: '#076859',
-    sprintId: undefined,
-    sprintName: undefined,
-    assigneeId: 'u-7',
-    assigneeName: 'Thùy Trang',
-    assigneeAvatar: 'TT',
-    reporterName: 'Nguyễn Minh Quân',
-    reporterAvatar: 'MQ',
-    reporterRole: 'Manager',
-    createdAt: '17/10/2024',
-    updatedAt: 'Hôm nay',
-    subtasks: [],
-    acceptanceCriteria: [],
-    comments: [],
-    tags: ['Automation', 'QA'],
-  },
-  {
-    id: 'pbi-139',
-    code: 'SB-139',
-    title: 'Xây dựng API gateway xác thực OAuth2 & SSO',
-    description: 'Bảo mật hệ thống bằng Reverse Proxy API Gateway hỗ trợ JWT xác thực thời gian ngắn và refresh token.',
-    itemType: 'feature',
-    priority: 'urgent',
-    status: 'in_progress',
-    storyPoints: 8,
-    epicId: 'epic-1',
-    epicName: 'Cổng xác thực & IAM',
+    priority: numberToPriority(item.priority),
+    status: statusToFe(item.status),
+    storyPoints: item.storyPoint,
+    epicId: String(item.epicId),
+    epicName,
     epicColor: '#0284c7',
-    sprintId: 'sprint-14',
-    sprintName: 'Sprint 14',
-    assigneeId: 'u-2',
-    assigneeName: 'Lê Tuấn Đức',
-    assigneeAvatar: 'TĐ',
-    reporterName: 'Nguyễn Minh Quân',
+    sprintId: item.status === 'IN_SPRINT' ? 'sprint-active' : undefined,
+    sprintName: item.status === 'IN_SPRINT' ? 'Sprint hiện tại' : undefined,
+    reporterName: 'Manager',
     reporterAvatar: 'MQ',
     reporterRole: 'Manager',
-    createdAt: '10/10/2024',
-    updatedAt: '2 ngày trước',
+    createdAt: formatDate(item.createdAt),
+    updatedAt: item.updatedAt ? formatDate(item.updatedAt) : 'Vừa xong',
     subtasks: [],
     acceptanceCriteria: [],
     comments: [],
-  },
-  {
-    id: 'pbi-140',
-    code: 'SB-140',
-    title: 'Thiết lập cấu trúc cơ sở dữ liệu ClickHouse log event',
-    description: 'Lưu trữ event log của toàn bộ hoạt động ScrumBan với tốc độ ghi 50,000 sự kiện/giây.',
-    itemType: 'feature',
-    priority: 'medium',
-    status: 'review',
-    storyPoints: 5,
-    epicId: 'epic-2',
-    epicName: 'Core Infrastructure',
-    epicColor: '#076859',
-    sprintId: 'sprint-14',
-    sprintName: 'Sprint 14',
-    assigneeId: 'u-8',
-    assigneeName: 'Lê Trực',
-    assigneeAvatar: 'LT',
-    reporterName: 'Nguyễn Minh Quân',
-    reporterAvatar: 'MQ',
-    reporterRole: 'Manager',
-    createdAt: '11/10/2024',
-    updatedAt: '3 ngày trước',
-    subtasks: [],
-    acceptanceCriteria: [],
-    comments: [],
-  },
-  {
-    id: 'pbi-144',
-    code: 'SB-144',
-    title: 'Tích hợp thanh toán trực tuyến qua cổng VNPay & MoMo',
-    description: 'Thương mại điện tử & gói gia hạn dịch vụ tài khoản doanh nghiệp.',
-    itemType: 'feature',
-    priority: 'high',
-    status: 'ready',
-    storyPoints: 13,
-    epicId: 'epic-3',
-    epicName: 'Thanh toán & Thuê bao',
-    epicColor: '#7c3aed',
-    sprintId: undefined,
-    sprintName: undefined,
-    assigneeId: 'u-4',
-    assigneeName: 'Hoàng Nam',
-    assigneeAvatar: 'HN',
-    reporterName: 'Nguyễn Minh Quân',
-    reporterAvatar: 'MQ',
-    reporterRole: 'Manager',
-    createdAt: '13/10/2024',
-    updatedAt: '1 ngày trước',
-    subtasks: [],
-    acceptanceCriteria: [],
-    comments: [],
-  },
-  {
-    id: 'pbi-153',
-    code: 'SB-153',
-    title: 'Tích hợp xác thực vân tay WebAuthn (Passkeys)',
-    description: 'Cho phép đăng nhập không mật khẩu (Passwordless) trên các thiết bị hỗ trợ Touch ID, Windows Hello và Face ID.',
-    itemType: 'feature',
-    priority: 'high',
-    status: 'new',
-    storyPoints: 5,
-    epicId: 'epic-1',
-    epicName: 'Cổng xác thực & IAM',
-    epicColor: '#0284c7',
-    sprintId: undefined,
-    sprintName: undefined,
-    createdAt: '18/10/2024',
-    updatedAt: 'Hôm nay',
-    subtasks: [],
-    acceptanceCriteria: [],
-    comments: [],
-  },
-  {
-    id: 'pbi-156',
-    code: 'SB-156',
-    title: 'Thiết lập chính sách mật khẩu mạnh và kiểm tra rò rỉ (HaveIBeenPwned)',
-    description: 'Tự động kiểm tra băm k-anonymity mật khẩu mới khi thiết lập tài khoản người dùng.',
-    itemType: 'feature',
-    priority: 'medium',
-    status: 'new',
-    storyPoints: 3,
-    epicId: 'epic-1',
-    epicName: 'Cổng xác thực & IAM',
-    epicColor: '#0284c7',
-    sprintId: 'sprint-16',
-    sprintName: 'Sprint 16',
-    createdAt: '18/10/2024',
-    updatedAt: 'Hôm nay',
-    subtasks: [],
-    acceptanceCriteria: [],
-    comments: [],
-  },
-]
+  }
+}
 
-let pbisState = [...INITIAL_PBIS]
-let epicsState = [...INITIAL_EPICS]
-let sprintsState = [...INITIAL_SPRINTS]
-
-let nextIdCounter = 157
+let cachedPBIs: PBI[] = []
+let cachedEpics: EpicSummary[] = []
+let cachedSprints: SprintSummary[] = []
 
 export const backlogService = {
   async getPBIs(filters?: {
@@ -440,65 +107,107 @@ export const backlogService = {
     epicId?: string
     sprintId?: string | 'unassigned'
   }): Promise<PBI[]> {
-    await delay(40)
-    let list = [...pbisState]
+    const projectId = projectService.getActiveProjectId()
+    if (!projectId) return cachedPBIs
 
-    if (filters?.search) {
-      const q = filters.search.toLowerCase().trim()
-      list = list.filter(
-        (item) =>
-          item.code.toLowerCase().includes(q) ||
-          item.title.toLowerCase().includes(q) ||
-          item.description.toLowerCase().includes(q),
-      )
-    }
+    try {
+      const epicsRes = await api.epics.list(projectId, { page: 1, pageSize: 100 })
+      const epicMap = new Map<number, string>()
+      epicsRes.data.items.forEach((e) => epicMap.set(e.epicId, e.title))
 
-    if (filters?.status && filters.status !== 'all') {
-      list = list.filter((item) => item.status === filters.status)
-    }
+      const numericEpicId =
+        filters?.epicId && filters.epicId !== 'all'
+          ? parseInt(filters.epicId.replace(/\D/g, ''), 10)
+          : undefined
 
-    if (filters?.priority && filters.priority !== 'all') {
-      list = list.filter((item) => item.priority === filters.priority)
-    }
+      const beStatus =
+        filters?.status && filters.status !== 'all'
+          ? statusToBe(filters.status as PBIStatus)
+          : undefined
 
-    if (filters?.epicId && filters.epicId !== 'all') {
-      list = list.filter((item) => item.epicId === filters.epicId)
-    }
+      const res = await api.productBacklog.list({
+        projectId,
+        epicId: numericEpicId && numericEpicId > 0 ? numericEpicId : undefined,
+        status: beStatus,
+        keyword: filters?.search?.trim() || undefined,
+        page: 1,
+        pageSize: 100,
+      })
 
-    if (filters?.sprintId) {
-      if (filters.sprintId === 'unassigned') {
-        list = list.filter((item) => !item.sprintId)
-      } else if (filters.sprintId !== 'all') {
-        list = list.filter((item) => item.sprintId === filters.sprintId)
+      let list = res.data.items.map((item) => mapBePbiToFe(item, epicMap))
+
+      if (filters?.priority && filters.priority !== 'all') {
+        list = list.filter((p) => p.priority === filters.priority)
       }
-    }
 
-    return list
+      cachedPBIs = list
+      return list
+    } catch (error) {
+      console.warn(`⚠️ [BacklogService] Lỗi khi lấy danh sách PBI dự án ${projectId}:`, error)
+      return cachedPBIs
+    }
   },
 
   async getPBIById(id: string): Promise<PBI | undefined> {
-    await delay(20)
-    return pbisState.find((p) => p.id === id)
+    const numericId = parseInt(id.replace(/\D/g, ''), 10)
+    if (numericId > 0) {
+      try {
+        const res = await api.productBacklog.get(numericId)
+        return mapBePbiToFe(res.data, new Map())
+      } catch {
+        // fallback
+      }
+    }
+    return cachedPBIs.find((p) => p.id === id)
   },
 
   async getEpics(): Promise<EpicSummary[]> {
-    await delay(20)
-    return [...epicsState]
+    const projectId = projectService.getActiveProjectId()
+    if (!projectId) return cachedEpics
+
+    try {
+      const res = await api.epics.list(projectId, { page: 1, pageSize: 100 })
+      cachedEpics = res.data.items.map((e) => ({
+        id: String(e.epicId),
+        name: e.title,
+        color: '#0284c7',
+        description: e.description || '',
+        pbiCount: 0,
+      }))
+      return cachedEpics
+    } catch {
+      return cachedEpics
+    }
   },
 
   async getSprints(): Promise<SprintSummary[]> {
-    await delay(20)
-    return [...sprintsState]
+    const projectId = projectService.getActiveProjectId()
+    if (!projectId) return cachedSprints
+
+    try {
+      const res = await api.sprints.list({ projectId, page: 1, pageSize: 100 })
+      cachedSprints = res.data.items.map((s) => ({
+        id: String(s.sprintId),
+        name: s.sprintName,
+        status: s.status.toLowerCase() as 'active' | 'planned' | 'draft' | 'closed',
+        dateRange: `${formatDate(s.startDate)} - ${formatDate(s.endDate)}`,
+        capacity: 25,
+        assignedSP: 0,
+        pbiCount: 0,
+      }))
+      return cachedSprints
+    } catch {
+      return cachedSprints
+    }
   },
 
   async getMetrics(): Promise<BacklogSummaryMetrics> {
-    await delay(30)
-    const totalPBIs = pbisState.length
-    const totalStoryPoints = pbisState.reduce((sum, p) => sum + p.storyPoints, 0)
-    const unassignedList = pbisState.filter((p) => !p.sprintId)
+    const totalPBIs = cachedPBIs.length
+    const totalStoryPoints = cachedPBIs.reduce((sum, p) => sum + p.storyPoints, 0)
+    const unassignedList = cachedPBIs.filter((p) => !p.sprintId)
     const unassignedPBIs = unassignedList.length
     const unassignedStoryPoints = unassignedList.reduce((sum, p) => sum + p.storyPoints, 0)
-    const teamVelocity = 24 // average 24 SP per sprint
+    const teamVelocity = 24
 
     return {
       totalPBIs,
@@ -506,170 +215,154 @@ export const backlogService = {
       unassignedPBIs,
       unassignedStoryPoints,
       teamVelocity,
-      estimatedSprintsLeft: Number((unassignedStoryPoints / teamVelocity).toFixed(1)),
+      estimatedSprintsLeft: Number((unassignedStoryPoints / (teamVelocity || 1)).toFixed(1)),
     }
   },
 
   async createPBI(payload: CreatePBIPayload): Promise<PBI> {
-    await delay(60)
-    if (!payload.title || payload.title.trim().length < 5) {
-      throw new Error('Tiêu đề PBI phải chứa ít nhất 5 ký tự và không được để trống.')
-    }
-    if (!payload.storyPoints || payload.storyPoints <= 0) {
-      throw new Error('Vui lòng ước lượng Story Points hợp lệ (từ 1 đến 20) trước khi tạo thẻ.')
-    }
+    const projectId = projectService.getActiveProjectId()
+    if (!projectId) throw new Error('Vui lòng chọn dự án.')
 
-    const code = `SB-${nextIdCounter++}`
-    const id = `pbi-${code.toLowerCase()}`
-
-    let epic: EpicSummary | undefined
-    if (payload.epicId) {
-      epic = epicsState.find((e) => e.id === payload.epicId)
+    if (!payload.title || payload.title.trim().length < 2) {
+      throw new Error('Tiêu đề PBI phải chứa ít nhất 2 ký tự.')
     }
 
-    let sprint: SprintSummary | undefined
-    if (payload.sprintId) {
-      sprint = sprintsState.find((s) => s.id === payload.sprintId)
+    // Determine target Epic (BE requires epicId)
+    let epicIdNum = payload.epicId ? parseInt(payload.epicId.replace(/\D/g, ''), 10) : 0
+    if (!epicIdNum || Number.isNaN(epicIdNum)) {
+      const epics = await this.getEpics()
+      if (epics.length === 0) {
+        throw new Error('Dự án chưa có Epic nào. Vui lòng tạo Epic trước khi tạo thẻ Backlog.')
+      }
+      epicIdNum = parseInt(epics[0].id, 10)
     }
 
-    const newPBI: PBI = {
-      id,
-      code,
+    const requestBody: BacklogRequest = {
+      epicId: epicIdNum,
       title: payload.title.trim(),
-      description: payload.description || '',
-      itemType: payload.itemType || 'user_story',
-      priority: payload.priority || 'medium',
-      status: 'ready',
-      storyPoints: payload.storyPoints,
-      epicId: epic?.id,
-      epicName: epic?.name,
-      epicColor: epic?.color,
-      sprintId: sprint?.id,
-      sprintName: sprint?.name,
-      reporterName: 'Nguyễn Minh Quân',
-      reporterAvatar: 'MQ',
-      reporterRole: 'Manager',
-      createdAt: 'Hôm nay',
-      updatedAt: 'Vừa xong',
-      subtasks: [],
-      acceptanceCriteria: [],
-      comments: [],
+      description: payload.description?.trim() || null,
+      storyPoint: Math.max(0, payload.storyPoints || 1),
+      priority: priorityToNumber(payload.priority),
+      status: 'NEW',
     }
 
-    // Add to top of list as per ScrumBan Flow
-    pbisState = [newPBI, ...pbisState]
-    return newPBI
+    const res = await api.productBacklog.create(requestBody)
+    const newPbi = mapBePbiToFe(res.data, new Map())
+    cachedPBIs = [newPbi, ...cachedPBIs]
+    return newPbi
   },
 
   async updatePBI(id: string, payload: UpdatePBIPayload): Promise<PBI> {
-    await delay(50)
-    const index = pbisState.findIndex((p) => p.id === id)
-    if (index === -1) {
-      throw new Error('Không tìm thấy PBI.')
+    const numericId = parseInt(id.replace(/\D/g, ''), 10)
+    if (Number.isNaN(numericId) || numericId <= 0) {
+      throw new Error('ID PBI không hợp lệ.')
     }
 
-    const current = pbisState[index]
-    if (current.isLocked && payload.isLocked === undefined) {
-      // If locked and not trying to unlock, protect core fields
-      if (payload.title || payload.description || payload.storyPoints) {
-        throw new Error('PBI đang bị khóa. Chỉ có thể mở khóa hoặc cập nhật trạng thái/Sprint.')
-      }
+    const current = await this.getPBIById(id)
+    const epicIdNum = payload.epicId
+      ? parseInt(payload.epicId.replace(/\D/g, ''), 10)
+      : current?.epicId
+        ? parseInt(current.epicId.replace(/\D/g, ''), 10)
+        : 1
+
+    const requestBody: BacklogRequest = {
+      epicId: epicIdNum,
+      title: (payload.title ?? current?.title ?? 'PBI').trim(),
+      description: payload.description ?? current?.description ?? null,
+      storyPoint: payload.storyPoints ?? current?.storyPoints ?? 1,
+      priority: priorityToNumber(payload.priority ?? current?.priority),
+      status: statusToBe(payload.status ?? current?.status),
     }
 
-    let epicName = current.epicName
-    let epicColor = current.epicColor
-    if (payload.epicId !== undefined) {
-      if (payload.epicId) {
-        const ep = epicsState.find((e) => e.id === payload.epicId)
-        epicName = ep?.name
-        epicColor = ep?.color
-      } else {
-        epicName = undefined
-        epicColor = undefined
-      }
-    }
-
-    let sprintName = current.sprintName
-    if (payload.sprintId !== undefined) {
-      if (payload.sprintId) {
-        const sp = sprintsState.find((s) => s.id === payload.sprintId)
-        sprintName = sp?.name
-      } else {
-        sprintName = undefined
-      }
-    }
-
-    const updated: PBI = {
-      ...current,
-      ...payload,
-      epicName,
-      epicColor,
-      sprintName,
-      updatedAt: 'Vừa xong',
-    }
-
-    pbisState[index] = updated
+    const res = await api.productBacklog.update(numericId, requestBody)
+    const updated = mapBePbiToFe(res.data, new Map())
+    cachedPBIs = cachedPBIs.map((p) => (p.id === id ? updated : p))
     return updated
   },
 
   async deletePBI(id: string): Promise<boolean> {
-    await delay(60)
-    const pbi = pbisState.find((p) => p.id === id)
-    if (!pbi) {
-      throw new Error('Không tìm thấy PBI để xóa.')
+    const numericId = parseInt(id.replace(/\D/g, ''), 10)
+    if (Number.isNaN(numericId) || numericId <= 0) {
+      throw new Error('ID PBI không hợp lệ.')
     }
-    pbisState = pbisState.filter((p) => p.id !== id)
+
+    await api.productBacklog.delete(numericId)
+    cachedPBIs = cachedPBIs.filter((p) => p.id !== id)
     return true
   },
 
   async assignToSprint(pbiId: string, sprintId?: string): Promise<PBI> {
+    const numericPbiId = parseInt(pbiId.replace(/\D/g, ''), 10)
+    if (sprintId) {
+      const numericSprintId = parseInt(sprintId.replace(/\D/g, ''), 10)
+      if (numericSprintId > 0 && numericPbiId > 0) {
+        await api.sprints.addBacklogItems(numericSprintId, { pbiIds: [numericPbiId] })
+      }
+    } else {
+      const current = cachedPBIs.find((p) => p.id === pbiId)
+      if (current?.sprintId) {
+        const numericSprintId = parseInt(current.sprintId.replace(/\D/g, ''), 10)
+        if (numericSprintId > 0 && numericPbiId > 0) {
+          await api.sprints.removeBacklogItem(numericSprintId, numericPbiId)
+        }
+      }
+    }
     return this.updatePBI(pbiId, { sprintId })
   },
 
   async linkEpic(pbiId: string, epicId?: string): Promise<PBI> {
+    const numericPbiId = parseInt(pbiId.replace(/\D/g, ''), 10)
+    if (epicId) {
+      const numericEpicId = parseInt(epicId.replace(/\D/g, ''), 10)
+      if (numericEpicId > 0 && numericPbiId > 0) {
+        await api.epics.linkPbi(numericPbiId, { epicId: numericEpicId })
+      }
+    }
     return this.updatePBI(pbiId, { epicId })
   },
 
   async linkBatchToEpic(pbiIds: string[], epicId: string): Promise<void> {
-    await delay(60)
-    const ep = epicsState.find((e) => e.id === epicId)
-    if (!ep) throw new Error('Không tìm thấy Epic.')
-
-    pbisState = pbisState.map((p) => {
-      if (pbiIds.includes(p.id)) {
-        return {
-          ...p,
-          epicId: ep.id,
-          epicName: ep.name,
-          epicColor: ep.color,
-          updatedAt: 'Vừa xong',
-        }
+    const numericEpicId = parseInt(epicId.replace(/\D/g, ''), 10)
+    for (const p of pbiIds) {
+      const numericPbiId = parseInt(p.replace(/\D/g, ''), 10)
+      if (numericPbiId > 0 && numericEpicId > 0) {
+        await api.epics.linkPbi(numericPbiId, { epicId: numericEpicId })
       }
-      return p
-    })
+    }
   },
 
   async toggleLockPBI(id: string): Promise<PBI> {
-    const pbi = pbisState.find((p) => p.id === id)
+    const pbi = cachedPBIs.find((p) => p.id === id)
     if (!pbi) throw new Error('Không tìm thấy PBI.')
     return this.updatePBI(id, { isLocked: !pbi.isLocked })
   },
 
   async reorderPBIs(activeId: string, targetId: string): Promise<PBI[]> {
-    await delay(30)
-    const oldIndex = pbisState.findIndex((p) => p.id === activeId)
-    const newIndex = pbisState.findIndex((p) => p.id === targetId)
-    if (oldIndex === -1 || newIndex === -1) return pbisState
+    const oldIndex = cachedPBIs.findIndex((p) => p.id === activeId)
+    const newIndex = cachedPBIs.findIndex((p) => p.id === targetId)
+    if (oldIndex === -1 || newIndex === -1) return cachedPBIs
 
-    const [removed] = pbisState.splice(oldIndex, 1)
-    pbisState.splice(newIndex, 0, removed)
-    return [...pbisState]
+    const [removed] = cachedPBIs.splice(oldIndex, 1)
+    cachedPBIs.splice(newIndex, 0, removed)
+
+    // Check if both have same epic, call order API
+    if (removed.epicId) {
+      const epicIdNum = parseInt(removed.epicId.replace(/\D/g, ''), 10)
+      const sameEpicItems = cachedPBIs.filter((p) => p.epicId === removed.epicId)
+      const pbiIds = sameEpicItems.map((p) => parseInt(p.id.replace(/\D/g, ''), 10)).filter((id) => id > 0)
+      if (epicIdNum > 0 && pbiIds.length > 0) {
+        try {
+          await api.productBacklog.reorder({ epicId: epicIdNum, pbiIds })
+        } catch (e) {
+          console.warn('Reorder API sync:', e)
+        }
+      }
+    }
+
+    return [...cachedPBIs]
   },
 
   async resetToDefault(): Promise<void> {
-    pbisState = [...INITIAL_PBIS]
-    epicsState = [...INITIAL_EPICS]
-    sprintsState = [...INITIAL_SPRINTS]
-    nextIdCounter = 157
+    cachedPBIs = []
   },
 }

@@ -1,182 +1,94 @@
+import { api, type EpicData, type EpicRequest } from '@/services/api'
+import { projectService } from '@/features/projects/services/projectService'
 import type {
   Epic,
   CreateEpicPayload,
   UpdateEpicPayload,
   EpicProgressBreakdown,
-  EpicTask,
+  EpicPriority,
+  EpicStatus,
 } from '../types'
 import { backlogService } from '@/features/backlog/services/backlogService'
 import type { PBI } from '@/features/backlog/types'
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+const PALETTE = ['#0284c7', '#2563eb', '#7c3aed', '#059669', '#d97706', '#dc2626']
 
-const INITIAL_EPIC_TASKS: EpicTask[] = [
-  {
-    id: 'task-301',
-    code: 'TASK-301',
-    title: 'Viết unit test cho middleware giải mã JWT token',
-    status: 'done',
-    assigneeName: 'Lê Minh Trí',
-    assigneeAvatar: 'MT',
-    parentPbiCode: 'PBI-12',
-    parentPbiTitle: 'Core Auth Engine',
-  },
-  {
-    id: 'task-302',
-    code: 'TASK-302',
-    title: 'Cập nhật schema migration bảng `user_auth_tokens`',
-    status: 'done',
-    assigneeName: 'Nguyễn Văn An',
-    assigneeAvatar: 'VA',
-    parentPbiCode: 'PBI-12',
-    parentPbiTitle: 'Core Auth Engine',
-  },
-  {
-    id: 'task-305',
-    code: 'TASK-305',
-    title: 'Cấu hình rate-limiting Redis trên cổng /auth/login',
-    status: 'in_progress',
-    assigneeName: undefined,
-    parentPbiCode: 'PBI-15',
-    parentPbiTitle: 'Session Redis Layer',
-  },
-  {
-    id: 'task-308',
-    code: 'TASK-308',
-    title: 'Tích hợp dịch vụ SMS Twilio gửi OTP dự phòng',
-    status: 'todo',
-    assigneeName: 'Đặng Quốc Khánh',
-    assigneeAvatar: 'QK',
-    parentPbiCode: 'PBI-19',
-    parentPbiTitle: 'SMS 2FA Gateway',
-  },
-  {
-    id: 'task-312',
-    code: 'TASK-312',
-    title: 'Kiểm thử bảo mật Pentest endpoint xác thực 2FA',
-    status: 'todo',
-    assigneeName: 'Phạm Kim Ngân',
-    assigneeAvatar: 'KN',
-    parentPbiCode: 'PBI-22',
-    parentPbiTitle: 'Security Hardening',
-  },
-]
+function getColor(id: number): string {
+  return PALETTE[id % PALETTE.length]
+}
 
-const INITIAL_EPICS: Epic[] = [
-  {
-    id: 'epic-1',
-    code: 'EPIC-01',
-    name: 'Cổng xác thực & Quản lý danh tính (IAM)',
-    description:
-      'Xây dựng hệ thống định danh tập trung SSO, OAuth2/OIDC, bảo mật 2 lớp 2FA và phân quyền RBAC đa phòng ban trên toàn bộ hệ thống microservices.',
-    status: 'in_progress',
-    priority: 'high',
-    color: '#0284c7', // Sky / tealish blue
-    targetSprint: 'Sprint 16 (Q3/2025)',
-    sprintRange: 'Sprint 14 - Sprint 16',
-    ownerName: 'Minh Quân',
-    ownerAvatar: 'MQ',
-    pbisCount: 12,
-    tasksCount: 20,
-    completedPoints: 13,
-    totalPoints: 20,
-    progressPercent: 65,
-    tasks: [...INITIAL_EPIC_TASKS],
-    createdAt: '01/10/2024',
-    updatedAt: '2 phút trước',
-  },
-  {
-    id: 'epic-2',
-    code: 'EPIC-02',
-    name: 'Tích hợp Thanh toán & Đối soát tự động',
-    description:
-      'Hỗ trợ cổng thanh toán NAPAS, Momo và đối soát giao dịch định kỳ.',
-    status: 'in_progress',
-    priority: 'high',
-    color: '#2563eb', // Blue
-    targetSprint: 'Sprint 17 (Q4/2025)',
-    sprintRange: 'Sprint 15 - Sprint 17',
-    ownerName: 'Minh Quân',
-    ownerAvatar: 'MQ',
-    pbisCount: 8,
-    tasksCount: 15,
-    completedPoints: 6,
-    totalPoints: 15,
-    progressPercent: 42,
-    tasks: [],
-    createdAt: '05/10/2024',
-    updatedAt: '1 ngày trước',
-  },
-  {
-    id: 'epic-3',
-    code: 'EPIC-03',
-    name: 'Tối ưu hóa Pipeline CI/CD & Microservices',
-    description:
-      'Triển khai Kubernetes cluster nội bộ và rút ngắn thời gian build.',
-    status: 'open',
-    priority: 'medium',
-    color: '#d97706', // Amber / Gold
-    targetSprint: 'Sprint 18 (Q4/2025)',
-    sprintRange: 'Sprint 16 - Sprint 18',
-    ownerName: 'Minh Quân',
-    ownerAvatar: 'MQ',
-    pbisCount: 6,
-    tasksCount: 10,
-    completedPoints: 2,
-    totalPoints: 10,
-    progressPercent: 15,
-    tasks: [],
-    createdAt: '08/10/2024',
-    updatedAt: '3 ngày trước',
-  },
-  {
-    id: 'epic-4',
-    code: 'EPIC-04',
-    name: 'Hệ thống Báo cáo & Flow Metrics Realtime',
-    description:
-      'Trực quan hóa Cycle Time, Throughput và Cumulative Flow Diagram.',
-    status: 'completed',
-    priority: 'low',
-    color: '#076859', // Primary green
-    targetSprint: 'Sprint 14 (Hoàn thành)',
-    sprintRange: 'Sprint 12 - Sprint 14',
-    ownerName: 'Minh Quân',
-    ownerAvatar: 'MQ',
-    pbisCount: 14,
-    tasksCount: 24,
-    completedPoints: 24,
-    totalPoints: 24,
-    progressPercent: 100,
-    tasks: [],
-    createdAt: '15/09/2024',
-    updatedAt: '1 tuần trước',
-  },
-  {
-    id: 'epic-5',
-    code: 'EPIC-05',
-    name: 'Chuyển đổi dữ liệu Legacy Database v1.0',
-    description:
-      'Di chuyển 2.4M bản ghi từ MSSQL sang PostgreSQL schema mới.',
-    status: 'closed',
-    priority: 'low',
-    color: '#64748b', // Slate gray
-    targetSprint: 'Đã đóng',
-    sprintRange: 'Sprint 10 - Sprint 12',
-    ownerName: 'Minh Quân',
-    ownerAvatar: 'MQ',
-    pbisCount: 9,
-    tasksCount: 12,
-    completedPoints: 12,
-    totalPoints: 12,
-    progressPercent: 100,
-    tasks: [],
-    createdAt: '01/09/2024',
-    updatedAt: '2 tuần trước',
-  },
-]
+function priorityToNumber(p?: EpicPriority): number {
+  switch (p) {
+    case 'urgent': return 1
+    case 'high': return 2
+    case 'medium': return 3
+    case 'low': return 4
+    default: return 3
+  }
+}
 
-let epicsState = [...INITIAL_EPICS]
-let nextEpicIndex = 6
+function numberToPriority(n: number): EpicPriority {
+  switch (n) {
+    case 1: return 'urgent'
+    case 2: return 'high'
+    case 3: return 'medium'
+    case 4: return 'low'
+    default: return 'medium'
+  }
+}
+
+function statusToBe(s?: EpicStatus): 'OPEN' | 'IN_PROGRESS' | 'DONE' | 'CLOSED' {
+  switch (s) {
+    case 'open': return 'OPEN'
+    case 'in_progress': return 'IN_PROGRESS'
+    case 'completed': return 'DONE'
+    case 'closed': return 'CLOSED'
+    default: return 'OPEN'
+  }
+}
+
+function statusToFe(s: string): EpicStatus {
+  switch (s) {
+    case 'OPEN': return 'open'
+    case 'IN_PROGRESS': return 'in_progress'
+    case 'DONE': return 'completed'
+    case 'CLOSED': return 'closed'
+    default: return 'open'
+  }
+}
+
+function formatDate(iso?: string | null): string {
+  if (!iso) return 'Chưa xác định'
+  const parts = iso.split('T')[0].split('-')
+  if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`
+  return iso
+}
+
+function mapBeEpicToFe(data: EpicData): Epic {
+  return {
+    id: String(data.epicId),
+    code: `EPIC-0${data.epicId}`,
+    name: data.title,
+    description: data.description || '',
+    status: statusToFe(data.status),
+    priority: numberToPriority(data.priority),
+    color: getColor(data.epicId),
+    targetSprint: 'Sprint hiện tại',
+    sprintRange: 'Sprint 1 - Sprint 3',
+    ownerName: 'Manager dự án',
+    ownerAvatar: 'PM',
+    pbisCount: 0,
+    tasksCount: 0,
+    completedPoints: 0,
+    totalPoints: 0,
+    progressPercent: 0,
+    tasks: [],
+    createdAt: formatDate(data.createdAt),
+    updatedAt: data.updatedAt ? formatDate(data.updatedAt) : 'Vừa xong',
+  }
+}
+
+let cachedEpics: Epic[] = []
 
 export const epicService = {
   async getEpics(filters?: {
@@ -184,51 +96,115 @@ export const epicService = {
     status?: string
     priority?: string
   }): Promise<Epic[]> {
-    await delay(30)
-    let list = [...epicsState]
+    const projectId = projectService.getActiveProjectId()
+    if (!projectId) return cachedEpics
 
-    if (filters?.search) {
-      const q = filters.search.toLowerCase().trim()
-      list = list.filter(
-        (e) =>
-          e.name.toLowerCase().includes(q) ||
-          e.code.toLowerCase().includes(q) ||
-          e.description.toLowerCase().includes(q),
+    try {
+      const beStatus =
+        filters?.status && filters.status !== 'all' ? statusToBe(filters.status as EpicStatus) : undefined
+
+      const res = await api.epics.list(projectId, {
+        keyword: filters?.search?.trim() || undefined,
+        status: beStatus,
+        page: 1,
+        pageSize: 100,
+      })
+
+      const list = res.data.items.map(mapBeEpicToFe)
+
+      // Parallel fetch progress for each epic
+      await Promise.all(
+        list.map(async (epic) => {
+          try {
+            const prog = await api.epics.progress(parseInt(epic.id, 10))
+            epic.pbisCount = prog.data.totalPbis
+            epic.tasksCount = prog.data.totalTasks
+            epic.progressPercent = Math.round(prog.data.pbiProgressPercent)
+          } catch {
+            // Ignore progress error if any
+          }
+        }),
       )
-    }
 
-    if (filters?.status && filters.status !== 'all') {
-      list = list.filter((e) => e.status === filters.status)
+      cachedEpics = list
+      return list
+    } catch (error) {
+      console.warn(`⚠️ [EpicService] Lỗi khi lấy danh sách Epic dự án ${projectId}:`, error)
+      let list = [...cachedEpics]
+      if (filters?.search?.trim()) {
+        const q = filters.search.trim().toLowerCase()
+        list = list.filter((e) => e.name.toLowerCase().includes(q) || e.code.toLowerCase().includes(q))
+      }
+      if (filters?.status && filters.status !== 'all') {
+        list = list.filter((e) => e.status === filters.status)
+      }
+      return list
     }
-
-    if (filters?.priority && filters.priority !== 'all') {
-      list = list.filter((e) => e.priority === filters.priority)
-    }
-
-    return list
   },
 
   async getEpicById(id: string): Promise<Epic | undefined> {
-    await delay(20)
-    return epicsState.find((e) => e.id === id || e.code.toLowerCase() === id.toLowerCase())
+    const numericId = parseInt(id.replace(/\D/g, ''), 10)
+    if (Number.isNaN(numericId) || numericId <= 0) {
+      return cachedEpics.find((e) => e.id === id || e.code.toLowerCase() === id.toLowerCase())
+    }
+
+    try {
+      const res = await api.epics.get(numericId)
+      const mapped = mapBeEpicToFe(res.data)
+      try {
+        const prog = await api.epics.progress(numericId)
+        mapped.pbisCount = prog.data.totalPbis
+        mapped.tasksCount = prog.data.totalTasks
+        mapped.progressPercent = Math.round(prog.data.pbiProgressPercent)
+      } catch {
+        // ignore
+      }
+      return mapped
+    } catch {
+      return cachedEpics.find((e) => e.id === id || e.code.toLowerCase() === id.toLowerCase())
+    }
   },
 
   async getEpicPBIs(epicId: string): Promise<PBI[]> {
-    await delay(30)
     const all = await backlogService.getPBIs()
     return all.filter((p) => p.epicId === epicId)
   },
 
   async getProgressBreakdown(epicId: string): Promise<EpicProgressBreakdown[]> {
-    await delay(20)
-    const epic = epicsState.find((e) => e.id === epicId)
-    if (!epic) return []
+    const numericId = parseInt(epicId.replace(/\D/g, ''), 10)
+    if (numericId > 0) {
+      try {
+        const res = await api.epics.progress(numericId)
+        const done = res.data.completedPbis
+        const total = res.data.totalPbis
+        const remain = Math.max(0, total - done)
+        const percent = Math.round(res.data.pbiProgressPercent)
 
-    // S6-04 exact distribution reference:
-    // Hoàn thành: 50% (10 mốc, 6 PBI, 10 Task, 18 SP)
-    // Đang kiểm tra: 15% (3 mốc, 2 PBI, 3 Task, 5 SP)
-    // Đang làm: 25% (5 mốc, 3 PBI, 5 Task, 9 SP)
-    // Cần làm: 10% (2 mốc, 1 PBI, 2 Task, 4 SP)
+        return [
+          {
+            status: 'Hoàn thành',
+            statusKey: 'done',
+            pbiCount: done,
+            taskCount: res.data.completedTasks,
+            storyPoints: done * 3,
+            percentage: percent,
+            color: '#076859',
+          },
+          {
+            status: 'Đang thực hiện',
+            statusKey: 'in_progress',
+            pbiCount: remain,
+            taskCount: Math.max(0, res.data.totalTasks - res.data.completedTasks),
+            storyPoints: remain * 3,
+            percentage: 100 - percent,
+            color: '#2563eb',
+          },
+        ]
+      } catch {
+        // fallback
+      }
+    }
+
     return [
       {
         status: 'Hoàn thành',
@@ -237,7 +213,7 @@ export const epicService = {
         taskCount: 10,
         storyPoints: 18,
         percentage: 50,
-        color: '#076859', // primary teal
+        color: '#076859',
       },
       {
         status: 'Đang kiểm tra',
@@ -246,7 +222,7 @@ export const epicService = {
         taskCount: 3,
         storyPoints: 5,
         percentage: 15,
-        color: '#2563eb', // blue
+        color: '#2563eb',
       },
       {
         status: 'Đang làm',
@@ -255,7 +231,7 @@ export const epicService = {
         taskCount: 5,
         storyPoints: 9,
         percentage: 25,
-        color: '#0d9488', // teal
+        color: '#0d9488',
       },
       {
         status: 'Cần làm',
@@ -264,102 +240,84 @@ export const epicService = {
         taskCount: 2,
         storyPoints: 4,
         percentage: 10,
-        color: '#d1d5db', // gray
+        color: '#d1d5db',
       },
     ]
   },
 
   async createEpic(payload: CreateEpicPayload): Promise<Epic> {
-    await delay(50)
-    if (!payload.name || payload.name.trim().length < 5) {
-      throw new Error('Tiêu đề Epic phải chứa ít nhất 5 ký tự.')
+    const projectId = projectService.getActiveProjectId()
+    if (!projectId) throw new Error('Vui lòng chọn dự án trước khi tạo Epic.')
+
+    if (!payload.name || payload.name.trim().length < 2) {
+      throw new Error('Tiêu đề Epic phải chứa ít nhất 2 ký tự.')
     }
 
-    const code = `EPIC-0${nextEpicIndex++}`
-    const id = `epic-${nextEpicIndex}`
-
-    const newEpic: Epic = {
-      id,
-      code,
-      name: payload.name.trim(),
-      description: payload.description || '',
-      status: 'open',
-      priority: payload.priority || 'high',
-      color: payload.color || '#0284c7',
-      targetSprint: 'Sprint 17 (Dự thảo)',
-      sprintRange: 'Sprint 15 - Sprint 17',
-      ownerName: 'Minh Quân',
-      ownerAvatar: 'MQ',
-      pbisCount: 0,
-      tasksCount: 0,
-      completedPoints: 0,
-      totalPoints: 0,
-      progressPercent: 0,
-      tasks: [],
-      createdAt: 'Hôm nay',
-      updatedAt: 'Vừa xong',
+    const requestBody: EpicRequest = {
+      title: payload.name.trim(),
+      description: payload.description?.trim() || null,
+      priority: priorityToNumber(payload.priority),
+      status: 'OPEN',
     }
 
-    epicsState = [newEpic, ...epicsState]
+    const res = await api.epics.create(projectId, requestBody)
+    const newEpic = mapBeEpicToFe(res.data)
+    cachedEpics = [newEpic, ...cachedEpics]
     return newEpic
   },
 
   async updateEpic(id: string, payload: UpdateEpicPayload): Promise<Epic> {
-    await delay(40)
-    const index = epicsState.findIndex((e) => e.id === id)
-    if (index === -1) {
-      throw new Error('Không tìm thấy Epic.')
+    const numericId = parseInt(id.replace(/\D/g, ''), 10)
+    if (Number.isNaN(numericId) || numericId <= 0) {
+      throw new Error('ID Epic không hợp lệ.')
     }
 
-    const current = epicsState[index]
-    const updated: Epic = {
-      ...current,
-      ...payload,
-      updatedAt: 'Vừa xong',
+    const current = await this.getEpicById(id)
+    const requestBody: EpicRequest = {
+      title: (payload.name ?? current?.name ?? 'Epic').trim(),
+      description: payload.description ?? current?.description ?? null,
+      priority: priorityToNumber(payload.priority ?? current?.priority),
+      status: statusToBe(payload.status ?? current?.status),
     }
 
-    epicsState[index] = updated
+    const res = await api.epics.update(numericId, requestBody)
+    const updated = mapBeEpicToFe(res.data)
+    cachedEpics = cachedEpics.map((e) => (e.id === id ? updated : e))
     return updated
   },
 
   async deleteEpic(id: string): Promise<boolean> {
-    await delay(50)
-    const epic = epicsState.find((e) => e.id === id)
-    if (!epic) throw new Error('Không tìm thấy Epic để xóa.')
-
-    // Unlink all PBIs from this epic in backlog
-    const pbis = await backlogService.getPBIs()
-    const linkedPBIs = pbis.filter((p) => p.epicId === epic.id)
-    for (const p of linkedPBIs) {
-      await backlogService.linkEpic(p.id, undefined)
+    const numericId = parseInt(id.replace(/\D/g, ''), 10)
+    if (Number.isNaN(numericId) || numericId <= 0) {
+      throw new Error('ID Epic không hợp lệ.')
     }
 
-    epicsState = epicsState.filter((e) => e.id !== id)
+    await api.epics.delete(numericId)
+    cachedEpics = cachedEpics.filter((e) => e.id !== id)
     return true
   },
 
   async linkPBI(epicId: string, pbiId: string): Promise<void> {
-    await delay(40)
-    const epic = epicsState.find((e) => e.id === epicId)
-    if (!epic) throw new Error('Không tìm thấy Epic.')
-
-    await backlogService.linkEpic(pbiId, epic.id)
-    epic.pbisCount = (epic.pbisCount || 0) + 1
-  },
-
-  async unlinkPBI(epicId: string, pbiId: string): Promise<void> {
-    await delay(30)
-    const epic = epicsState.find((e) => e.id === epicId)
-    await backlogService.linkEpic(pbiId, undefined)
-    if (epic && epic.pbisCount > 0) {
-      epic.pbisCount -= 1
+    const numericEpicId = parseInt(epicId.replace(/\D/g, ''), 10)
+    const numericPbiId = parseInt(pbiId.replace(/\D/g, ''), 10)
+    if (numericEpicId > 0 && numericPbiId > 0) {
+      await api.epics.linkPbi(numericPbiId, { epicId: numericEpicId })
     }
   },
 
+  async unlinkPBI(epicId: string, pbiId: string): Promise<void> {
+    console.log(`Unlink PBI ${pbiId} from Epic ${epicId} (BE yêu cầu gán sang Epic khác vì PBI bắt buộc có Epic)`)
+  },
+
   async linkTasks(epicId: string, taskIds: string[]): Promise<void> {
-    await delay(40)
-    const epic = epicsState.find((e) => e.id === epicId)
-    if (!epic) throw new Error('Không tìm thấy Epic.')
-    epic.tasksCount = (epic.tasksCount || 0) + taskIds.length
+    const numericEpicId = parseInt(epicId.replace(/\D/g, ''), 10)
+    if (numericEpicId > 0) {
+      for (const t of taskIds) {
+        const numericTaskId = parseInt(t.replace(/\D/g, ''), 10)
+        if (numericTaskId > 0) {
+          await api.epics.linkTask(numericTaskId, { epicId: numericEpicId })
+        }
+      }
+    }
   },
 }
