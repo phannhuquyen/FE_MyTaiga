@@ -19,6 +19,7 @@ function mapBeUserToAuthUser(beUser: { userId: number; fullName: string; email: 
     name: beUser.fullName,
     email: beUser.email,
     role: beUser.systemRole === 'ADMIN' ? 'Quản trị viên' : 'Thành viên',
+    systemRole: beUser.systemRole as 'ADMIN' | 'USER',
     avatarCode: initials,
   }
 }

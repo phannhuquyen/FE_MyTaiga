@@ -24,6 +24,7 @@ const INITIAL_STATE: AuthState = {
         name: cachedUser.fullName,
         email: cachedUser.email,
         role: cachedUser.systemRole === 'ADMIN' ? 'Quản trị viên' : 'Thành viên',
+        systemRole: cachedUser.systemRole as 'ADMIN' | 'USER',
         avatarCode: buildAvatarCode(cachedUser.fullName),
         avatar: cachedUser.avatar ?? undefined,
       }
@@ -54,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           name: data.fullName,
           email: data.email,
           role: data.systemRole === 'ADMIN' ? 'Quản trị viên' : 'Thành viên',
+          systemRole: data.systemRole as 'ADMIN' | 'USER',
           avatarCode: buildAvatarCode(data.fullName),
           avatar: data.avatar ?? undefined,
         }

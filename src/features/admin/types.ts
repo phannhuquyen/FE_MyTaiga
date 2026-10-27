@@ -28,6 +28,7 @@ export interface CreateAdminUserPayload {
   role: AdminRole
   department?: string
   activateImmediately: boolean
+  password?: string
 }
 
 export interface PermissionOperation {

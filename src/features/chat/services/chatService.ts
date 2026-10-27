@@ -5,6 +5,8 @@ import type {
   ChatAttachment,
   CreateChannelPayload,
 } from '../types'
+import { api, type ChatRoomData, type ChatMessageData } from '@/services/api'
+import { authStorage } from '@/lib/tokenStorage'
 
 export const AVAILABLE_CHAT_MEMBERS: ChatMember[] = [
   {
@@ -399,6 +401,111 @@ class ChatService {
   private conversations: Conversation[] = [...INITIAL_CONVERSATIONS]
   private messages: Record<string, ChatMessage[]> = { ...INITIAL_MESSAGES }
   private listeners: Array<() => void> = []
+  private ws: WebSocket | null = null
+  private wsConnected = false
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null
+
+  isWsConnected(): boolean {
+    return this.wsConnected
+  }
+
+  constructor() {
+    this.connectSignalR()
+  }
+
+  /**
+   * Kết nối WebSocket SignalR Hub (/hubs/chat)
+   */
+  connectSignalR() {
+    const token = authStorage.getToken()
+    if (!token) return
+
+    try {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+      const wsUrl = `${protocol}//${window.location.host}/hubs/chat?access_token=${encodeURIComponent(token)}`
+      this.ws = new WebSocket(wsUrl)
+
+      this.ws.onopen = () => {
+        // Gửi handshake SignalR JSON Hub Protocol (kết thúc bằng 0x1e)
+        this.ws?.send(JSON.stringify({ protocol: 'json', version: 1 }) + '\x1e')
+        this.wsConnected = true
+        console.log('⚡ [SignalR] Đã kết nối WebSocket Chat Hub thành công')
+      }
+
+      this.ws.onmessage = (event) => {
+        const raw = String(event.data)
+        const parts = raw.split('\x1e').filter((p) => p.trim().length > 0)
+
+        parts.forEach((part) => {
+          try {
+            const data = JSON.parse(part)
+            // Ping / Keep-alive
+            if (data.type === 6) {
+              this.ws?.send(JSON.stringify({ type: 6 }) + '\x1e')
+            }
+            // Invocation: message.new
+            else if (data.type === 1 && data.target === 'message.new') {
+              const [msg] = data.arguments as [ChatMessageData]
+              if (msg && msg.chatRoomId) {
+                const convId = String(msg.chatRoomId)
+                const currentUserId = authStorage.getUser()?.userId
+                const isSelf = currentUserId === msg.senderId
+
+                const newChatMsg: ChatMessage = {
+                  id: String(msg.chatMessageId),
+                  conversationId: convId,
+                  senderId: String(msg.senderId),
+                  senderName: `Thành viên #${msg.senderId}`,
+                  senderAvatar: `U${msg.senderId}`,
+                  timestamp: new Date(msg.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+                  createdAt: msg.createdAt,
+                  content: msg.content || '',
+                  isSelf,
+                }
+
+                if (!this.messages[convId]) {
+                  this.messages[convId] = []
+                }
+                // Tránh trùng tin nhắn nếu vừa gửi
+                if (!this.messages[convId].some((m) => m.id === newChatMsg.id)) {
+                  this.messages[convId].push(newChatMsg)
+                }
+
+                // Cập nhật last message của conversation
+                this.conversations = this.conversations.map((c) =>
+                  c.id === convId
+                    ? {
+                        ...c,
+                        lastMessage: msg.content?.slice(0, 45) || 'Tin nhắn mới',
+                        lastMessageTime: newChatMsg.timestamp,
+                        unreadCount: isSelf ? c.unreadCount : (c.unreadCount || 0) + 1,
+                      }
+                    : c,
+                )
+                this.notify()
+              }
+            }
+          } catch {
+            // Handshake response empty json {}
+          }
+        })
+      }
+
+      this.ws.onclose = () => {
+        this.wsConnected = false
+        // Tự động kết nối lại sau 5 giây
+        if (this.reconnectTimer) clearTimeout(this.reconnectTimer)
+        this.reconnectTimer = setTimeout(() => this.connectSignalR(), 5000)
+      }
+
+      this.ws.onerror = (err) => {
+        console.warn('⚠️ [SignalR] Lỗi kết nối WebSocket Chat:', err)
+        this.ws?.close()
+      }
+    } catch (e) {
+      console.warn('⚠️ [SignalR] Không thể khởi tạo WebSocket:', e)
+    }
+  }
 
   subscribe(listener: () => void) {
     this.listeners.push(listener)
@@ -409,6 +516,71 @@ class ChatService {
 
   private notify() {
     this.listeners.forEach((l) => l())
+  }
+
+  /**
+   * Tải danh sách phòng chat từ Backend API
+   */
+  async fetchRoomsFromApi(): Promise<Conversation[]> {
+    try {
+      const res = await api.chat.listRooms()
+      const rooms: ChatRoomData[] = res.data || []
+      if (rooms.length > 0) {
+        const mappedConvs: Conversation[] = rooms.map((r) => ({
+          id: String(r.chatRoomId),
+          type: r.roomType === 'PRIVATE' ? 'direct' : 'channel',
+          name: r.roomName || (r.roomType === 'PRIVATE' ? `Trò chuyện riêng #${r.chatRoomId}` : `Kênh #${r.chatRoomId}`),
+          avatar: r.roomType === 'PRIVATE' ? 'DM' : undefined,
+          roleBadge: r.roomType === 'PRIVATE' ? 'Cá nhân' : 'Kênh nhóm',
+          lastMessage: r.lastMessage?.content || 'Chưa có tin nhắn',
+          lastMessageTime: r.lastMessage
+            ? new Date(r.lastMessage.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+            : undefined,
+          unreadCount: r.unreadCount || 0,
+        }))
+
+        // Gộp với mock list để không mất demo data nếu BE ít rooms
+        this.conversations = [...mappedConvs, ...INITIAL_CONVERSATIONS.filter((c) => !mappedConvs.some((m) => m.id === c.id))]
+        this.notify()
+      }
+    } catch (err) {
+      console.warn('⚠️ [ChatService] Lỗi tải phòng chat từ API:', err)
+    }
+    return this.conversations
+  }
+
+  /**
+   * Tải tin nhắn trong phòng chat từ Backend API
+   */
+  async fetchMessagesFromApi(conversationId: string): Promise<ChatMessage[]> {
+    const numericRoomId = parseInt(conversationId.replace(/\D/g, ''), 10)
+    if (numericRoomId > 0) {
+      try {
+        const res = await api.chat.listMessages(numericRoomId, { limit: 50 })
+        const rawMsgs = res.data || []
+        const currentUserId = authStorage.getUser()?.userId
+
+        const mapped: ChatMessage[] = rawMsgs.map((m: ChatMessageData) => ({
+          id: String(m.chatMessageId),
+          conversationId,
+          senderId: String(m.senderId),
+          senderName: currentUserId === m.senderId ? 'Tôi' : `Thành viên #${m.senderId}`,
+          senderAvatar: currentUserId === m.senderId ? 'ME' : `U${m.senderId}`,
+          senderRole: currentUserId === m.senderId ? 'Bạn' : 'Thành viên',
+          timestamp: new Date(m.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+          createdAt: m.createdAt,
+          content: m.content || '',
+          isSelf: currentUserId === m.senderId,
+        }))
+
+        this.messages[conversationId] = mapped
+        this.notify()
+        return mapped
+      } catch (err) {
+        console.warn('⚠️ [ChatService] Lỗi tải tin nhắn từ API:', err)
+      }
+    }
+    return this.messages[conversationId] || []
   }
 
   getConversations(type?: 'direct' | 'channel', search?: string): Conversation[] {
@@ -436,12 +608,13 @@ class ChatService {
     return this.messages[conversationId] || []
   }
 
-  sendMessage(
+  async sendMessage(
     conversationId: string,
     content: string,
     attachments?: ChatAttachment[],
     replyTo?: ChatMessage['replyTo'],
-  ): ChatMessage {
+    files?: File[],
+  ): Promise<ChatMessage> {
     const now = new Date()
     const hours = now.getHours().toString().padStart(2, '0')
     const minutes = now.getMinutes().toString().padStart(2, '0')
@@ -480,6 +653,20 @@ class ChatService {
     })
 
     this.notify()
+
+    // Gửi qua API thật nếu là roomId số
+    const numRoomId = parseInt(conversationId.replace(/\D/g, ''), 10)
+    if (numRoomId > 0) {
+      try {
+        const res = await api.chat.sendMessage(numRoomId, { content: content.trim() }, files)
+        if (res.data?.chatMessageId) {
+          newMessage.id = String(res.data.chatMessageId)
+        }
+      } catch (err) {
+        console.warn('⚠️ Lỗi gửi tin nhắn qua Chat API:', err)
+      }
+    }
+
     return newMessage
   }
 
@@ -521,7 +708,7 @@ class ChatService {
     }
   }
 
-  markConversationRead(conversationId: string) {
+  async markConversationRead(conversationId: string) {
     this.conversations = this.conversations.map((c) => {
       if (c.id === conversationId) {
         return { ...c, unreadCount: 0 }
@@ -536,18 +723,40 @@ class ChatService {
       }))
     }
     this.notify()
+
+    const numRoomId = parseInt(conversationId.replace(/\D/g, ''), 10)
+    if (numRoomId > 0) {
+      try {
+        await api.chat.markRead(numRoomId)
+      } catch (err) {
+        console.warn('⚠️ Lỗi đánh dấu đã đọc chat trên BE:', err)
+      }
+    }
   }
 
-  createChannel(payload: CreateChannelPayload): Conversation {
+  async createChannel(payload: CreateChannelPayload): Promise<Conversation> {
+    let createdId = `chan-${Date.now()}`
+    try {
+      const res = await api.chat.createRoom({
+        roomName: payload.name.trim().toLowerCase().replace(/\s+/g, '-'),
+        roomType: 'GROUP',
+      })
+      if (res.data?.chatRoomId) {
+        createdId = String(res.data.chatRoomId)
+      }
+    } catch (err) {
+      console.warn('⚠️ Lỗi tạo kênh chat trên BE:', err)
+    }
+
     const newChan: Conversation = {
-      id: `chan-${Date.now()}`,
+      id: createdId,
       type: 'channel',
       name: payload.name.trim().toLowerCase().replace(/\s+/g, '-'),
       roleBadge: 'Kênh mới',
       description: payload.description.trim(),
       membersCount: payload.memberIds.length,
       unreadCount: 0,
-      lastMessage: 'Kênh đã được tạo bởi Minh Quân',
+      lastMessage: 'Kênh đã được tạo bởi bạn',
       lastMessageTime: 'Vừa xong',
     }
     this.conversations.unshift(newChan)
@@ -556,9 +765,9 @@ class ChatService {
         id: `msg-${Date.now()}`,
         conversationId: newChan.id,
         senderId: 'mem-mq',
-        senderName: 'Minh Quân',
-        senderAvatar: 'MQ',
-        senderRole: 'Manager',
+        senderName: 'Tôi',
+        senderAvatar: 'ME',
+        senderRole: 'Thành viên',
         timestamp: 'Vừa xong',
         createdAt: new Date().toISOString(),
         content: `Chào mừng mọi người đến với kênh #${newChan.name}! Kênh được tạo để ${payload.description}`,
@@ -569,7 +778,7 @@ class ChatService {
     return newChan
   }
 
-  createDirectMessage(memberId: string): Conversation {
+  async createDirectMessage(memberId: string): Promise<Conversation> {
     const member = AVAILABLE_CHAT_MEMBERS.find((m) => m.id === memberId)
     if (!member) throw new Error('Thành viên không tồn tại')
 
@@ -579,8 +788,24 @@ class ChatService {
     )
     if (existing) return existing
 
+    let createdId = `dm-${Date.now()}`
+    const numMemberId = parseInt(memberId.replace(/\D/g, ''), 10)
+    if (numMemberId > 0) {
+      try {
+        const res = await api.chat.createRoom({
+          roomType: 'PRIVATE',
+          recipientId: numMemberId,
+        })
+        if (res.data?.chatRoomId) {
+          createdId = String(res.data.chatRoomId)
+        }
+      } catch (err) {
+        console.warn('⚠️ Lỗi tạo cuộc trò chuyện cá nhân trên BE:', err)
+      }
+    }
+
     const newDm: Conversation = {
-      id: `dm-${Date.now()}`,
+      id: createdId,
       type: 'direct',
       name: member.name,
       avatar: member.avatar,

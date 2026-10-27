@@ -5,355 +5,8 @@ import type {
   SystemSettings,
   UserFilterOptions,
 } from '../types'
-import { api } from '@/services/api'
-
-const INITIAL_USERS: AdminUser[] = [
-  {
-    id: 'USR-0001',
-    name: 'Nguyễn Quốc Bảo',
-    email: 'quocbao.admin@scrumban.io',
-    role: 'admin',
-    roleLabel: 'Quản trị viên (Admin)',
-    status: 'active',
-    createdAt: '12/01/2024',
-    lastLogin: 'Vừa xong',
-    lastLoginIp: 'IP: 118.69.182.42 (Hà Nội, VN)',
-    projectAccess: 'Tất cả dự án (6)',
-    department: 'Kỹ thuật phần mềm (Engineering)',
-    avatarCode: 'QB',
-    bgColor: 'bg-emerald-700',
-    isSelf: true,
-    isOwner: true,
-  },
-  {
-    id: 'USR-0002',
-    name: 'Trần Thanh Trúc',
-    email: 'truc.tran@scrumban.io',
-    role: 'admin',
-    roleLabel: 'Quản trị viên (Admin)',
-    status: 'active',
-    createdAt: '15/02/2024',
-    lastLogin: '2 giờ trước',
-    lastLoginIp: 'Chrome on macOS',
-    projectAccess: 'Toàn quyền (6)',
-    department: 'Ban Quản trị (Core)',
-    avatarCode: 'TT',
-    bgColor: 'bg-rose-600',
-  },
-  {
-    id: 'USR-0003',
-    name: 'Lê Hoàng Nam',
-    email: 'hoangnam.le@scrumban.io',
-    role: 'manager',
-    roleLabel: 'Quản lý (Manager)',
-    status: 'active',
-    createdAt: '20/03/2024',
-    lastLogin: 'Hôm qua lúc 17:42',
-    lastLoginIp: 'Windows App',
-    projectAccess: 'Fintech App, Core API',
-    department: 'Kỹ thuật phần mềm (Engineering)',
-    avatarCode: 'LH',
-    bgColor: 'bg-teal-600',
-  },
-  {
-    id: 'USR-0004',
-    name: 'Phạm Phương Anh',
-    email: 'phuonganh.dev@scrumban.io',
-    role: 'member',
-    roleLabel: 'Thành viên (Member)',
-    status: 'active',
-    createdAt: '05/05/2024',
-    lastLogin: '3 ngày trước',
-    lastLoginIp: 'Web Browser',
-    projectAccess: 'Design System UI',
-    department: 'Thiết kế sản phẩm (Design)',
-    avatarCode: 'PA',
-    bgColor: 'bg-amber-600',
-  },
-  {
-    id: 'USR-88219-VN',
-    name: 'Vũ Đức Duy',
-    email: 'duy.vu@scrumban.io',
-    role: 'member',
-    roleLabel: 'Thành viên (Member)',
-    status: 'locked',
-    createdAt: '24/11/2024',
-    lastLogin: '24/11/2024',
-    projectAccess: '0 dự án',
-    department: 'Đảm bảo chất lượng (QA)',
-    avatarCode: 'VD',
-    bgColor: 'bg-neutral-500',
-    lockedReason: 'Xác thực OTP sai quá 5 lần',
-    lockedBy: 'Admin',
-    auditNote: 'Payment Gateway (Sprint 24)',
-  },
-  {
-    id: 'USR-0006',
-    name: 'Trần Minh Quân',
-    email: 'minhquan.pm@scrumban.io',
-    role: 'manager',
-    roleLabel: 'Quản lý (Manager)',
-    status: 'active',
-    createdAt: '15/02/2024',
-    lastLogin: 'Hôm nay 09:15',
-    projectAccess: 'ScrumBan Core, FinTech API',
-    department: 'Quản lý dự án (PMO)',
-    avatarCode: 'MQ',
-    bgColor: 'bg-blue-600',
-  },
-  {
-    id: 'USR-0007',
-    name: 'Lê Thùy Trang',
-    email: 'thuytrang.fe@scrumban.io',
-    role: 'member',
-    roleLabel: 'Thành viên (Member)',
-    status: 'active',
-    createdAt: '20/03/2024',
-    lastLogin: 'Hôm nay 10:30',
-    projectAccess: 'ScrumBan Core',
-    department: 'Kỹ thuật phần mềm (Engineering)',
-    avatarCode: 'TT',
-    bgColor: 'bg-purple-600',
-  },
-  {
-    id: 'USR-0008',
-    name: 'Phạm Hoàng Long',
-    email: 'hoanglong.dev@scrumban.io',
-    role: 'member',
-    roleLabel: 'Thành viên (Member)',
-    status: 'active',
-    createdAt: '05/05/2024',
-    lastLogin: 'Hôm qua 18:20',
-    projectAccess: 'ScrumBan Core, Payment Hub',
-    department: 'Kỹ thuật phần mềm (Engineering)',
-    avatarCode: 'HL',
-    bgColor: 'bg-indigo-600',
-  },
-  {
-    id: 'USR-0009',
-    name: 'Vũ Đức Trọng',
-    email: 'ductrong.qa@scrumban.io',
-    role: 'member',
-    roleLabel: 'Thành viên (Member)',
-    status: 'active',
-    createdAt: '18/08/2024',
-    lastLogin: '3 ngày trước',
-    projectAccess: 'ScrumBan Core',
-    department: 'Đảm bảo chất lượng (QA)',
-    avatarCode: 'DT',
-    bgColor: 'bg-emerald-600',
-  },
-  {
-    id: 'USR-0010',
-    name: 'Đặng Tuấn Kiệt',
-    email: 'tuankiet.devops@scrumban.io',
-    role: 'member',
-    roleLabel: 'Thành viên (Member)',
-    status: 'active',
-    createdAt: '10/06/2024',
-    lastLogin: 'Hôm qua 14:10',
-    projectAccess: 'Toàn bộ hạ tầng CI/CD',
-    department: 'Hạ tầng & Vận hành (DevOps)',
-    avatarCode: 'TK',
-    bgColor: 'bg-cyan-600',
-  },
-  {
-    id: 'USR-0011',
-    name: 'Ngô Thùy Dung',
-    email: 'thuydung.ba@scrumban.io',
-    role: 'member',
-    roleLabel: 'Thành viên (Member)',
-    status: 'active',
-    createdAt: '12/07/2024',
-    lastLogin: '1 ngày trước',
-    projectAccess: 'ScrumBan Core',
-    department: 'Phân tích nghiệp vụ (BA)',
-    avatarCode: 'TD',
-    bgColor: 'bg-rose-500',
-  },
-  {
-    id: 'USR-0012',
-    name: 'Bùi Đức Anh',
-    email: 'ducanh.sec@scrumban.io',
-    role: 'member',
-    roleLabel: 'Thành viên (Member)',
-    status: 'active',
-    createdAt: '01/08/2024',
-    lastLogin: '4 ngày trước',
-    projectAccess: 'Security Compliance',
-    department: 'An ninh thông tin (Security)',
-    avatarCode: 'DA',
-    bgColor: 'bg-amber-700',
-  },
-  {
-    id: 'USR-0013',
-    name: 'Hoàng Minh Châu',
-    email: 'minhchau.ui@scrumban.io',
-    role: 'member',
-    roleLabel: 'Thành viên (Member)',
-    status: 'active',
-    createdAt: '15/08/2024',
-    lastLogin: 'Hôm nay 08:45',
-    projectAccess: 'Design System UI',
-    department: 'Thiết kế sản phẩm (Design)',
-    avatarCode: 'MC',
-    bgColor: 'bg-pink-600',
-  },
-  {
-    id: 'USR-0014',
-    name: 'Phan Đình Giáp',
-    email: 'dinhgiap.be@scrumban.io',
-    role: 'member',
-    roleLabel: 'Thành viên (Member)',
-    status: 'active',
-    createdAt: '22/08/2024',
-    lastLogin: '5 ngày trước',
-    projectAccess: 'Core API Service',
-    department: 'Kỹ thuật phần mềm (Engineering)',
-    avatarCode: 'DG',
-    bgColor: 'bg-violet-600',
-  },
-  {
-    id: 'USR-0015',
-    name: 'Võ Mai Lan',
-    email: 'mailan.qa@scrumban.io',
-    role: 'member',
-    roleLabel: 'Thành viên (Member)',
-    status: 'active',
-    createdAt: '05/09/2024',
-    lastLogin: 'Hôm qua 16:30',
-    projectAccess: 'Automation Testing',
-    department: 'Đảm bảo chất lượng (QA)',
-    avatarCode: 'ML',
-    bgColor: 'bg-emerald-500',
-  },
-  {
-    id: 'USR-0016',
-    name: 'Dương Gia Huy',
-    email: 'giahuy.dev@scrumban.io',
-    role: 'member',
-    roleLabel: 'Thành viên (Member)',
-    status: 'active',
-    createdAt: '12/09/2024',
-    lastLogin: '6 ngày trước',
-    projectAccess: 'Mobile React Native',
-    department: 'Kỹ thuật phần mềm (Engineering)',
-    avatarCode: 'GH',
-    bgColor: 'bg-sky-600',
-  },
-  {
-    id: 'USR-0017',
-    name: 'Tạ Quang Khải',
-    email: 'quangkhai.pm@scrumban.io',
-    role: 'manager',
-    roleLabel: 'Quản lý (Manager)',
-    status: 'active',
-    createdAt: '18/09/2024',
-    lastLogin: '2 ngày trước',
-    projectAccess: 'Payment Gateway',
-    department: 'Quản lý dự án (PMO)',
-    avatarCode: 'QK',
-    bgColor: 'bg-blue-700',
-  },
-  {
-    id: 'USR-0018',
-    name: 'Lâm Khánh Linh',
-    email: 'khanhlinh.hr@scrumban.io',
-    role: 'member',
-    roleLabel: 'Thành viên (Member)',
-    status: 'active',
-    createdAt: '25/09/2024',
-    lastLogin: '1 tuần trước',
-    projectAccess: 'Internal Portal',
-    department: 'Nhân sự (HR)',
-    avatarCode: 'KL',
-    bgColor: 'bg-fuchsia-600',
-  },
-  {
-    id: 'USR-0019',
-    name: 'Đoàn Nhật Minh',
-    email: 'nhatminh.fe@scrumban.io',
-    role: 'member',
-    roleLabel: 'Thành viên (Member)',
-    status: 'active',
-    createdAt: '01/10/2024',
-    lastLogin: 'Hôm nay 11:20',
-    projectAccess: 'ScrumBan Core',
-    department: 'Kỹ thuật phần mềm (Engineering)',
-    avatarCode: 'NM',
-    bgColor: 'bg-lime-700',
-  },
-  {
-    id: 'USR-0020',
-    name: 'Trịnh Phương Thảo',
-    email: 'phuongthao.ba@scrumban.io',
-    role: 'member',
-    roleLabel: 'Thành viên (Member)',
-    status: 'active',
-    createdAt: '05/10/2024',
-    lastLogin: '3 ngày trước',
-    projectAccess: 'Fintech API',
-    department: 'Phân tích nghiệp vụ (BA)',
-    avatarCode: 'PT',
-    bgColor: 'bg-orange-600',
-  },
-  {
-    id: 'USR-0021',
-    name: 'Cao Hoàng Quân',
-    email: 'hoangquan.devops@scrumban.io',
-    role: 'member',
-    roleLabel: 'Thành viên (Member)',
-    status: 'active',
-    createdAt: '08/10/2024',
-    lastLogin: 'Hôm qua 19:00',
-    projectAccess: 'Kubernetes Clusters',
-    department: 'Hạ tầng & Vận hành (DevOps)',
-    avatarCode: 'HQ',
-    bgColor: 'bg-slate-600',
-  },
-  {
-    id: 'USR-0022',
-    name: 'Nguyễn Thị Bích',
-    email: 'bich.nguyen@scrumban.io',
-    role: 'member',
-    roleLabel: 'Thành viên (Member)',
-    status: 'active',
-    createdAt: '10/10/2024',
-    lastLogin: '4 ngày trước',
-    projectAccess: 'Payment Hub',
-    department: 'Đảm bảo chất lượng (QA)',
-    avatarCode: 'NB',
-    bgColor: 'bg-teal-700',
-  },
-  {
-    id: 'USR-0023',
-    name: 'Lý Kiến Quốc',
-    email: 'kienquoc.dev@scrumban.io',
-    role: 'member',
-    roleLabel: 'Thành viên (Member)',
-    status: 'active',
-    createdAt: '12/10/2024',
-    lastLogin: 'Hôm nay 08:15',
-    projectAccess: 'ScrumBan Core',
-    department: 'Kỹ thuật phần mềm (Engineering)',
-    avatarCode: 'KQ',
-    bgColor: 'bg-cyan-700',
-  },
-  {
-    id: 'USR-0024',
-    name: 'Trần Cẩm Tú',
-    email: 'camtu.design@scrumban.io',
-    role: 'member',
-    roleLabel: 'Thành viên (Member)',
-    status: 'active',
-    createdAt: '14/10/2024',
-    lastLogin: 'Hôm nay 09:40',
-    projectAccess: 'Design System UI',
-    department: 'Thiết kế sản phẩm (Design)',
-    avatarCode: 'CT',
-    bgColor: 'bg-rose-700',
-  },
-]
+import { api, type AdminUserData } from '@/services/api'
+import { authStorage } from '@/lib/tokenStorage'
 
 const INITIAL_PERMISSION_GROUPS: PermissionGroup[] = [
   {
@@ -491,13 +144,51 @@ const INITIAL_SETTINGS: SystemSettings = {
   agingCardsCount: 3,
 }
 
+function mapBeUserToAdminUser(beUser: AdminUserData, currentUserId?: string | null): AdminUser {
+  const isSelf = String(beUser.userId) === currentUserId
+  const initials = beUser.fullName
+    .trim()
+    .split(/\s+/)
+    .slice(-2)
+    .map((w) => w[0]?.toUpperCase())
+    .join('') || 'NV'
+
+  const role = beUser.systemRole === 'ADMIN' ? 'admin' : 'member'
+  const roleLabel = beUser.systemRole === 'ADMIN' ? 'Quản trị viên (Admin)' : 'Thành viên (Member)'
+
+  return {
+    id: `USR-${String(beUser.userId).padStart(4, '0')}`,
+    name: beUser.fullName,
+    email: beUser.email,
+    role,
+    roleLabel,
+    status: beUser.status === 1 ? 'active' : 'locked',
+    createdAt: new Date(beUser.createdAt).toLocaleDateString('vi-VN'),
+    lastLogin: 'Chưa ghi nhận (BE)',
+    lastLoginIp: 'N/A',
+    projectAccess: beUser.systemRole === 'ADMIN' ? 'Toàn quyền (Tất cả dự án)' : 'Theo phân quyền dự án',
+    department: 'Ban Kỹ thuật & Quản trị',
+    avatarCode: initials,
+    bgColor: beUser.systemRole === 'ADMIN' ? 'bg-emerald-700' : 'bg-neutral-600',
+    isSelf,
+    isOwner: beUser.systemRole === 'ADMIN',
+  }
+}
+
 class AdminService {
-  private users: AdminUser[] = JSON.parse(JSON.stringify(INITIAL_USERS))
+  private users: AdminUser[] = []
+  private isLoading = false
+  public isLoaded = false
   private permissionGroups: PermissionGroup[] = JSON.parse(
     JSON.stringify(INITIAL_PERMISSION_GROUPS),
   )
   private settings: SystemSettings = { ...INITIAL_SETTINGS }
   private listeners: Array<() => void> = []
+
+  constructor() {
+    this.loadUsers()
+    this.loadConfig()
+  }
 
   subscribe(listener: () => void): () => void {
     this.listeners.push(listener)
@@ -508,6 +199,41 @@ class AdminService {
 
   private notify() {
     this.listeners.forEach((l) => l())
+  }
+
+  /**
+   * Tải danh sách người dùng thật từ Backend
+   */
+  async loadUsers(): Promise<void> {
+    if (this.isLoading) return
+    this.isLoading = true
+    try {
+      const res = await api.admin.listUsers({ page: 1, pageSize: 100 })
+      const currentUserId = authStorage.getUserId()
+      this.users = res.data.items.map((u) => mapBeUserToAdminUser(u, currentUserId))
+      this.isLoaded = true
+      this.notify()
+    } catch (err) {
+      console.warn('⚠️ [AdminService] Lỗi khi tải users từ API thật:', err)
+    } finally {
+      this.isLoading = false
+    }
+  }
+
+  /**
+   * Tải cấu hình thật từ Backend
+   */
+  async loadConfig(): Promise<void> {
+    try {
+      const res = await api.admin.getConfig()
+      const values = res.data.values || {}
+      if (values.MAX_FILE_SIZE_MB) {
+        this.settings.maxFileSizeMb = parseInt(values.MAX_FILE_SIZE_MB, 10) || 25
+      }
+      this.notify()
+    } catch (err) {
+      console.warn('⚠️ [AdminService] Lỗi khi tải config từ API thật:', err)
+    }
   }
 
   // ── USER MANAGEMENT ──
@@ -541,44 +267,44 @@ class AdminService {
     return this.users.find((u) => u.id === id)
   }
 
-  createUser(payload: CreateAdminUserPayload): AdminUser {
-    const roleLabels = {
-      admin: 'Quản trị viên (Admin)',
-      manager: 'Quản lý (Manager)',
-      member: 'Thành viên (Member)',
+  async createUser(payload: CreateAdminUserPayload): Promise<{ success: boolean; error?: string; user?: AdminUser }> {
+    try {
+      const res = await api.admin.createUser({
+        fullName: payload.name.trim(),
+        email: payload.email.trim(),
+        password: payload.password || 'User@123456',
+        confirmPassword: payload.password || 'User@123456',
+      })
+
+      const newUserId = res.data.userId
+      const currentUserId = authStorage.getUserId()
+      const newUser: AdminUser = {
+        id: `USR-${String(newUserId).padStart(4, '0')}`,
+        name: payload.name.trim(),
+        email: payload.email.trim(),
+        role: 'member',
+        roleLabel: 'Thành viên (Member)',
+        status: payload.activateImmediately ? 'active' : 'locked',
+        createdAt: new Date().toLocaleDateString('vi-VN'),
+        lastLogin: 'Chưa từng đăng nhập',
+        projectAccess: 'Theo phân quyền dự án',
+        department: payload.department || 'Kỹ thuật phần mềm (Engineering)',
+        avatarCode: payload.name.slice(0, 2).toUpperCase(),
+        bgColor: 'bg-emerald-600',
+        isSelf: String(newUserId) === currentUserId,
+      }
+
+      this.users.unshift(newUser)
+      this.notify()
+      return { success: true, user: newUser }
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string } } }
+      return { success: false, error: errorObj.response?.data?.message || 'Lỗi khi tạo người dùng' }
     }
-
-    const initials = payload.name
-      .split(' ')
-      .filter(Boolean)
-      .slice(-2)
-      .map((w) => w[0]?.toUpperCase())
-      .join('') || 'NV'
-
-    const newUser: AdminUser = {
-      id: `USR-${String(this.users.length + 1).padStart(4, '0')}`,
-      name: payload.name.trim(),
-      email: payload.email.trim(),
-      role: payload.role,
-      roleLabel: roleLabels[payload.role],
-      status: payload.activateImmediately ? 'active' : 'locked',
-      createdAt: new Date().toLocaleDateString('vi-VN'),
-      lastLogin: 'Chưa từng đăng nhập',
-      projectAccess: payload.role === 'admin' ? 'Tất cả dự án (6)' : 'ScrumBan Core',
-      department: payload.department || 'Kỹ thuật phần mềm (Engineering)',
-      avatarCode: initials,
-      bgColor: 'bg-emerald-600',
-    }
-
-    this.users.unshift(newUser)
-    this.notify()
-    return newUser
   }
 
   /**
-   * Khóa tài khoản người dùng.
-   * BE: PATCH /api/v1/admin/users/{userId}/lock  [Requires ADMIN role]
-   * Đồng thời cập nhật state local để UI phản ánh ngay lập tức.
+   * Khóa tài khoản người dùng qua API thật
    */
   async lockUser(id: string, reason: string, auditNote?: string): Promise<{ success: boolean; error?: string }> {
     const user = this.users.find((u) => u.id === id)
@@ -587,7 +313,7 @@ class AdminService {
     if (user.isSelf) {
       return {
         success: false,
-        error: 'Không thể khóa tài khoản của chính bạn. Hãy bàn giao đặc quyền Quản trị viên tối cao trước.',
+        error: 'Không thể khóa tài khoản của chính bạn. Hệ thống yêu cầu tối thiểu một Quản trị viên hoạt động.',
       }
     }
 
@@ -597,7 +323,6 @@ class AdminService {
         await api.adminUsers.lockUser(numericId)
       }
 
-      // Cập nhật local state
       user.status = 'locked'
       user.lockedReason = reason
       user.lockedBy = 'Admin'
@@ -617,8 +342,7 @@ class AdminService {
   }
 
   /**
-   * Mở khóa tài khoản người dùng.
-   * BE: PATCH /api/v1/admin/users/{userId}/unlock  [Requires ADMIN role]
+   * Mở khóa tài khoản người dùng qua API thật
    */
   async unlockUser(id: string): Promise<{ success: boolean; error?: string }> {
     const user = this.users.find((u) => u.id === id)
@@ -648,6 +372,29 @@ class AdminService {
     }
   }
 
+  /**
+   * Đổi vai trò hệ thống người dùng
+   */
+  async updateUserRole(id: string, role: 'ADMIN' | 'USER'): Promise<{ success: boolean; error?: string }> {
+    try {
+      const numericId = parseInt(id.replace(/\D/g, ''), 10)
+      if (numericId > 0) {
+        await api.admin.updateUserRole(numericId, role)
+      }
+
+      const user = this.users.find((u) => u.id === id)
+      if (user) {
+        user.role = role === 'ADMIN' ? 'admin' : 'member'
+        user.roleLabel = role === 'ADMIN' ? 'Quản trị viên (Admin)' : 'Thành viên (Member)'
+        this.notify()
+      }
+      return { success: true }
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string } } }
+      return { success: false, error: errorObj.response?.data?.message || 'Lỗi khi cập nhật vai trò' }
+    }
+  }
+
   // ── PERMISSIONS MATRIX ──
 
   getPermissionGroups(): PermissionGroup[] {
@@ -670,13 +417,26 @@ class AdminService {
     return { ...this.settings }
   }
 
-  saveSettings(newSettings: Partial<SystemSettings>) {
-    this.settings = {
-      ...this.settings,
-      ...newSettings,
-      lastUpdated: new Date().toLocaleDateString('vi-VN'),
+  async saveSettings(newSettings: Partial<SystemSettings>): Promise<{ success: boolean; error?: string }> {
+    try {
+      const values: Record<string, string> = {}
+      if (newSettings.maxFileSizeMb) values.MAX_FILE_SIZE_MB = String(newSettings.maxFileSizeMb)
+
+      if (Object.keys(values).length > 0) {
+        await api.admin.updateConfig(values)
+      }
+
+      this.settings = {
+        ...this.settings,
+        ...newSettings,
+        lastUpdated: new Date().toLocaleDateString('vi-VN'),
+      }
+      this.notify()
+      return { success: true }
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string } } }
+      return { success: false, error: errorObj.response?.data?.message || 'Lỗi khi lưu cấu hình hệ thống' }
     }
-    this.notify()
   }
 
   resetSettings() {

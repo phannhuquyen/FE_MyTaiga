@@ -18,6 +18,7 @@ export function NotificationBellDropdown({ className }: NotificationBellDropdown
   const navigate = useNavigate()
 
   useEffect(() => {
+    notificationService.fetchFromApi()
     const unsubscribe = notificationService.subscribe(() => {
       setUnreadCount(notificationService.getUnreadCount())
       setNotifications(notificationService.getNotifications())

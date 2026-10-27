@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import type { KanbanTask, KanbanColumnId, KanbanPriority } from '../types'
+import { useState, useEffect, useRef } from 'react'
+import type { KanbanTask, KanbanColumnId, KanbanPriority, KanbanAttachment, KanbanComment } from '../types'
 import { Button, Icon } from '@/components/ui'
+import { api } from '@/services/api'
 
 export interface TaskDetailDrawerProps {
   isOpen: boolean
@@ -48,6 +49,64 @@ function DrawerInner({
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('')
   const [newComment, setNewComment] = useState('')
   const [isSubmittingComment, setIsSubmittingComment] = useState(false)
+
+  // Real API Attachments & Comments state
+  const [comments, setComments] = useState<KanbanComment[]>(task.comments || [])
+  const [attachments, setAttachments] = useState<KanbanAttachment[]>(task.attachments || [])
+  const [isUploading, setIsUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const numericTaskId = parseInt(task.id.replace(/\D/g, ''), 10)
+
+  // Tải Comments và Attachments từ API nếu có TaskId số
+  useEffect(() => {
+    let isMounted = true
+    if (numericTaskId > 0) {
+      // Load comments
+      api.comments.listByTask(numericTaskId)
+        .then((res) => {
+          if (!isMounted) return
+          const apiComments: KanbanComment[] = (res.data.items || []).map((c) => ({
+            id: String(c.commentId),
+            authorName: `Thành viên #${c.userId}`,
+            authorRole: 'Thành viên',
+            authorAvatar: `U${c.userId}`,
+            timestamp: new Date(c.createdAt).toLocaleString('vi-VN', {
+              hour: '2-digit',
+              minute: '2-digit',
+              day: '2-digit',
+              month: '2-digit',
+            }),
+            content: c.content,
+          }))
+          if (apiComments.length > 0) {
+            setComments(apiComments)
+          }
+        })
+        .catch((err) => console.warn('⚠️ Lỗi tải comments từ API:', err))
+
+      // Load attachments
+      api.attachments.listByTask(numericTaskId)
+        .then((res) => {
+          if (!isMounted) return
+          const apiAtts: KanbanAttachment[] = (res.data.items || []).map((a) => ({
+            id: String(a.attachmentId),
+            name: a.fileName,
+            size: a.fileSize > 1024 * 1024
+              ? `${(a.fileSize / (1024 * 1024)).toFixed(1)} MB`
+              : `${Math.round(a.fileSize / 1024)} KB`,
+            uploadedBy: `Thành viên #${a.uploadedBy}`,
+          }))
+          if (apiAtts.length > 0) {
+            setAttachments(apiAtts)
+          }
+        })
+        .catch((err) => console.warn('⚠️ Lỗi tải attachments từ API:', err))
+    }
+    return () => {
+      isMounted = false
+    }
+  }, [numericTaskId])
 
   const handleSaveTitle = async () => {
     if (title.trim() && title !== task.title) {
@@ -97,11 +156,135 @@ function DrawerInner({
     if (!newComment.trim()) return
     setIsSubmittingComment(true)
     try {
-      await onAddComment(task.id, newComment.trim())
+      if (numericTaskId > 0) {
+        const res = await api.comments.createForTask(numericTaskId, { content: newComment.trim() })
+        const c = res.data
+        setComments((prev) => [
+          ...prev,
+          {
+            id: String(c.commentId),
+            authorName: 'Tôi',
+            authorRole: 'Thành viên',
+            authorAvatar: 'ME',
+            timestamp: 'Vừa xong',
+            content: c.content,
+          },
+        ])
+      } else {
+        await onAddComment(task.id, newComment.trim())
+        setComments((prev) => [
+          ...prev,
+          {
+            id: `cm-${Date.now()}`,
+            authorName: 'Tôi',
+            authorRole: 'Thành viên',
+            authorAvatar: 'ME',
+            timestamp: 'Vừa xong',
+            content: newComment.trim(),
+          },
+        ])
+      }
       setNewComment('')
     } finally {
       setIsSubmittingComment(false)
     }
+  }
+
+  const handleDeleteComment = async (commentId: string) => {
+    const numId = parseInt(commentId.replace(/\D/g, ''), 10)
+    if (numId > 0) {
+      try {
+        await api.comments.delete(numId)
+      } catch (err) {
+        console.warn('⚠️ Lỗi xóa bình luận trên BE:', err)
+      }
+    }
+    setComments((prev) => prev.filter((c) => c.id !== commentId))
+  }
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
+    setIsUploading(true)
+    try {
+      if (numericTaskId > 0) {
+        const res = await api.attachments.uploadForTask(numericTaskId, files)
+        const uploaded: KanbanAttachment[] = (res.data.items || []).map((a) => ({
+          id: String(a.attachmentId),
+          name: a.fileName,
+          size: a.fileSize > 1024 * 1024
+            ? `${(a.fileSize / (1024 * 1024)).toFixed(1)} MB`
+            : `${Math.round(a.fileSize / 1024)} KB`,
+          uploadedBy: 'Tôi',
+        }))
+        setAttachments((prev) => [...prev, ...uploaded])
+      } else {
+        // Mock fallback
+        const mockNew: KanbanAttachment[] = files.map((f, i) => ({
+          id: `att-${Date.now()}-${i}`,
+          name: f.name,
+          size: `${Math.round(f.size / 1024)} KB`,
+          uploadedBy: 'Tôi',
+        }))
+        setAttachments((prev) => [...prev, ...mockNew])
+      }
+    } catch (err) {
+      console.error('⚠️ Lỗi tải file lên:', err)
+      alert('Không thể tải tệp lên. Vui lòng thử lại.')
+    } finally {
+      setIsUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  const handleDownloadAttachment = async (att: KanbanAttachment) => {
+    const numId = parseInt(att.id.replace(/\D/g, ''), 10)
+    if (numId > 0) {
+      try {
+        const blob = await api.attachments.downloadBlob(numId)
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = att.name
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+      } catch (err) {
+        console.error('⚠️ Lỗi tải file:', err)
+        alert('Không thể tải xuống tệp.')
+      }
+    } else {
+      alert(`Đang tải tệp mô phỏng: ${att.name}`)
+    }
+  }
+
+  const handlePreviewAttachment = async (att: KanbanAttachment) => {
+    const numId = parseInt(att.id.replace(/\D/g, ''), 10)
+    if (numId > 0) {
+      try {
+        const blob = await api.attachments.previewBlob(numId)
+        const url = window.URL.createObjectURL(blob)
+        window.open(url, '_blank')
+      } catch (err) {
+        console.error('⚠️ Lỗi xem trước file:', err)
+        alert('Không thể xem trước tệp này.')
+      }
+    } else {
+      alert(`Xem trước tệp mô phỏng: ${att.name}`)
+    }
+  }
+
+  const handleDeleteAttachment = async (attId: string) => {
+    const numId = parseInt(attId.replace(/\D/g, ''), 10)
+    if (numId > 0) {
+      try {
+        await api.attachments.delete(numId)
+      } catch (err) {
+        console.warn('⚠️ Lỗi xóa file đính kèm trên BE:', err)
+      }
+    }
+    setAttachments((prev) => prev.filter((a) => a.id !== attId))
   }
 
   const subtasks = task.subtasks || []
@@ -435,33 +618,68 @@ function DrawerInner({
             <div className="flex items-center justify-between text-xs font-semibold text-neutral-700">
               <div className="flex items-center gap-1.5">
                 <Icon name="paperclip" size={14} />
-                <span>TỆP ĐÍNH KÈM ({task.attachments?.length || 0})</span>
+                <span>TỆP ĐÍNH KÈM ({attachments.length})</span>
               </div>
-              <span className="text-[11px] text-primary-600 cursor-pointer hover:underline">
-                + Tải tệp lên
-              </span>
+              <div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  multiple
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className="text-[11px] text-primary-600 cursor-pointer hover:underline disabled:opacity-50"
+                >
+                  {isUploading ? 'Đang tải lên...' : '+ Tải tệp lên'}
+                </button>
+              </div>
             </div>
 
             <div className="space-y-1.5">
-              {(task.attachments || []).map((att) => (
-                <div
-                  key={att.id}
-                  className="flex items-center justify-between p-2.5 bg-neutral-50 rounded-lg border border-neutral-200 text-xs hover:bg-neutral-100/60 transition-colors"
-                >
-                  <div className="flex items-center gap-2 truncate">
-                    <Icon name="file-text" size={16} className="text-primary-600 shrink-0" />
-                    <span className="font-semibold text-neutral-800 truncate">{att.name}</span>
-                    <span className="text-neutral-400 text-[11px]">({att.size})</span>
-                  </div>
-                  <button
-                    type="button"
-                    className="p-1 text-neutral-400 hover:text-primary-600 rounded transition-colors cursor-pointer"
-                    title="Tải xuống tệp"
-                  >
-                    <Icon name="download" size={14} />
-                  </button>
+              {attachments.length === 0 ? (
+                <div className="text-[11px] text-neutral-400 italic py-2">
+                  Chưa có tệp đính kèm nào. Nhấp vào "+ Tải tệp lên" để thêm.
                 </div>
-              ))}
+              ) : (
+                attachments.map((att) => (
+                  <div
+                    key={att.id}
+                    className="flex items-center justify-between p-2.5 bg-neutral-50 rounded-lg border border-neutral-200 text-xs hover:bg-neutral-100/60 transition-colors"
+                  >
+                    <div
+                      className="flex items-center gap-2 truncate cursor-pointer flex-1"
+                      onClick={() => handlePreviewAttachment(att)}
+                      title="Nhấp để xem trước"
+                    >
+                      <Icon name="paperclip" size={16} className="text-primary-600 shrink-0" />
+                      <span className="font-semibold text-neutral-800 truncate hover:text-primary-700">{att.name}</span>
+                      <span className="text-neutral-400 text-[11px]">({att.size})</span>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => handleDownloadAttachment(att)}
+                        className="p-1 text-neutral-400 hover:text-primary-600 rounded transition-colors cursor-pointer"
+                        title="Tải xuống tệp"
+                      >
+                        <Icon name="download" size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteAttachment(att.id)}
+                        className="p-1 text-neutral-400 hover:text-danger-600 rounded transition-colors cursor-pointer"
+                        title="Xóa tệp đính kèm"
+                      >
+                        <Icon name="trash" size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
@@ -469,27 +687,43 @@ function DrawerInner({
           <div className="space-y-3 pt-2">
             <div className="flex items-center justify-between text-xs font-semibold text-neutral-700 border-b border-neutral-200 pb-2">
               <div className="flex items-center gap-1.5">
-                <Icon name="message-square" size={14} />
-                <span>TRAO ĐỔI & THẢO LUẬN ({task.comments?.length || 0})</span>
+                <Icon name="kanban" size={14} />
+                <span>TRAO ĐỔI & THẢO LUẬN ({comments.length})</span>
               </div>
             </div>
 
             {/* Comments list */}
             <div className="space-y-3">
-              {(task.comments || []).map((c) => (
-                <div key={c.id} className="flex gap-2.5 text-xs">
-                  <div className="w-7 h-7 rounded-full bg-primary-100 text-primary-800 text-[10px] font-bold flex items-center justify-center shrink-0">
-                    {c.authorAvatar}
-                  </div>
-                  <div className="flex-1 space-y-1 bg-neutral-50 p-2.5 rounded-lg border border-neutral-200">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-neutral-900">{c.authorName}</span>
-                      <span className="text-[10px] text-neutral-400">{c.timestamp}</span>
-                    </div>
-                    <p className="text-neutral-700 leading-relaxed">{c.content}</p>
-                  </div>
+              {comments.length === 0 ? (
+                <div className="text-[11px] text-neutral-400 italic py-1">
+                  Chưa có bình luận nào. Hãy bắt đầu cuộc thảo luận đầu tiên!
                 </div>
-              ))}
+              ) : (
+                comments.map((c) => (
+                  <div key={c.id} className="flex gap-2.5 text-xs group">
+                    <div className="w-7 h-7 rounded-full bg-primary-100 text-primary-800 text-[10px] font-bold flex items-center justify-center shrink-0">
+                      {c.authorAvatar}
+                    </div>
+                    <div className="flex-1 space-y-1 bg-neutral-50 p-2.5 rounded-lg border border-neutral-200 relative">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-neutral-900">{c.authorName}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] text-neutral-400">{c.timestamp}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteComment(c.id)}
+                            className="text-neutral-400 hover:text-danger-600 opacity-0 group-hover:opacity-100 transition-opacity p-0.5"
+                            title="Xóa bình luận"
+                          >
+                            <Icon name="trash" size={12} />
+                          </button>
+                        </div>
+                      </div>
+                      <p className="text-neutral-700 leading-relaxed">{c.content}</p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
 
             {/* Add comment box */}
@@ -498,7 +732,7 @@ function DrawerInner({
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 rows={2}
-                placeholder="Nhập bình luận... Gõ @ để nhắc tên đồng nghiệp (@Tuấn Kiệt, @Huy Bảo...)"
+                placeholder="Nhập bình luận... Gõ @ để nhắc tên đồng nghiệp..."
                 className="w-full text-xs p-2.5 border border-neutral-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary-500 text-neutral-800 placeholder:text-neutral-400 leading-relaxed"
               />
               <div className="flex justify-between items-center">
@@ -514,7 +748,7 @@ function DrawerInner({
                   disabled={!newComment.trim() || isSubmittingComment}
                   leftIcon={<Icon name="send" size={12} />}
                 >
-                  Gửi bình luận
+                  {isSubmittingComment ? 'Đang gửi...' : 'Gửi bình luận'}
                 </Button>
               </div>
             </form>

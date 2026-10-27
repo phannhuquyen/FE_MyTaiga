@@ -4,6 +4,7 @@ import type {
   ActivityItem,
 } from '../types'
 import { projectService } from '@/features/projects/services/projectService'
+import { api, type NotificationData, type ActivityLogItem } from '@/services/api'
 
 export function resolveNotificationLink(targetLink?: string): string {
   if (!targetLink) return ''
@@ -496,6 +497,106 @@ class NotificationService {
     this.listeners.forEach((l) => l())
   }
 
+  /**
+   * Tải danh sách thông báo từ API Backend
+   */
+  async fetchFromApi(): Promise<NotificationItem[]> {
+    try {
+      const res = await api.notifications.list({ page: 1, pageSize: 50 })
+      const items = res.data.items || []
+      if (items.length > 0) {
+        this.notifications = items.map((n: NotificationData) => {
+          let category: NotificationItem['category'] = 'mention'
+          let categoryLabel = 'Thông báo'
+          const typeUpper = (n.type || '').toUpperCase()
+
+          if (typeUpper.includes('WIP')) {
+            category = 'wip_alert'
+            categoryLabel = 'Giới hạn WIP'
+          } else if (typeUpper.includes('DEADLINE')) {
+            category = 'deadline'
+            categoryLabel = 'Sắp đến hạn'
+          } else if (typeUpper.includes('BUG')) {
+            category = 'bug'
+            categoryLabel = 'Lỗi (Bug)'
+          } else if (typeUpper.includes('SPRINT')) {
+            category = 'sprint'
+            categoryLabel = 'Sprint'
+          } else if (typeUpper.includes('ATTACHMENT')) {
+            category = 'attachment'
+            categoryLabel = 'Tệp đính kèm'
+          }
+
+          let targetLink = '/kanban'
+          if (n.referenceType === 'TASK' && n.referenceId) {
+            targetLink = `/kanban?taskId=task-${n.referenceId}`
+          } else if (n.referenceType === 'BUG' && n.referenceId) {
+            targetLink = `/bugs?code=BUG-${n.referenceId}`
+          }
+
+          return {
+            id: String(n.notificationId),
+            title: n.title,
+            message: n.message,
+            category,
+            categoryLabel,
+            actor: {
+              name: `Thành viên #${n.userId}`,
+              avatar: `U${n.userId}`,
+              role: 'Thành viên',
+            },
+            targetCode: n.referenceType && n.referenceId ? `#${n.referenceType}-${n.referenceId}` : undefined,
+            targetType: (n.referenceType?.toLowerCase() || 'task') as any,
+            targetLink,
+            timestamp: new Date(n.createdAt).toLocaleDateString('vi-VN'),
+            createdAt: n.createdAt,
+            isRead: n.isRead,
+            isUrgent: typeUpper.includes('WIP') || typeUpper.includes('URGENT'),
+          }
+        })
+        this.notify()
+      }
+    } catch (err) {
+      console.warn('⚠️ [NotificationService] Lỗi gọi API notifications:', err)
+    }
+    return this.notifications
+  }
+
+  /**
+   * Tải nhật ký hoạt động của dự án từ API Backend
+   */
+  async fetchActivitiesFromApi(projectId: number): Promise<ActivityItem[]> {
+    try {
+      const res = await api.activityLogs.listByProject(projectId, { page: 1, pageSize: 50 })
+      const items = res.data.items || []
+      if (items.length > 0) {
+        this.activities = items.map((a: ActivityLogItem) => {
+          const dt = new Date(a.createdAt)
+          const isToday = dt.toDateString() === new Date().toDateString()
+          return {
+            id: String(a.activityLogId),
+            dateGroup: isToday ? 'HÔM NAY' : dt.toLocaleDateString('vi-VN'),
+            dateString: dt.toLocaleDateString('vi-VN'),
+            time: dt.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+            actor: {
+              name: `Thành viên #${a.userId}`,
+              avatar: `U${a.userId}`,
+              role: 'Thành viên',
+            },
+            actionType: 'task_complete',
+            title: a.description || a.action,
+            targetCode: a.entityId ? `#${a.entityType}-${a.entityId}` : undefined,
+            metaInfo: `Hành động: ${a.action}`,
+          }
+        })
+        this.notify()
+      }
+    } catch (err) {
+      console.warn('⚠️ [NotificationService] Lỗi gọi API activityLogs:', err)
+    }
+    return this.activities
+  }
+
   getNotifications(options: NotificationFilterOptions = {}) {
     let result = [...this.notifications]
 
@@ -534,11 +635,20 @@ class NotificationService {
     return this.notifications.filter((n) => n.isUrgent)
   }
 
-  markAsRead(id: string) {
+  async markAsRead(id: string) {
     this.notifications = this.notifications.map((n) =>
       n.id === id ? { ...n, isRead: true } : n,
     )
     this.notify()
+
+    const numId = parseInt(id.replace(/\D/g, ''), 10)
+    if (numId > 0) {
+      try {
+        await api.notifications.markAsRead(numId)
+      } catch (err) {
+        console.warn('⚠️ Lỗi đánh dấu đã đọc thông báo trên BE:', err)
+      }
+    }
   }
 
   toggleRead(id: string) {
@@ -548,9 +658,15 @@ class NotificationService {
     this.notify()
   }
 
-  markAllAsRead() {
+  async markAllAsRead() {
     this.notifications = this.notifications.map((n) => ({ ...n, isRead: true }))
     this.notify()
+
+    try {
+      await api.notifications.markAllAsRead()
+    } catch (err) {
+      console.warn('⚠️ Lỗi đánh dấu đã đọc tất cả thông báo trên BE:', err)
+    }
   }
 
   resetDemoNotifications() {

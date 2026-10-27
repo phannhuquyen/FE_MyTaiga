@@ -4,6 +4,7 @@ import { Icon } from '@/components/ui'
 import { AuthCard } from './components/AuthCard'
 import { AuthLayout } from './components/AuthLayout'
 import { useAuth } from './hooks/useAuth'
+import { authStorage } from '@/lib/tokenStorage'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -35,8 +36,12 @@ export default function LoginPage() {
 
     try {
       await login({ email, password, rememberMe })
-      // On success, navigate to projects dashboard
-      navigate('/projects')
+      const role = authStorage.getUserRole()
+      if (role === 'ADMIN') {
+        navigate('/admin/users')
+      } else {
+        navigate('/projects')
+      }
     } catch (err: unknown) {
       const errorObj = err as { code?: string }
       if (errorObj.code === 'ACCOUNT_LOCKED') {

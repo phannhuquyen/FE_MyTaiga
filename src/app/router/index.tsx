@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
+import { AdminPortalLayout } from '@/components/layout/AdminPortalLayout'
 
 export const router = createBrowserRouter([
   // ── Authentication Routes (Standalone AuthLayout) ──
@@ -51,6 +52,46 @@ export const router = createBrowserRouter([
       const Component = (await import('@/features/auth/AccountLockedPage')).default
       return { Component }
     },
+  },
+
+  // ── Dedicated System Admin Portal (AdminPortalLayout Shell) ──
+  {
+    path: '/admin',
+    element: <AdminPortalLayout />,
+    children: [
+      {
+        index: true,
+        element: <Navigate to="users" replace />,
+      },
+      {
+        path: 'users',
+        lazy: async () => {
+          const Component = (await import('@/features/admin/AdminPage')).default
+          return { Component }
+        },
+      },
+      {
+        path: 'roles',
+        lazy: async () => {
+          const Component = (await import('@/features/admin/AdminPage')).default
+          return { Component }
+        },
+      },
+      {
+        path: 'settings',
+        lazy: async () => {
+          const Component = (await import('@/features/admin/AdminPage')).default
+          return { Component }
+        },
+      },
+      {
+        path: 'logs',
+        lazy: async () => {
+          const Component = (await import('@/features/admin/AdminPage')).default
+          return { Component }
+        },
+      },
+    ],
   },
 
   // ── Application Workspace Routes (AppLayout Shell) ──
@@ -106,10 +147,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'admin',
-        lazy: async () => {
-          const Component = (await import('@/features/admin/AdminPage')).default
-          return { Component }
-        },
+        element: <Navigate to="/admin/users" replace />,
       },
       {
         path: 'icons',

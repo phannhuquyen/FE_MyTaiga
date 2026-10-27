@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
 import { Icon } from '@/components/ui'
-import type { MetricTabId } from './types'
+import type { MetricTabId, FlowMetricsData } from './types'
 import { metricService } from './services/metricService'
 import { FlowMetricKpiCards } from './components/FlowMetricKpiCards'
 import { WipRunChart } from './components/WipRunChart'
@@ -12,16 +13,20 @@ import { EmptyMetricsState } from './components/EmptyMetricsState'
 import { ConfigAlertModal } from './components/ConfigAlertModal'
 
 export default function FlowMetricsPage() {
+  const { projectId } = useParams<{ projectId: string }>()
+  const numericProjectId = projectId ? parseInt(projectId, 10) : undefined
+
   const [selectedSprint, setSelectedSprint] = useState('sprint-14')
   const [selectedRange, setSelectedRange] = useState('current')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [activeTab, setActiveTab] = useState<MetricTabId>('wip')
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false)
   const [wipLimit, setWipLimit] = useState(metricService.getWipLimit())
+  const [metricsData, setMetricsData] = useState<FlowMetricsData | null>(null)
 
-  const metricsData = useMemo(() => {
-    return metricService.getMetricsDataSync(selectedSprint, selectedRange, wipLimit)
-  }, [selectedSprint, selectedRange, wipLimit])
+  useEffect(() => {
+    metricService.getMetricsData(numericProjectId, selectedSprint, wipLimit).then(setMetricsData)
+  }, [numericProjectId, selectedSprint, wipLimit])
 
   const handleExport = () => {
     alert(

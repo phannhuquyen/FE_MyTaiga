@@ -184,29 +184,6 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                 </nav>
               </div>
 
-              {/* Admin section in project context */}
-              <div className="pt-2">
-                <div className="px-3 mb-2 text-label-uppercase font-semibold tracking-wider text-neutral-400">
-                  QUẢN TRỊ
-                </div>
-                <nav className="space-y-1">
-                  <Link
-                    to="/admin"
-                    onClick={onClose}
-                    className={cn(
-                      'flex items-center gap-3 px-3 py-2 rounded text-body-medium transition-colors cursor-pointer',
-                      location.pathname.startsWith('/admin')
-                        ? 'bg-neutral-800 text-whiteboard font-semibold'
-                        : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50',
-                    )}
-                  >
-                    <span className={cn('shrink-0', location.pathname.startsWith('/admin') ? 'text-primary-400' : 'text-neutral-400')}>
-                      <Icon name="shield" size={16} />
-                    </span>
-                    <span className="truncate">Cài đặt hệ thống</span>
-                  </Link>
-                </nav>
-              </div>
             </>
           ) : (
             /* ── Tier-1: Account-level navigation ── */
@@ -243,29 +220,38 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                 </nav>
               </div>
 
-              {/* Admin section */}
+              {/* Admin section - chỉ hiển thị nếu là Quản trị viên hệ thống */}
+              {(user?.role === 'Quản trị viên' || user?.systemRole === 'ADMIN') && (
+                <div className="pt-2">
+                  <div className="px-3 mb-2 text-label-uppercase font-semibold tracking-wider text-neutral-400">
+                    QUẢN TRỊ HỆ THỐNG
+                  </div>
+                  <nav className="space-y-1">
+                    <Link
+                      to="/admin/users"
+                      onClick={onClose}
+                      className={cn(
+                        'flex items-center gap-3 px-3 py-2 rounded text-body-medium transition-colors cursor-pointer',
+                        location.pathname.startsWith('/admin')
+                          ? 'bg-neutral-800 text-emerald-400 font-semibold'
+                          : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50',
+                      )}
+                    >
+                      <span className={cn('shrink-0', location.pathname.startsWith('/admin') ? 'text-emerald-400' : 'text-neutral-400')}>
+                        <Icon name="shield" size={16} />
+                      </span>
+                      <span className="truncate">Quản trị Hệ thống (Admin)</span>
+                    </Link>
+                  </nav>
+                </div>
+              )}
+
+              {/* Dev tools */}
               <div className="pt-2">
                 <div className="px-3 mb-2 text-label-uppercase font-semibold tracking-wider text-neutral-400">
-                  QUẢN TRỊ DỰ ÁN
+                  CÔNG CỤ
                 </div>
                 <nav className="space-y-1">
-                  <Link
-                    to="/admin"
-                    onClick={onClose}
-                    className={cn(
-                      'flex items-center gap-3 px-3 py-2 rounded text-body-medium transition-colors cursor-pointer',
-                      location.pathname.startsWith('/admin')
-                        ? 'bg-neutral-800 text-whiteboard font-semibold'
-                        : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50',
-                    )}
-                  >
-                    <span className={cn('shrink-0', location.pathname.startsWith('/admin') ? 'text-primary-400' : 'text-neutral-400')}>
-                      <Icon name="shield" size={16} />
-                    </span>
-                    <span className="truncate">Cài đặt hệ thống (Admin)</span>
-                  </Link>
-
-                  {/* Dev icon gallery */}
                   <Link
                     to="/icons"
                     onClick={onClose}

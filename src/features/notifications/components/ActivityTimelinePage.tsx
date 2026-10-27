@@ -1,17 +1,33 @@
-import { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useMemo, useEffect } from 'react'
+import { Link, useParams } from 'react-router-dom'
 import { Icon } from '@/components/ui'
 import { notificationService } from '../services/notificationService'
+import { projectService } from '@/features/projects/services/projectService'
 import type { ActivityItem } from '../types'
 import { cn } from '@/lib/utils'
 
 export function ActivityTimelinePage() {
+  const { projectId } = useParams<{ projectId: string }>()
   const [actorFilter, setActorFilter] = useState('all')
   const [actionFilter, setActionFilter] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [isExporting, setIsExporting] = useState(false)
+  const [activities, setActivities] = useState<ActivityItem[]>(notificationService.getActivities())
 
-  const activities = notificationService.getActivities()
+  const numericProjectId = projectId ? parseInt(projectId, 10) : (projectService.getActiveProjectId() || 1)
+
+  useEffect(() => {
+    if (numericProjectId > 0) {
+      notificationService.fetchActivitiesFromApi(numericProjectId).then((acts) => {
+        setActivities(acts)
+      })
+    }
+    const unsubscribe = notificationService.subscribe(() => {
+      setActivities(notificationService.getActivities())
+    })
+    return unsubscribe
+  }, [numericProjectId])
+
   const stats = notificationService.getActivityStats()
 
   // Filter activities

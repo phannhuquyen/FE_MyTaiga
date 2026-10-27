@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useParams } from 'react-router-dom'
 import type { KanbanTask, KanbanColumnConfig, KanbanColumnId, CreateTaskPayload, WIPSettingsPayload } from './types'
 import { kanbanService } from './services/kanbanService'
 import { KanbanColumn } from './components/KanbanColumn'
@@ -9,6 +10,9 @@ import { DeleteTaskModal } from './components/DeleteTaskModal'
 import { Button, Icon } from '@/components/ui'
 
 export function KanbanPage() {
+  const { projectId } = useParams<{ projectId: string }>()
+  const numericProjectId = projectId ? parseInt(projectId, 10) : undefined
+
   const [columns, setColumns] = useState<KanbanColumnConfig[]>([])
   const [tasks, setTasks] = useState<KanbanTask[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -37,8 +41,8 @@ export function KanbanPage() {
   const loadData = async () => {
     try {
       const [cols, allTasks] = await Promise.all([
-        kanbanService.getColumns(),
-        kanbanService.getTasks(),
+        kanbanService.getColumns(numericProjectId),
+        kanbanService.getTasks(numericProjectId),
       ])
       setColumns(cols)
       setTasks(allTasks)
@@ -49,7 +53,7 @@ export function KanbanPage() {
 
   useEffect(() => {
     loadData()
-  }, [])
+  }, [numericProjectId])
 
   // Filter tasks
   const filteredTasks = useMemo(() => {
@@ -94,9 +98,14 @@ export function KanbanPage() {
 
   // Handlers
   const handleCreateTask = async (payload: CreateTaskPayload) => {
-    const created = await kanbanService.createTask(payload)
-    await loadData()
-    showToast(`Đã tạo thành công thẻ #${created.code}`)
+    try {
+      const created = await kanbanService.createTask(payload, numericProjectId)
+      await loadData()
+      setIsQuickCreateOpen(false)
+      showToast(`Đã tạo thành công thẻ #${created.code}`)
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : 'Lỗi khi tạo thẻ')
+    }
   }
 
   const handleUpdateTask = async (id: string, payload: Partial<KanbanTask>) => {
@@ -162,9 +171,13 @@ export function KanbanPage() {
   }
 
   const handleSaveWIP = async (payload: WIPSettingsPayload) => {
-    const updatedCols = await kanbanService.updateWIPLimits(payload)
-    setColumns(updatedCols)
-    showToast('Đã cập nhật giới hạn WIP cho các cột Kanban')
+    try {
+      const updatedCols = await kanbanService.updateWIPLimits(payload, numericProjectId)
+      setColumns(updatedCols)
+      showToast('Đã cập nhật giới hạn WIP cho các cột Kanban')
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : 'Lỗi khi cập nhật giới hạn WIP')
+    }
   }
 
   return (

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { Icon } from '@/components/ui'
 import type { BugItem, BugSeverity, BugStatus, CreateBugPayload } from './types'
 import { bugService, AVAILABLE_ASSIGNEES } from './services/bugService'
@@ -7,6 +7,9 @@ import { BugDetailView } from './components/BugDetailView'
 import { CreateBugModal } from './components/CreateBugModal'
 
 export default function BugsPage() {
+  const { projectId } = useParams<{ projectId: string }>()
+  const numericProjectId = projectId ? parseInt(projectId, 10) : undefined
+
   const [searchParams, setSearchParams] = useSearchParams()
   const bugIdParam = searchParams.get('id')
 
@@ -43,7 +46,7 @@ export default function BugsPage() {
         assigneeId: assigneeFilter,
         page: currentPage,
         pageSize,
-      })
+      }, numericProjectId)
       setBugs(res.items)
       setTotalCount(res.total)
       setStats(res.stats)
@@ -58,7 +61,7 @@ export default function BugsPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [searchTerm, statusFilter, severityFilter, assigneeFilter, currentPage, bugIdParam, pageSize])
+  }, [searchTerm, statusFilter, severityFilter, assigneeFilter, currentPage, bugIdParam, pageSize, numericProjectId])
 
   useEffect(() => {
     loadBugs()

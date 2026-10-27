@@ -41,15 +41,24 @@ export function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Service subscription
+  // Service subscription & load from API
   useEffect(() => {
+    chatService.fetchRoomsFromApi().then(() => {
+      setConversations(chatService.getConversations())
+    })
     const refresh = () => {
       setConversations(chatService.getConversations())
     }
-    refresh()
     const unsubscribe = chatService.subscribe(refresh)
     return unsubscribe
   }, [])
+
+  // Load messages from API when active conversation changes
+  useEffect(() => {
+    if (activeConvId) {
+      chatService.fetchMessagesFromApi(activeConvId)
+    }
+  }, [activeConvId])
 
   const activeConversation = useMemo(() => {
     return (
@@ -973,8 +982,8 @@ export function ChatPage() {
       <CreateDirectMessageModal
         isOpen={isDmModalOpen}
         onClose={() => setIsDmModalOpen(false)}
-        onSelectMember={(memberId) => {
-          const conv = chatService.createDirectMessage(memberId)
+        onSelectMember={async (memberId) => {
+          const conv = await chatService.createDirectMessage(memberId)
           setActiveConvId(conv.id)
         }}
       />
@@ -983,8 +992,8 @@ export function ChatPage() {
       <CreateChannelModal
         isOpen={isChannelModalOpen}
         onClose={() => setIsChannelModalOpen(false)}
-        onCreateChannel={(payload) => {
-          const newChan = chatService.createChannel(payload)
+        onCreateChannel={async (payload) => {
+          const newChan = await chatService.createChannel(payload)
           setActiveConvId(newChan.id)
         }}
       />
