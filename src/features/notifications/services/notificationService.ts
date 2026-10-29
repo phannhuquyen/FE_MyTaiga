@@ -504,7 +504,7 @@ class NotificationService {
     try {
       const res = await api.notifications.list({ page: 1, pageSize: 50 })
       const items = res.data.items || []
-      if (items.length > 0) {
+      {
         this.notifications = items.map((n: NotificationData) => {
           let category: NotificationItem['category'] = 'mention'
           let categoryLabel = 'Thông báo'
@@ -528,30 +528,30 @@ class NotificationService {
           }
 
           let targetLink = '/kanban'
-          if (n.referenceType === 'TASK' && n.referenceId) {
-            targetLink = `/kanban?taskId=task-${n.referenceId}`
-          } else if (n.referenceType === 'BUG' && n.referenceId) {
-            targetLink = `/bugs?code=BUG-${n.referenceId}`
+          if (n.refType === 'TASK' && n.refId) {
+            targetLink = `/kanban?taskId=task-${n.refId}`
+          } else if (n.refType === 'BUG' && n.refId) {
+            targetLink = `/bugs?id=${n.refId}`
           }
 
           return {
             id: String(n.notificationId),
             title: n.title,
-            message: n.message,
+            message: n.content ?? n.title,
             category,
             categoryLabel,
             actor: {
-              name: `Thành viên #${n.userId}`,
-              avatar: `U${n.userId}`,
-              role: 'Thành viên',
+              name: n.actorName || 'Chưa có dữ liệu người thực hiện',
+              avatar: n.actorAvatarCode || '?',
+              role: n.actorRole || 'Chưa có thông tin vai trò',
             },
-            targetCode: n.referenceType && n.referenceId ? `#${n.referenceType}-${n.referenceId}` : undefined,
-            targetType: (n.referenceType?.toLowerCase() || 'task') as any,
+            targetCode: n.refType && n.refId ? `#${n.refType}-${n.refId}` : undefined,
+            targetType: (n.refType?.toLowerCase() || 'task') as NotificationItem['targetType'],
             targetLink,
             timestamp: new Date(n.createdAt).toLocaleDateString('vi-VN'),
             createdAt: n.createdAt,
             isRead: n.isRead,
-            isUrgent: typeUpper.includes('WIP') || typeUpper.includes('URGENT'),
+            isUrgent: n.isUrgent ?? (typeUpper.includes('WIP') || typeUpper.includes('URGENT')),
           }
         })
         this.notify()
@@ -569,7 +569,7 @@ class NotificationService {
     try {
       const res = await api.activityLogs.listByProject(projectId, { page: 1, pageSize: 50 })
       const items = res.data.items || []
-      if (items.length > 0) {
+      {
         this.activities = items.map((a: ActivityLogItem) => {
           const dt = new Date(a.createdAt)
           const isToday = dt.toDateString() === new Date().toDateString()
@@ -579,9 +579,9 @@ class NotificationService {
             dateString: dt.toLocaleDateString('vi-VN'),
             time: dt.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
             actor: {
-              name: `Thành viên #${a.userId}`,
-              avatar: `U${a.userId}`,
-              role: 'Thành viên',
+              name: a.userName || `Thành viên #${a.userId}`,
+              avatar: a.userAvatarCode || '?',
+              role: a.userRole || 'Chưa có thông tin vai trò',
             },
             actionType: 'task_complete',
             title: a.description || a.action,
@@ -636,22 +636,25 @@ class NotificationService {
   }
 
   async markAsRead(id: string) {
+    const numId = /^\d+$/.test(id) ? Number(id) : NaN
+    if (numId > 0) {
+      try {
+        await api.notifications.markAsRead(numId)
+      } catch {
+        return false
+      }
+    }
     this.notifications = this.notifications.map((n) =>
       n.id === id ? { ...n, isRead: true } : n,
     )
     this.notify()
 
-    const numId = parseInt(id.replace(/\D/g, ''), 10)
-    if (numId > 0) {
-      try {
-        await api.notifications.markAsRead(numId)
-      } catch (err) {
-        console.warn('⚠️ Lỗi đánh dấu đã đọc thông báo trên BE:', err)
-      }
-    }
+    return true
   }
 
-  toggleRead(id: string) {
+  async toggleRead(id: string) {
+    const current = this.notifications.find(n => n.id === id)
+    if (current && !current.isRead && /^\d+$/.test(id)) return this.markAsRead(id)
     this.notifications = this.notifications.map((n) =>
       n.id === id ? { ...n, isRead: !n.isRead } : n,
     )
@@ -659,14 +662,16 @@ class NotificationService {
   }
 
   async markAllAsRead() {
+    if (this.notifications.some(n => /^\d+$/.test(n.id))) {
+      try {
+        await api.notifications.markAllAsRead()
+      } catch {
+        return false
+      }
+    }
     this.notifications = this.notifications.map((n) => ({ ...n, isRead: true }))
     this.notify()
-
-    try {
-      await api.notifications.markAllAsRead()
-    } catch (err) {
-      console.warn('⚠️ Lỗi đánh dấu đã đọc tất cả thông báo trên BE:', err)
-    }
+    return true
   }
 
   resetDemoNotifications() {

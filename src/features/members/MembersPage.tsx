@@ -57,7 +57,7 @@ export default function MembersPage() {
     const [deptsData, membersData, candidatesData] = await Promise.all([
       memberService.getDepartments(),
       memberService.getMembers(),
-      memberService.getCandidates(),
+      memberService.getCandidates().catch(() => { showToast('Không thể tải danh bạ tài khoản. Vui lòng thử lại.'); return [] }),
     ])
     setDepartments(deptsData)
     setMembers(membersData)
@@ -70,7 +70,7 @@ export default function MembersPage() {
       const [deptsData, membersData, candidatesData] = await Promise.all([
         memberService.getDepartments(),
         memberService.getMembers(),
-        memberService.getCandidates(),
+        memberService.getCandidates().catch(() => { if (!ignore) showToast('Không thể tải danh bạ tài khoản. Vui lòng thử lại.'); return [] }),
       ])
       if (!ignore) {
         setDepartments(deptsData)
@@ -86,6 +86,11 @@ export default function MembersPage() {
   }, [])
 
   // Filter members based on criteria
+  const projectCandidates = useMemo(() => candidates.map(candidate => {
+    const member = members.find(item => item.id === candidate.id)
+    return { ...candidate, alreadyInProject: Boolean(member), existingDepartment: member?.departmentName }
+  }), [candidates, members])
+
   const filteredMembers = useMemo(() => {
     if (isDemoEmpty) return []
 
@@ -777,7 +782,7 @@ export default function MembersPage() {
         isOpen={isAddMemberOpen}
         onClose={() => setIsAddMemberOpen(false)}
         departments={departments}
-        candidates={candidates}
+        candidates={projectCandidates}
         onAddMember={handleAddMember}
       />
 

@@ -1,0 +1,1725 @@
+{
+  "generatedAt": "2026-10-28T10:29:24.293Z",
+  "endpoints": [
+    {
+      "name": "auth.login",
+      "method": "POST",
+      "url": "/api/v1/auth/login",
+      "contract": true,
+      "line": 973,
+      "responseType": "ApiResponse<LoginResultData>",
+      "consumers": [
+        "src/features/auth/services/authService.ts"
+      ]
+    },
+    {
+      "name": "auth.logout",
+      "method": "POST",
+      "url": "/api/v1/auth/logout",
+      "contract": true,
+      "line": 979,
+      "responseType": "ApiResponse<null>",
+      "consumers": [
+        "src/features/auth/services/authService.ts"
+      ]
+    },
+    {
+      "name": "auth.register",
+      "method": "POST",
+      "url": "/api/v1/auth/register",
+      "contract": true,
+      "line": 986,
+      "responseType": "ApiResponse<RegisterResultData>",
+      "consumers": [
+        "src/features/auth/RegisterPage.tsx"
+      ]
+    },
+    {
+      "name": "auth.forgotPassword",
+      "method": "POST",
+      "url": "/api/v1/auth/forgot-password",
+      "contract": true,
+      "line": 991,
+      "responseType": "ApiResponse<null>",
+      "consumers": [
+        "src/features/auth/services/authService.ts"
+      ]
+    },
+    {
+      "name": "auth.resetPassword",
+      "method": "POST",
+      "url": "/api/v1/auth/reset-password",
+      "contract": true,
+      "line": 996,
+      "responseType": "ApiResponse<null>",
+      "consumers": [
+        "src/features/auth/services/authService.ts"
+      ]
+    },
+    {
+      "name": "auth.changePassword",
+      "method": "POST",
+      "url": "/api/v1/auth/change-password",
+      "contract": true,
+      "line": 1001,
+      "responseType": "ApiResponse<null>",
+      "consumers": [
+        "src/features/auth/services/authService.ts"
+      ]
+    },
+    {
+      "name": "users.search",
+      "method": "GET",
+      "url": "/api/v1/users",
+      "contract": true,
+      "line": 1009,
+      "responseType": "ApiResponse<PaginatedData<DirectoryUserData>>",
+      "consumers": [
+        "src/features/members/services/memberService.ts"
+      ]
+    },
+    {
+      "name": "users.getMe",
+      "method": "GET",
+      "url": "/api/v1/users/me",
+      "contract": true,
+      "line": 1013,
+      "responseType": "ApiResponse<UserProfileData>",
+      "consumers": [
+        "src/features/auth/context/AuthContext.tsx",
+        "src/features/profile/services/profileService.ts"
+      ]
+    },
+    {
+      "name": "users.updateMe",
+      "method": "PUT",
+      "url": "/api/v1/users/me",
+      "contract": true,
+      "line": 1018,
+      "responseType": "ApiResponse<UpdateProfileResultData>",
+      "consumers": [
+        "src/features/profile/services/profileService.ts"
+      ]
+    },
+    {
+      "name": "users.uploadAvatar",
+      "method": "PUT",
+      "url": "/api/v1/users/me/avatar",
+      "contract": true,
+      "line": 1025,
+      "responseType": "ApiResponse<UpdateAvatarResultData>",
+      "consumers": [
+        "src/features/profile/services/profileService.ts"
+      ]
+    },
+    {
+      "name": "users.getAvatarBlob",
+      "method": "GET",
+      "url": "/api/v1/users/me/avatar/${fileName}",
+      "contract": true,
+      "line": 1032,
+      "responseType": "Blob",
+      "consumers": []
+    },
+    {
+      "name": "adminUsers.lockUser",
+      "method": "PATCH",
+      "url": "/api/v1/admin/users/${userId}/lock",
+      "contract": true,
+      "line": 1042,
+      "responseType": "ApiResponse<LockUnlockUserResultData>",
+      "consumers": [
+        "src/features/admin/services/adminService.ts"
+      ]
+    },
+    {
+      "name": "adminUsers.unlockUser",
+      "method": "PATCH",
+      "url": "/api/v1/admin/users/${userId}/unlock",
+      "contract": true,
+      "line": 1047,
+      "responseType": "ApiResponse<LockUnlockUserResultData>",
+      "consumers": [
+        "src/features/admin/services/adminService.ts"
+      ]
+    },
+    {
+      "name": "projects.create",
+      "method": "POST",
+      "url": "/api/v1/projects",
+      "contract": true,
+      "line": 1055,
+      "responseType": "ApiResponse<ProjectData>",
+      "consumers": [
+        "src/features/projects/services/projectService.ts"
+      ]
+    },
+    {
+      "name": "projects.list",
+      "method": "GET",
+      "url": "/api/v1/projects",
+      "contract": true,
+      "line": 1060,
+      "responseType": "ApiResponse<PaginatedData<ProjectData>>",
+      "consumers": [
+        "src/features/projects/services/projectService.ts"
+      ]
+    },
+    {
+      "name": "projects.get",
+      "method": "GET",
+      "url": "/api/v1/projects/${projectId}",
+      "contract": true,
+      "line": 1065,
+      "responseType": "ApiResponse<ProjectData>",
+      "consumers": [
+        "src/features/projects/ProjectLayout.tsx",
+        "src/features/projects/services/projectService.ts"
+      ]
+    },
+    {
+      "name": "projects.update",
+      "method": "PUT",
+      "url": "/api/v1/projects/${projectId}",
+      "contract": true,
+      "line": 1070,
+      "responseType": "ApiResponse<ProjectData>",
+      "consumers": [
+        "src/features/projects/services/projectService.ts"
+      ]
+    },
+    {
+      "name": "projects.close",
+      "method": "PATCH",
+      "url": "/api/v1/projects/${projectId}/close",
+      "contract": true,
+      "line": 1075,
+      "responseType": "ApiResponse<ProjectData>",
+      "consumers": [
+        "src/features/projects/services/projectService.ts"
+      ]
+    },
+    {
+      "name": "projects.delete",
+      "method": "DELETE",
+      "url": "/api/v1/projects/${projectId}",
+      "contract": true,
+      "line": 1080,
+      "responseType": "ApiResponse<ProjectData>",
+      "consumers": [
+        "src/features/projects/services/projectService.ts"
+      ]
+    },
+    {
+      "name": "projectMembers.list",
+      "method": "GET",
+      "url": "/api/v1/projects/${projectId}/members",
+      "contract": true,
+      "line": 1088,
+      "responseType": "ApiResponse<PaginatedData<ProjectMemberData>>",
+      "consumers": [
+        "src/features/chat/ChatPage.tsx",
+        "src/features/members/services/memberService.ts"
+      ]
+    },
+    {
+      "name": "projectMembers.add",
+      "method": "POST",
+      "url": "/api/v1/projects/${projectId}/members",
+      "contract": true,
+      "line": 1093,
+      "responseType": "ApiResponse<ProjectMemberMutationResult>",
+      "consumers": [
+        "src/features/members/services/memberService.ts"
+      ]
+    },
+    {
+      "name": "projectMembers.remove",
+      "method": "DELETE",
+      "url": "/api/v1/projects/${projectId}/members/${userId}",
+      "contract": true,
+      "line": 1098,
+      "responseType": "ApiResponse<ProjectMemberMutationResult>",
+      "consumers": [
+        "src/features/members/services/memberService.ts"
+      ]
+    },
+    {
+      "name": "projectMembers.promote",
+      "method": "PATCH",
+      "url": "/api/v1/projects/${projectId}/members/${userId}/role",
+      "contract": true,
+      "line": 1103,
+      "responseType": "ApiResponse<ProjectMemberMutationResult>",
+      "consumers": [
+        "src/features/members/services/memberService.ts"
+      ]
+    },
+    {
+      "name": "projectDepartments.list",
+      "method": "GET",
+      "url": "/api/v1/projects/${projectId}/departments",
+      "contract": true,
+      "line": 1111,
+      "responseType": "ApiResponse<PaginatedData<DepartmentData>>",
+      "consumers": [
+        "src/features/members/services/memberService.ts"
+      ]
+    },
+    {
+      "name": "projectDepartments.create",
+      "method": "POST",
+      "url": "/api/v1/projects/${projectId}/departments",
+      "contract": true,
+      "line": 1118,
+      "responseType": "ApiResponse<DepartmentMutationResult>",
+      "consumers": [
+        "src/features/members/services/memberService.ts"
+      ]
+    },
+    {
+      "name": "projectDepartments.update",
+      "method": "PUT",
+      "url": "/api/v1/projects/${projectId}/departments/${departmentId}",
+      "contract": true,
+      "line": 1123,
+      "responseType": "ApiResponse<DepartmentMutationResult>",
+      "consumers": [
+        "src/features/members/services/memberService.ts"
+      ]
+    },
+    {
+      "name": "projectDepartments.delete",
+      "method": "DELETE",
+      "url": "/api/v1/projects/${projectId}/departments/${departmentId}",
+      "contract": true,
+      "line": 1128,
+      "responseType": "ApiResponse<null>",
+      "consumers": [
+        "src/features/members/services/memberService.ts"
+      ]
+    },
+    {
+      "name": "projectDepartments.assignMember",
+      "method": "PATCH",
+      "url": "/api/v1/projects/${projectId}/members/${userId}/department",
+      "contract": true,
+      "line": 1133,
+      "responseType": "ApiResponse<AssignDepartmentResult>",
+      "consumers": [
+        "src/features/members/services/memberService.ts"
+      ]
+    },
+    {
+      "name": "epics.list",
+      "method": "GET",
+      "url": "/api/v1/projects/${projectId}/epics",
+      "contract": true,
+      "line": 1141,
+      "responseType": "ApiResponse<PaginatedData<EpicData>>",
+      "consumers": [
+        "src/features/backlog/services/backlogService.ts",
+        "src/features/epics/services/epicService.ts"
+      ]
+    },
+    {
+      "name": "epics.create",
+      "method": "POST",
+      "url": "/api/v1/projects/${projectId}/epics",
+      "contract": true,
+      "line": 1146,
+      "responseType": "ApiResponse<EpicData>",
+      "consumers": [
+        "src/features/epics/services/epicService.ts"
+      ]
+    },
+    {
+      "name": "epics.get",
+      "method": "GET",
+      "url": "/api/v1/epics/${epicId}",
+      "contract": true,
+      "line": 1151,
+      "responseType": "ApiResponse<EpicData>",
+      "consumers": [
+        "src/features/epics/services/epicService.ts"
+      ]
+    },
+    {
+      "name": "epics.update",
+      "method": "PUT",
+      "url": "/api/v1/epics/${epicId}",
+      "contract": true,
+      "line": 1156,
+      "responseType": "ApiResponse<EpicData>",
+      "consumers": [
+        "src/features/epics/services/epicService.ts"
+      ]
+    },
+    {
+      "name": "epics.delete",
+      "method": "DELETE",
+      "url": "/api/v1/epics/${epicId}",
+      "contract": true,
+      "line": 1161,
+      "responseType": "ApiResponse<EpicData>",
+      "consumers": [
+        "src/features/epics/services/epicService.ts"
+      ]
+    },
+    {
+      "name": "epics.progress",
+      "method": "GET",
+      "url": "/api/v1/epics/${epicId}/progress",
+      "contract": true,
+      "line": 1166,
+      "responseType": "ApiResponse<EpicProgressData>",
+      "consumers": [
+        "src/features/epics/services/epicService.ts"
+      ]
+    },
+    {
+      "name": "epics.linkPbi",
+      "method": "PATCH",
+      "url": "/api/v1/pbis/${pbiId}/epic",
+      "contract": true,
+      "line": 1171,
+      "responseType": "ApiResponse<{ itemId: number; epicId: number }>",
+      "consumers": [
+        "src/features/backlog/services/backlogService.ts",
+        "src/features/epics/services/epicService.ts"
+      ]
+    },
+    {
+      "name": "epics.linkProductBacklogItem",
+      "method": "PATCH",
+      "url": "/api/v1/product-backlog-items/${pbiId}/epic",
+      "contract": true,
+      "line": 1176,
+      "responseType": "ApiResponse<{ itemId: number; epicId: number }>",
+      "consumers": []
+    },
+    {
+      "name": "epics.linkTask",
+      "method": "PATCH",
+      "url": "/api/v1/tasks/${taskId}/epic",
+      "contract": true,
+      "line": 1181,
+      "responseType": "ApiResponse<{ itemId: number; epicId: number }>",
+      "consumers": [
+        "src/features/epics/services/epicService.ts"
+      ]
+    },
+    {
+      "name": "productBacklog.list",
+      "method": "GET",
+      "url": "/api/v1/product-backlog-items",
+      "contract": true,
+      "line": 1189,
+      "responseType": "ApiResponse<PaginatedData<ProductBacklogItemData>>",
+      "consumers": [
+        "src/features/backlog/services/backlogService.ts"
+      ]
+    },
+    {
+      "name": "productBacklog.create",
+      "method": "POST",
+      "url": "/api/v1/product-backlog-items",
+      "contract": true,
+      "line": 1194,
+      "responseType": "ApiResponse<ProductBacklogItemData>",
+      "consumers": [
+        "src/features/backlog/services/backlogService.ts"
+      ]
+    },
+    {
+      "name": "productBacklog.get",
+      "method": "GET",
+      "url": "/api/v1/product-backlog-items/${pbiId}",
+      "contract": true,
+      "line": 1199,
+      "responseType": "ApiResponse<ProductBacklogItemData>",
+      "consumers": [
+        "src/features/backlog/services/backlogService.ts"
+      ]
+    },
+    {
+      "name": "productBacklog.update",
+      "method": "PUT",
+      "url": "/api/v1/product-backlog-items/${pbiId}",
+      "contract": true,
+      "line": 1204,
+      "responseType": "ApiResponse<ProductBacklogItemData>",
+      "consumers": [
+        "src/features/backlog/services/backlogService.ts"
+      ]
+    },
+    {
+      "name": "productBacklog.delete",
+      "method": "DELETE",
+      "url": "/api/v1/product-backlog-items/${pbiId}",
+      "contract": true,
+      "line": 1209,
+      "responseType": "ApiResponse<ProductBacklogItemData>",
+      "consumers": [
+        "src/features/backlog/services/backlogService.ts"
+      ]
+    },
+    {
+      "name": "productBacklog.changePriority",
+      "method": "PATCH",
+      "url": "/api/v1/product-backlog-items/${pbiId}/priority",
+      "contract": true,
+      "line": 1214,
+      "responseType": "ApiResponse<ProductBacklogItemData>",
+      "consumers": []
+    },
+    {
+      "name": "productBacklog.reorder",
+      "method": "PUT",
+      "url": "/api/v1/product-backlog-items/order",
+      "contract": true,
+      "line": 1219,
+      "responseType": "ApiResponse<{ epicId: number; pbiIds: number[] }>",
+      "consumers": [
+        "src/features/backlog/services/backlogService.ts"
+      ]
+    },
+    {
+      "name": "sprints.list",
+      "method": "GET",
+      "url": "/api/v1/sprints",
+      "contract": true,
+      "line": 1227,
+      "responseType": "ApiResponse<PaginatedData<SprintData>>",
+      "consumers": [
+        "src/features/metrics/FlowMetricsPage.tsx",
+        "src/features/backlog/services/backlogService.ts",
+        "src/features/sprints/services/sprintService.ts"
+      ]
+    },
+    {
+      "name": "sprints.create",
+      "method": "POST",
+      "url": "/api/v1/sprints",
+      "contract": true,
+      "line": 1232,
+      "responseType": "ApiResponse<SprintData>",
+      "consumers": [
+        "src/features/sprints/services/sprintService.ts"
+      ]
+    },
+    {
+      "name": "sprints.get",
+      "method": "GET",
+      "url": "/api/v1/sprints/${sprintId}",
+      "contract": true,
+      "line": 1237,
+      "responseType": "ApiResponse<SprintData>",
+      "consumers": [
+        "src/features/sprints/services/sprintService.ts"
+      ]
+    },
+    {
+      "name": "sprints.update",
+      "method": "PUT",
+      "url": "/api/v1/sprints/${sprintId}",
+      "contract": true,
+      "line": 1242,
+      "responseType": "ApiResponse<SprintData>",
+      "consumers": [
+        "src/features/sprints/services/sprintService.ts"
+      ]
+    },
+    {
+      "name": "sprints.delete",
+      "method": "DELETE",
+      "url": "/api/v1/sprints/${sprintId}",
+      "contract": true,
+      "line": 1247,
+      "responseType": "ApiResponse<null>",
+      "consumers": [
+        "src/features/sprints/services/sprintService.ts"
+      ]
+    },
+    {
+      "name": "sprints.start",
+      "method": "POST",
+      "url": "/api/v1/sprints/${sprintId}/start",
+      "contract": true,
+      "line": 1252,
+      "responseType": "ApiResponse<SprintData>",
+      "consumers": [
+        "src/features/sprints/services/sprintService.ts"
+      ]
+    },
+    {
+      "name": "sprints.close",
+      "method": "POST",
+      "url": "/api/v1/sprints/${sprintId}/close",
+      "contract": true,
+      "line": 1257,
+      "responseType": "ApiResponse<SprintData>",
+      "consumers": [
+        "src/features/sprints/services/sprintService.ts"
+      ]
+    },
+    {
+      "name": "sprints.addBacklogItems",
+      "method": "POST",
+      "url": "/api/v1/sprints/${sprintId}/backlog-items",
+      "contract": true,
+      "line": 1262,
+      "responseType": "ApiResponse<null>",
+      "consumers": [
+        "src/features/backlog/services/backlogService.ts",
+        "src/features/sprints/services/sprintService.ts"
+      ]
+    },
+    {
+      "name": "sprints.getBacklogItems",
+      "method": "GET",
+      "url": "/api/v1/sprints/${sprintId}/backlog-items",
+      "contract": true,
+      "line": 1267,
+      "responseType": "ApiResponse<SprintProgressData>",
+      "consumers": []
+    },
+    {
+      "name": "sprints.removeBacklogItem",
+      "method": "DELETE",
+      "url": "/api/v1/sprints/${sprintId}/backlog-items/${pbiId}",
+      "contract": true,
+      "line": 1272,
+      "responseType": "ApiResponse<null>",
+      "consumers": [
+        "src/features/backlog/services/backlogService.ts",
+        "src/features/sprints/services/sprintService.ts"
+      ]
+    },
+    {
+      "name": "sprints.progress",
+      "method": "GET",
+      "url": "/api/v1/sprints/${sprintId}/progress",
+      "contract": true,
+      "line": 1277,
+      "responseType": "ApiResponse<SprintProgressData>",
+      "consumers": [
+        "src/features/sprints/services/sprintService.ts"
+      ]
+    },
+    {
+      "name": "sprints.burndown",
+      "method": "GET",
+      "url": "/api/v1/sprints/${sprintId}/burndown",
+      "contract": true,
+      "line": 1282,
+      "responseType": "ApiResponse<SprintBurndownData>",
+      "consumers": [
+        "src/features/sprints/services/sprintService.ts"
+      ]
+    },
+    {
+      "name": "tasks.list",
+      "method": "GET",
+      "url": "/api/v1/projects/${projectId}/tasks",
+      "contract": true,
+      "line": 1290,
+      "responseType": "ApiResponse<PaginatedData<TaskData>>",
+      "consumers": []
+    },
+    {
+      "name": "tasks.create",
+      "method": "POST",
+      "url": "/api/v1/projects/${projectId}/tasks",
+      "contract": true,
+      "line": 1295,
+      "responseType": "ApiResponse<TaskData>",
+      "consumers": [
+        "src/features/kanban/services/kanbanService.ts"
+      ]
+    },
+    {
+      "name": "tasks.get",
+      "method": "GET",
+      "url": "/api/v1/tasks/${taskId}",
+      "contract": true,
+      "line": 1300,
+      "responseType": "ApiResponse<TaskDetailData>",
+      "consumers": [
+        "src/features/kanban/services/kanbanService.ts"
+      ]
+    },
+    {
+      "name": "tasks.update",
+      "method": "PUT",
+      "url": "/api/v1/tasks/${taskId}",
+      "contract": true,
+      "line": 1305,
+      "responseType": "ApiResponse<TaskData>",
+      "consumers": [
+        "src/features/kanban/services/kanbanService.ts"
+      ]
+    },
+    {
+      "name": "tasks.delete",
+      "method": "DELETE",
+      "url": "/api/v1/tasks/${taskId}",
+      "contract": true,
+      "line": 1310,
+      "responseType": "ApiResponse<null>",
+      "consumers": [
+        "src/features/kanban/services/kanbanService.ts"
+      ]
+    },
+    {
+      "name": "tasks.createSubtask",
+      "method": "POST",
+      "url": "/api/v1/tasks/${taskId}/subtasks",
+      "contract": true,
+      "line": 1315,
+      "responseType": "ApiResponse<TaskData>",
+      "consumers": [
+        "src/features/kanban/services/kanbanService.ts"
+      ]
+    },
+    {
+      "name": "tasks.assign",
+      "method": "PATCH",
+      "url": "/api/v1/tasks/${taskId}/assignee",
+      "contract": true,
+      "line": 1320,
+      "responseType": "ApiResponse<TaskData>",
+      "consumers": []
+    },
+    {
+      "name": "tasks.changePriority",
+      "method": "PATCH",
+      "url": "/api/v1/tasks/${taskId}/priority",
+      "contract": true,
+      "line": 1325,
+      "responseType": "ApiResponse<TaskData>",
+      "consumers": [
+        "src/features/kanban/services/kanbanService.ts"
+      ]
+    },
+    {
+      "name": "tasks.setDeadline",
+      "method": "PATCH",
+      "url": "/api/v1/tasks/${taskId}/deadline",
+      "contract": true,
+      "line": 1330,
+      "responseType": "ApiResponse<TaskData>",
+      "consumers": []
+    },
+    {
+      "name": "tasks.updateProgress",
+      "method": "PATCH",
+      "url": "/api/v1/tasks/${taskId}/progress",
+      "contract": true,
+      "line": 1335,
+      "responseType": "ApiResponse<TaskData>",
+      "consumers": []
+    },
+    {
+      "name": "tasks.getOverdue",
+      "method": "GET",
+      "url": "/api/v1/projects/${projectId}/tasks/overdue",
+      "contract": true,
+      "line": 1340,
+      "responseType": "ApiResponse<PaginatedData<TaskData>>",
+      "consumers": []
+    },
+    {
+      "name": "tasks.getDeadlineAlerts",
+      "method": "GET",
+      "url": "/api/v1/projects/${projectId}/tasks/deadline-alerts",
+      "contract": true,
+      "line": 1347,
+      "responseType": "ApiResponse<DeadlineAlertsData>",
+      "consumers": []
+    },
+    {
+      "name": "board.get",
+      "method": "GET",
+      "url": "/api/v1/projects/${projectId}/board",
+      "contract": true,
+      "line": 1357,
+      "responseType": "ApiResponse<BoardData>",
+      "consumers": [
+        "src/features/kanban/services/kanbanService.ts"
+      ]
+    },
+    {
+      "name": "board.move",
+      "method": "PATCH",
+      "url": "/api/v1/tasks/${taskId}/move",
+      "contract": true,
+      "line": 1362,
+      "responseType": "ApiResponse<MoveTaskResult>",
+      "consumers": [
+        "src/features/kanban/services/kanbanService.ts"
+      ]
+    },
+    {
+      "name": "wip.get",
+      "method": "GET",
+      "url": "/api/v1/projects/${projectId}/wip",
+      "contract": true,
+      "line": 1370,
+      "responseType": "ApiResponse<WipStatusData>",
+      "consumers": []
+    },
+    {
+      "name": "wip.getAlerts",
+      "method": "GET",
+      "url": "/api/v1/projects/${projectId}/wip/alerts",
+      "contract": true,
+      "line": 1375,
+      "responseType": "ApiResponse<WipStatusData>",
+      "consumers": []
+    },
+    {
+      "name": "wip.setLimit",
+      "method": "PUT",
+      "url": "/api/v1/projects/${projectId}/board/columns/${columnId}/wip-limit",
+      "contract": true,
+      "line": 1380,
+      "responseType": "ApiResponse<WipLimitResult>",
+      "consumers": [
+        "src/features/kanban/services/kanbanService.ts"
+      ]
+    },
+    {
+      "name": "wip.removeLimit",
+      "method": "DELETE",
+      "url": "/api/v1/projects/${projectId}/board/columns/${columnId}/wip-limit",
+      "contract": true,
+      "line": 1385,
+      "responseType": "ApiResponse<WipLimitResult>",
+      "consumers": [
+        "src/features/kanban/services/kanbanService.ts"
+      ]
+    },
+    {
+      "name": "flowMetrics.wip",
+      "method": "GET",
+      "url": "/api/v1/projects/${projectId}/flow-metrics/wip",
+      "contract": true,
+      "line": 1393,
+      "responseType": "ApiResponse<FlowWipData>",
+      "consumers": [
+        "src/features/metrics/services/metricService.ts"
+      ]
+    },
+    {
+      "name": "flowMetrics.throughput",
+      "method": "GET",
+      "url": "/api/v1/projects/${projectId}/flow-metrics/throughput",
+      "contract": true,
+      "line": 1400,
+      "responseType": "ApiResponse<ThroughputData>",
+      "consumers": [
+        "src/features/metrics/services/metricService.ts"
+      ]
+    },
+    {
+      "name": "flowMetrics.throughputSprints",
+      "method": "GET",
+      "url": "/api/v1/projects/${projectId}/flow-metrics/throughput/sprints",
+      "contract": true,
+      "line": 1407,
+      "responseType": "ApiResponse<SprintsThroughputData>",
+      "consumers": []
+    },
+    {
+      "name": "flowMetrics.cycleTime",
+      "method": "GET",
+      "url": "/api/v1/projects/${projectId}/flow-metrics/cycle-time",
+      "contract": true,
+      "line": 1414,
+      "responseType": "ApiResponse<PaginatedData<CycleTimeItem>>",
+      "consumers": [
+        "src/features/metrics/services/metricService.ts"
+      ]
+    },
+    {
+      "name": "flowMetrics.cycleTimeAverage",
+      "method": "GET",
+      "url": "/api/v1/projects/${projectId}/flow-metrics/cycle-time/average",
+      "contract": true,
+      "line": 1421,
+      "responseType": "ApiResponse<CycleTimeAverageData>",
+      "consumers": [
+        "src/features/metrics/services/metricService.ts"
+      ]
+    },
+    {
+      "name": "flowMetrics.workItemAge",
+      "method": "GET",
+      "url": "/api/v1/projects/${projectId}/flow-metrics/work-item-age",
+      "contract": true,
+      "line": 1428,
+      "responseType": "ApiResponse<WorkItemAgeData>",
+      "consumers": [
+        "src/features/metrics/services/metricService.ts"
+      ]
+    },
+    {
+      "name": "bugs.list",
+      "method": "GET",
+      "url": "/api/v1/projects/${projectId}/bugs",
+      "contract": true,
+      "line": 1438,
+      "responseType": "ApiResponse<PaginatedData<BugData>>",
+      "consumers": [
+        "src/features/bugs/services/bugService.ts"
+      ]
+    },
+    {
+      "name": "bugs.create",
+      "method": "POST",
+      "url": "/api/v1/bugs",
+      "contract": true,
+      "line": 1443,
+      "responseType": "ApiResponse<BugData>",
+      "consumers": [
+        "src/features/bugs/services/bugService.ts"
+      ]
+    },
+    {
+      "name": "bugs.createForTask",
+      "method": "POST",
+      "url": "/api/v1/tasks/${taskId}/bugs",
+      "contract": true,
+      "line": 1448,
+      "responseType": "ApiResponse<BugData>",
+      "consumers": []
+    },
+    {
+      "name": "bugs.get",
+      "method": "GET",
+      "url": "/api/v1/bugs/${bugId}",
+      "contract": true,
+      "line": 1453,
+      "responseType": "ApiResponse<BugDetailData>",
+      "consumers": [
+        "src/features/bugs/services/bugService.ts"
+      ]
+    },
+    {
+      "name": "bugs.update",
+      "method": "PUT",
+      "url": "/api/v1/bugs/${bugId}",
+      "contract": true,
+      "line": 1458,
+      "responseType": "ApiResponse<BugData>",
+      "consumers": [
+        "src/features/bugs/services/bugService.ts"
+      ]
+    },
+    {
+      "name": "bugs.delete",
+      "method": "DELETE",
+      "url": "/api/v1/bugs/${bugId}",
+      "contract": true,
+      "line": 1463,
+      "responseType": "ApiResponse<null>",
+      "consumers": [
+        "src/features/bugs/services/bugService.ts"
+      ]
+    },
+    {
+      "name": "bugs.assign",
+      "method": "PATCH",
+      "url": "/api/v1/bugs/${bugId}/assignee",
+      "contract": true,
+      "line": 1468,
+      "responseType": "ApiResponse<BugData>",
+      "consumers": [
+        "src/features/bugs/services/bugService.ts"
+      ]
+    },
+    {
+      "name": "bugs.changePriority",
+      "method": "PATCH",
+      "url": "/api/v1/bugs/${bugId}/priority",
+      "contract": true,
+      "line": 1473,
+      "responseType": "ApiResponse<BugData>",
+      "consumers": []
+    },
+    {
+      "name": "bugs.changeStatus",
+      "method": "PATCH",
+      "url": "/api/v1/bugs/${bugId}/status",
+      "contract": true,
+      "line": 1478,
+      "responseType": "ApiResponse<BugData>",
+      "consumers": [
+        "src/features/bugs/services/bugService.ts"
+      ]
+    },
+    {
+      "name": "bugs.close",
+      "method": "POST",
+      "url": "/api/v1/bugs/${bugId}/close",
+      "contract": true,
+      "line": 1483,
+      "responseType": "ApiResponse<BugData>",
+      "consumers": [
+        "src/features/bugs/services/bugService.ts"
+      ]
+    },
+    {
+      "name": "comments.listByTask",
+      "method": "GET",
+      "url": "/api/v1/tasks/${taskId}/comments",
+      "contract": true,
+      "line": 1491,
+      "responseType": "ApiResponse<PaginatedData<CommentData>>",
+      "consumers": [
+        "src/features/kanban/components/TaskDetailDrawer.tsx"
+      ]
+    },
+    {
+      "name": "comments.createForTask",
+      "method": "POST",
+      "url": "/api/v1/tasks/${taskId}/comments",
+      "contract": true,
+      "line": 1498,
+      "responseType": "ApiResponse<CommentData>",
+      "consumers": [
+        "src/features/bugs/services/bugService.ts",
+        "src/features/kanban/components/TaskDetailDrawer.tsx",
+        "src/features/kanban/services/kanbanService.ts"
+      ]
+    },
+    {
+      "name": "comments.get",
+      "method": "GET",
+      "url": "/api/v1/comments/${commentId}",
+      "contract": true,
+      "line": 1503,
+      "responseType": "ApiResponse<CommentData>",
+      "consumers": []
+    },
+    {
+      "name": "comments.update",
+      "method": "PUT",
+      "url": "/api/v1/comments/${commentId}",
+      "contract": true,
+      "line": 1508,
+      "responseType": "ApiResponse<CommentData>",
+      "consumers": []
+    },
+    {
+      "name": "comments.delete",
+      "method": "DELETE",
+      "url": "/api/v1/comments/${commentId}",
+      "contract": true,
+      "line": 1513,
+      "responseType": "ApiResponse<null>",
+      "consumers": [
+        "src/features/kanban/components/TaskDetailDrawer.tsx"
+      ]
+    },
+    {
+      "name": "attachments.uploadForTask",
+      "method": "POST",
+      "url": "/api/v1/tasks/${taskId}/attachments",
+      "contract": true,
+      "line": 1523,
+      "responseType": "ApiResponse<{ items: AttachmentData[] }>",
+      "consumers": [
+        "src/features/kanban/components/TaskDetailDrawer.tsx"
+      ]
+    },
+    {
+      "name": "attachments.listByTask",
+      "method": "GET",
+      "url": "/api/v1/tasks/${taskId}/attachments",
+      "contract": true,
+      "line": 1530,
+      "responseType": "ApiResponse<PaginatedData<AttachmentData>>",
+      "consumers": [
+        "src/features/kanban/components/TaskDetailDrawer.tsx"
+      ]
+    },
+    {
+      "name": "attachments.get",
+      "method": "GET",
+      "url": "/api/v1/attachments/${attachmentId}",
+      "contract": true,
+      "line": 1537,
+      "responseType": "ApiResponse<AttachmentData>",
+      "consumers": []
+    },
+    {
+      "name": "attachments.delete",
+      "method": "DELETE",
+      "url": "/api/v1/attachments/${attachmentId}",
+      "contract": true,
+      "line": 1542,
+      "responseType": "ApiResponse<null>",
+      "consumers": [
+        "src/features/kanban/components/TaskDetailDrawer.tsx"
+      ]
+    },
+    {
+      "name": "attachments.downloadBlob",
+      "method": "GET",
+      "url": "/api/v1/attachments/${attachmentId}/download",
+      "contract": true,
+      "line": 1547,
+      "responseType": "Blob",
+      "consumers": [
+        "src/features/kanban/components/TaskDetailDrawer.tsx"
+      ]
+    },
+    {
+      "name": "attachments.previewBlob",
+      "method": "GET",
+      "url": "/api/v1/attachments/${attachmentId}/preview",
+      "contract": true,
+      "line": 1554,
+      "responseType": "Blob",
+      "consumers": [
+        "src/features/kanban/components/TaskDetailDrawer.tsx"
+      ]
+    },
+    {
+      "name": "notifications.list",
+      "method": "GET",
+      "url": "/api/v1/notifications",
+      "contract": true,
+      "line": 1564,
+      "responseType": "ApiResponse<PaginatedData<NotificationData>>",
+      "consumers": [
+        "src/features/notifications/services/notificationService.ts"
+      ]
+    },
+    {
+      "name": "notifications.getUnreadCount",
+      "method": "GET",
+      "url": "/api/v1/notifications/unread-count",
+      "contract": true,
+      "line": 1569,
+      "responseType": "ApiResponse<{ unreadCount: number }>",
+      "consumers": []
+    },
+    {
+      "name": "notifications.markAsRead",
+      "method": "PATCH",
+      "url": "/api/v1/notifications/${notificationId}/read",
+      "contract": true,
+      "line": 1574,
+      "responseType": "ApiResponse<NotificationData>",
+      "consumers": [
+        "src/features/notifications/services/notificationService.ts"
+      ]
+    },
+    {
+      "name": "notifications.markAllAsRead",
+      "method": "PATCH",
+      "url": "/api/v1/notifications/read-all",
+      "contract": true,
+      "line": 1579,
+      "responseType": "ApiResponse<{ updated: number }>",
+      "consumers": [
+        "src/features/notifications/services/notificationService.ts"
+      ]
+    },
+    {
+      "name": "activityLogs.listByProject",
+      "method": "GET",
+      "url": "/api/v1/projects/${projectId}/activity-logs",
+      "contract": true,
+      "line": 1587,
+      "responseType": "ApiResponse<PaginatedData<ActivityLogItem>>",
+      "consumers": [
+        "src/features/notifications/services/notificationService.ts"
+      ]
+    },
+    {
+      "name": "chat.editMessage",
+      "method": "PUT",
+      "url": "/api/v1/chat/rooms/${roomId}/messages/${messageId}",
+      "contract": true,
+      "line": 1595,
+      "responseType": "ApiResponse<ChatMessageData>",
+      "consumers": [
+        "src/features/chat/services/chatService.ts"
+      ]
+    },
+    {
+      "name": "chat.listRooms",
+      "method": "GET",
+      "url": "/api/v1/chat/rooms",
+      "contract": true,
+      "line": 1599,
+      "responseType": "ApiResponse<ChatRoomData[]>",
+      "consumers": [
+        "src/features/chat/services/chatService.ts"
+      ]
+    },
+    {
+      "name": "chat.createRoom",
+      "method": "POST",
+      "url": "/api/v1/chat/rooms",
+      "contract": true,
+      "line": 1604,
+      "responseType": "ApiResponse<{ chatRoomId: number }>",
+      "consumers": [
+        "src/features/chat/services/chatService.ts"
+      ]
+    },
+    {
+      "name": "chat.listParticipants",
+      "method": "GET",
+      "url": "/api/v1/chat/rooms/${roomId}/participants",
+      "contract": true,
+      "line": 1609,
+      "responseType": "ApiResponse<ChatParticipantData[]>",
+      "consumers": []
+    },
+    {
+      "name": "chat.addParticipants",
+      "method": "POST",
+      "url": "/api/v1/chat/rooms/${roomId}/participants",
+      "contract": true,
+      "line": 1614,
+      "responseType": "ApiResponse<null>",
+      "consumers": []
+    },
+    {
+      "name": "chat.removeParticipant",
+      "method": "DELETE",
+      "url": "/api/v1/chat/rooms/${roomId}/participants/${userId}",
+      "contract": true,
+      "line": 1619,
+      "responseType": "ApiResponse<null>",
+      "consumers": []
+    },
+    {
+      "name": "chat.listMessages",
+      "method": "GET",
+      "url": "/api/v1/chat/rooms/${roomId}/messages",
+      "contract": true,
+      "line": 1624,
+      "responseType": "ApiResponse<ChatMessagesData>",
+      "consumers": [
+        "src/features/chat/services/chatService.ts"
+      ]
+    },
+    {
+      "name": "chat.sendMessage",
+      "method": "POST",
+      "url": "/api/v1/chat/rooms/${roomId}/messages",
+      "contract": true,
+      "line": 1634,
+      "responseType": "ApiResponse<ChatMessageData>",
+      "consumers": [
+        "src/features/chat/services/chatService.ts"
+      ]
+    },
+    {
+      "name": "chat.sendMessage",
+      "method": "POST",
+      "url": "/api/v1/chat/rooms/${roomId}/messages",
+      "contract": true,
+      "line": 1639,
+      "responseType": "ApiResponse<ChatMessageData>",
+      "consumers": [
+        "src/features/chat/services/chatService.ts"
+      ]
+    },
+    {
+      "name": "chat.markRead",
+      "method": "POST",
+      "url": "/api/v1/chat/rooms/${roomId}/read",
+      "contract": true,
+      "line": 1644,
+      "responseType": "ApiResponse<null>",
+      "consumers": [
+        "src/features/chat/services/chatService.ts"
+      ]
+    },
+    {
+      "name": "chat.getUnreadCount",
+      "method": "GET",
+      "url": "/api/v1/chat/unread-count",
+      "contract": true,
+      "line": 1649,
+      "responseType": "ApiResponse<{ unreadCount: number }>",
+      "consumers": []
+    },
+    {
+      "name": "chat.downloadAttachmentBlob",
+      "method": "GET",
+      "url": "/api/v1/chat/attachments/${attachmentId}",
+      "contract": true,
+      "line": 1654,
+      "responseType": "Blob",
+      "consumers": []
+    },
+    {
+      "name": "chat.previewAttachmentBlob",
+      "method": "GET",
+      "url": "/api/v1/chat/attachments/${attachmentId}/preview",
+      "contract": true,
+      "line": 1661,
+      "responseType": "Blob",
+      "consumers": []
+    },
+    {
+      "name": "admin.listUsers",
+      "method": "GET",
+      "url": "/api/v1/admin/users",
+      "contract": true,
+      "line": 1671,
+      "responseType": "ApiResponse<PaginatedData<AdminUserData>>",
+      "consumers": [
+        "src/features/admin/services/adminService.ts"
+      ]
+    },
+    {
+      "name": "admin.createUser",
+      "method": "POST",
+      "url": "/api/v1/admin/users",
+      "contract": true,
+      "line": 1676,
+      "responseType": "ApiResponse<{ userId: number; systemRole: string }>",
+      "consumers": [
+        "src/features/admin/services/adminService.ts"
+      ]
+    },
+    {
+      "name": "admin.listRoles",
+      "method": "GET",
+      "url": "/api/v1/admin/roles",
+      "contract": true,
+      "line": 1681,
+      "responseType": "ApiResponse<SystemRoleData[]>",
+      "consumers": []
+    },
+    {
+      "name": "admin.updateUserRole",
+      "method": "PUT",
+      "url": "/api/v1/admin/users/${userId}/role",
+      "contract": true,
+      "line": 1686,
+      "responseType": "ApiResponse<{ userId: number; systemRole: string }>",
+      "consumers": [
+        "src/features/admin/services/adminService.ts"
+      ]
+    },
+    {
+      "name": "admin.getConfig",
+      "method": "GET",
+      "url": "/api/v1/admin/system-config",
+      "contract": true,
+      "line": 1691,
+      "responseType": "ApiResponse<SystemConfigData>",
+      "consumers": [
+        "src/features/admin/services/adminService.ts"
+      ]
+    },
+    {
+      "name": "admin.updateConfig",
+      "method": "PUT",
+      "url": "/api/v1/admin/system-config",
+      "contract": true,
+      "line": 1696,
+      "responseType": "ApiResponse<null>",
+      "consumers": [
+        "src/features/admin/services/adminService.ts"
+      ]
+    },
+    {
+      "name": "admin.activityLogs",
+      "method": "GET",
+      "url": "/api/v1/admin/activity-logs",
+      "contract": true,
+      "line": 1701,
+      "responseType": "ApiResponse<PaginatedData<ActivityLogItem>>",
+      "consumers": [
+        "src/features/admin/components/AuditLogsTab.tsx"
+      ]
+    },
+    {
+      "name": "permissions.getMePermissions",
+      "method": "GET",
+      "url": "/api/v1/me/permissions",
+      "contract": true,
+      "line": 1711,
+      "responseType": "ApiResponse<PermissionsData>",
+      "consumers": []
+    }
+  ],
+  "live": [
+    {
+      "method": "GET",
+      "url": "/api/v1/users",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/users/me",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/users/me/avatar/1",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/projects",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/projects/1",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/projects/1/members",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/projects/1/departments",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/projects/1/epics",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/epics/1",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/epics/1/progress",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/product-backlog-items",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/product-backlog-items/1",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/sprints",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/sprints/1",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/sprints/1/backlog-items",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/sprints/1/progress",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/sprints/1/burndown",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/projects/1/tasks",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/tasks/1",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/projects/1/tasks/overdue",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/projects/1/tasks/deadline-alerts",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/projects/1/board",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/projects/1/wip",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/projects/1/wip/alerts",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/projects/1/flow-metrics/wip",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/projects/1/flow-metrics/throughput",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/projects/1/flow-metrics/throughput/sprints",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/projects/1/flow-metrics/cycle-time",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/projects/1/flow-metrics/cycle-time/average",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/projects/1/flow-metrics/work-item-age",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/projects/1/bugs",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/bugs/1",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/tasks/1/comments",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/comments/1",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/tasks/1/attachments",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/attachments/1",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/attachments/1/download",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/attachments/1/preview",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/notifications",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/notifications/unread-count",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/projects/1/activity-logs",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/chat/rooms",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/chat/rooms/1/participants",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/chat/rooms/1/messages",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/chat/unread-count",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/chat/attachments/1",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/chat/attachments/1/preview",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/admin/users",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/admin/roles",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/admin/system-config",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/admin/activity-logs",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "url": "/api/v1/me/permissions",
+      "status": 401,
+      "scope": "anonymous authorization boundary only",
+      "result": "PASS"
+    }
+  ]
+}

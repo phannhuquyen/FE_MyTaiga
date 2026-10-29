@@ -1,0 +1,1515 @@
+{
+  "generatedAt": "2026-10-27T17:47:40.269Z",
+  "automated": {
+    "unit": {
+      "total": 195,
+      "passed": 195,
+      "failed": 0
+    },
+    "mockBrowser": {
+      "startTime": "2026-10-27T17:39:51.664Z",
+      "duration": 58279.918,
+      "expected": 47,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "liveBrowser": {
+      "startTime": "2026-10-27T17:41:13.944Z",
+      "duration": 33514.485,
+      "expected": 12,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  },
+  "liveReads": {
+    "passed": 114,
+    "failed": 0,
+    "blocked": 42
+  },
+  "endpointInventory": {
+    "uniqueDefinitions": 124,
+    "observedWrapperNames": 96,
+    "caveat": "Names in latest read sweep and latest dataset run, including expected denial. Earlier creation and UI calls are not exhaustively logged. Unobserved means absent from these logs, not necessarily never executed. Observation is not full business coverage.",
+    "unobserved": [
+      {
+        "name": "auth.logout",
+        "method": "POST",
+        "url": "/api/v1/auth/logout"
+      },
+      {
+        "name": "auth.register",
+        "method": "POST",
+        "url": "/api/v1/auth/register"
+      },
+      {
+        "name": "auth.forgotPassword",
+        "method": "POST",
+        "url": "/api/v1/auth/forgot-password"
+      },
+      {
+        "name": "auth.resetPassword",
+        "method": "POST",
+        "url": "/api/v1/auth/reset-password"
+      },
+      {
+        "name": "auth.changePassword",
+        "method": "POST",
+        "url": "/api/v1/auth/change-password"
+      },
+      {
+        "name": "users.updateMe",
+        "method": "PUT",
+        "url": "/api/v1/users/me"
+      },
+      {
+        "name": "users.uploadAvatar",
+        "method": "PUT",
+        "url": "/api/v1/users/me/avatar"
+      },
+      {
+        "name": "users.getAvatarBlob",
+        "method": "GET",
+        "url": "/api/v1/users/me/avatar/${fileName}"
+      },
+      {
+        "name": "projectMembers.add",
+        "method": "POST",
+        "url": "/api/v1/projects/${projectId}/members"
+      },
+      {
+        "name": "projectMembers.remove",
+        "method": "DELETE",
+        "url": "/api/v1/projects/${projectId}/members/${userId}"
+      },
+      {
+        "name": "projectMembers.promote",
+        "method": "PATCH",
+        "url": "/api/v1/projects/${projectId}/members/${userId}/role"
+      },
+      {
+        "name": "epics.update",
+        "method": "PUT",
+        "url": "/api/v1/epics/${epicId}"
+      },
+      {
+        "name": "epics.linkPbi",
+        "method": "PATCH",
+        "url": "/api/v1/pbis/${pbiId}/epic"
+      },
+      {
+        "name": "epics.linkProductBacklogItem",
+        "method": "PATCH",
+        "url": "/api/v1/product-backlog-items/${pbiId}/epic"
+      },
+      {
+        "name": "epics.linkTask",
+        "method": "PATCH",
+        "url": "/api/v1/tasks/${taskId}/epic"
+      },
+      {
+        "name": "productBacklog.delete",
+        "method": "DELETE",
+        "url": "/api/v1/product-backlog-items/${pbiId}"
+      },
+      {
+        "name": "sprints.update",
+        "method": "PUT",
+        "url": "/api/v1/sprints/${sprintId}"
+      },
+      {
+        "name": "sprints.removeBacklogItem",
+        "method": "DELETE",
+        "url": "/api/v1/sprints/${sprintId}/backlog-items/${pbiId}"
+      },
+      {
+        "name": "tasks.assign",
+        "method": "PATCH",
+        "url": "/api/v1/tasks/${taskId}/assignee"
+      },
+      {
+        "name": "bugs.createForTask",
+        "method": "POST",
+        "url": "/api/v1/tasks/${taskId}/bugs"
+      },
+      {
+        "name": "bugs.update",
+        "method": "PUT",
+        "url": "/api/v1/bugs/${bugId}"
+      },
+      {
+        "name": "bugs.changePriority",
+        "method": "PATCH",
+        "url": "/api/v1/bugs/${bugId}/priority"
+      },
+      {
+        "name": "notifications.markAsRead",
+        "method": "PATCH",
+        "url": "/api/v1/notifications/${notificationId}/read"
+      },
+      {
+        "name": "notifications.markAllAsRead",
+        "method": "PATCH",
+        "url": "/api/v1/notifications/read-all"
+      },
+      {
+        "name": "chat.createRoom",
+        "method": "POST",
+        "url": "/api/v1/chat/rooms"
+      },
+      {
+        "name": "admin.createUser",
+        "method": "POST",
+        "url": "/api/v1/admin/users"
+      },
+      {
+        "name": "admin.updateUserRole",
+        "method": "PUT",
+        "url": "/api/v1/admin/users/${userId}/role"
+      },
+      {
+        "name": "admin.updateConfig",
+        "method": "PUT",
+        "url": "/api/v1/admin/system-config"
+      }
+    ]
+  },
+  "cases": {
+    "unit": [
+      {
+        "file": "tests/admin-config.test.ts",
+        "scenario": "loads system config rows using the real backend array contract",
+        "status": "passed"
+      },
+      {
+        "file": "tests/admin-mutations.test.tsx",
+        "scenario": "admin create failure stays open and shows error",
+        "status": "passed"
+      },
+      {
+        "file": "tests/admin-mutations.test.tsx",
+        "scenario": "admin lock failure stays open and shows error",
+        "status": "passed"
+      },
+      {
+        "file": "tests/admin-mutations.test.tsx",
+        "scenario": "admin unlock failure stays open and shows error",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "discovers every API wrapper for transport contract checks",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: auth.login",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: auth.logout",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: auth.register",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: auth.forgotPassword",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: auth.resetPassword",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: auth.changePassword",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: users.getMe",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: users.updateMe",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: users.uploadAvatar",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: users.getAvatarBlob",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: adminUsers.lockUser",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: adminUsers.unlockUser",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: projects.create",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: projects.list",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: projects.get",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: projects.update",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: projects.close",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: projects.delete",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: projectMembers.list",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: projectMembers.add",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: projectMembers.remove",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: projectMembers.promote",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: projectDepartments.list",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: projectDepartments.create",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: projectDepartments.update",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: projectDepartments.delete",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: projectDepartments.assignMember",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: epics.list",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: epics.create",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: epics.get",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: epics.update",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: epics.delete",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: epics.progress",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: epics.linkPbi",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: epics.linkProductBacklogItem",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: epics.linkTask",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: productBacklog.list",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: productBacklog.create",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: productBacklog.get",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: productBacklog.update",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: productBacklog.delete",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: productBacklog.changePriority",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: productBacklog.reorder",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: sprints.list",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: sprints.create",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: sprints.get",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: sprints.update",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: sprints.delete",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: sprints.start",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: sprints.close",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: sprints.addBacklogItems",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: sprints.getBacklogItems",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: sprints.removeBacklogItem",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: sprints.progress",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: sprints.burndown",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: tasks.list",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: tasks.create",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: tasks.get",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: tasks.update",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: tasks.delete",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: tasks.createSubtask",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: tasks.assign",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: tasks.changePriority",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: tasks.setDeadline",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: tasks.updateProgress",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: tasks.getOverdue",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: tasks.getDeadlineAlerts",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: board.get",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: board.move",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: wip.get",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: wip.getAlerts",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: wip.setLimit",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: wip.removeLimit",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: flowMetrics.wip",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: flowMetrics.throughput",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: flowMetrics.throughputSprints",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: flowMetrics.cycleTime",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: flowMetrics.cycleTimeAverage",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: flowMetrics.workItemAge",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: bugs.list",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: bugs.create",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: bugs.createForTask",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: bugs.get",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: bugs.update",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: bugs.delete",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: bugs.assign",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: bugs.changePriority",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: bugs.changeStatus",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: bugs.close",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: comments.listByTask",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: comments.createForTask",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: comments.get",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: comments.update",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: comments.delete",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: attachments.uploadForTask",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: attachments.listByTask",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: attachments.get",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: attachments.delete",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: attachments.downloadBlob",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: attachments.previewBlob",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: notifications.list",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: notifications.getUnreadCount",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: notifications.markAsRead",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: notifications.markAllAsRead",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: activityLogs.listByProject",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: chat.listRooms",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: chat.createRoom",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: chat.listParticipants",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: chat.addParticipants",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: chat.removeParticipant",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: chat.listMessages",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: chat.sendMessage",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: chat.markRead",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: chat.getUnreadCount",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: chat.downloadAttachmentBlob",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: chat.previewAttachmentBlob",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: admin.listUsers",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: admin.createUser",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: admin.listRoles",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: admin.updateUserRole",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: admin.getConfig",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: admin.updateConfig",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: admin.activityLogs",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api-contract.test.ts",
+        "scenario": "mock transport contract: permissions.getMePermissions",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api.test.ts",
+        "scenario": "central API transport (mock adapter) does not log login response or credentials",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api.test.ts",
+        "scenario": "central API transport (mock adapter) sends bearer token and unwraps the API envelope once",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api.test.ts",
+        "scenario": "central API transport (mock adapter) preserves HTTP 400 failure for consumers",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api.test.ts",
+        "scenario": "central API transport (mock adapter) preserves HTTP 403 failure for consumers",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api.test.ts",
+        "scenario": "central API transport (mock adapter) preserves HTTP 404 failure for consumers",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api.test.ts",
+        "scenario": "central API transport (mock adapter) preserves HTTP 409 failure for consumers",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api.test.ts",
+        "scenario": "central API transport (mock adapter) preserves HTTP 500 failure for consumers",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api.test.ts",
+        "scenario": "central API transport (mock adapter) propagates timeouts",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api.test.ts",
+        "scenario": "central API transport (mock adapter) clears full cached identity after HTTP 401",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api.test.ts",
+        "scenario": "central API transport (mock adapter) does not redirect a completed logout for an in-flight stale 401",
+        "status": "passed"
+      },
+      {
+        "file": "tests/api.test.ts",
+        "scenario": "central API transport (mock adapter) does not clear a new session because an older request returns 401",
+        "status": "passed"
+      },
+      {
+        "file": "tests/chat-channel.test.tsx",
+        "scenario": "keeps channel dialog open until rejected async creation is handled",
+        "status": "passed"
+      },
+      {
+        "file": "tests/chat.test.ts",
+        "scenario": "does not retain a locally successful message when real room send fails",
+        "status": "passed"
+      },
+      {
+        "file": "tests/chat.test.ts",
+        "scenario": "does not create a fake room on rejected backend creation",
+        "status": "passed"
+      },
+      {
+        "file": "tests/drawer.test.tsx",
+        "scenario": "keeps comment visible if backend delete fails",
+        "status": "passed"
+      },
+      {
+        "file": "tests/drawer.test.tsx",
+        "scenario": "keeps attachment visible if backend delete fails",
+        "status": "passed"
+      },
+      {
+        "file": "tests/feature-adapters.test.ts",
+        "scenario": "maps nullable project dates/description and role",
+        "status": "passed"
+      },
+      {
+        "file": "tests/feature-adapters.test.ts",
+        "scenario": "maps members with nullable departments",
+        "status": "passed"
+      },
+      {
+        "file": "tests/feature-adapters.test.ts",
+        "scenario": "maps department memberCount without inventing members",
+        "status": "passed"
+      },
+      {
+        "file": "tests/feature-adapters.test.ts",
+        "scenario": "does not convert a mock candidate identifier into a real user ID",
+        "status": "passed"
+      },
+      {
+        "file": "tests/feature-adapters.test.ts",
+        "scenario": "maps epic priority/status and progress",
+        "status": "passed"
+      },
+      {
+        "file": "tests/feature-adapters.test.ts",
+        "scenario": "maps backlog story points and epic name",
+        "status": "passed"
+      },
+      {
+        "file": "tests/feature-adapters.test.ts",
+        "scenario": "counts remaining sprint items rather than remaining story points",
+        "status": "passed"
+      },
+      {
+        "file": "tests/feature-adapters.test.ts",
+        "scenario": "maps draft sprint filter to PLANNED contract",
+        "status": "passed"
+      },
+      {
+        "file": "tests/feature-adapters.test.ts",
+        "scenario": "maps bug severity/status and preserves server pagination",
+        "status": "passed"
+      },
+      {
+        "file": "tests/feature-adapters.test.ts",
+        "scenario": "maps null contact/avatar without crashing profile",
+        "status": "passed"
+      },
+      {
+        "file": "tests/feature-adapters.test.ts",
+        "scenario": "maps metrics numeric responses and task age fields",
+        "status": "passed"
+      },
+      {
+        "file": "tests/feature-adapters.test.ts",
+        "scenario": "rejects denied metrics instead of returning fabricated demo KPIs",
+        "status": "passed"
+      },
+      {
+        "file": "tests/feature-adapters.test.ts",
+        "scenario": "rejected business mutations propagate project deletion failure is not success",
+        "status": "passed"
+      },
+      {
+        "file": "tests/feature-adapters.test.ts",
+        "scenario": "rejected business mutations propagate epic deletion failure is not success",
+        "status": "passed"
+      },
+      {
+        "file": "tests/feature-adapters.test.ts",
+        "scenario": "rejected business mutations propagate backlog deletion failure is not success",
+        "status": "passed"
+      },
+      {
+        "file": "tests/feature-adapters.test.ts",
+        "scenario": "rejected business mutations propagate sprint deletion failure is not success",
+        "status": "passed"
+      },
+      {
+        "file": "tests/feature-adapters.test.ts",
+        "scenario": "rejected business mutations propagate bug deletion failure is not success",
+        "status": "passed"
+      },
+      {
+        "file": "tests/guards.test.tsx",
+        "scenario": "route guard admin=false redirects anonymous visitors before rendering children",
+        "status": "passed"
+      },
+      {
+        "file": "tests/guards.test.tsx",
+        "scenario": "route guard admin=false withholds protected content during session restore",
+        "status": "passed"
+      },
+      {
+        "file": "tests/guards.test.tsx",
+        "scenario": "route guard admin=true redirects anonymous visitors before rendering children",
+        "status": "passed"
+      },
+      {
+        "file": "tests/guards.test.tsx",
+        "scenario": "route guard admin=true withholds protected content during session restore",
+        "status": "passed"
+      },
+      {
+        "file": "tests/guards.test.tsx",
+        "scenario": "denies a restored non-admin user access to admin",
+        "status": "passed"
+      },
+      {
+        "file": "tests/logout.test.ts",
+        "scenario": "clears local session immediately while server logout is still pending",
+        "status": "passed"
+      },
+      {
+        "file": "tests/logout.test.ts",
+        "scenario": "retains the captured bearer header for logout after local session has been cleared",
+        "status": "passed"
+      },
+      {
+        "file": "tests/notification-page.test.tsx",
+        "scenario": "refreshes visible list when asynchronously loaded notifications publish",
+        "status": "passed"
+      },
+      {
+        "file": "tests/populated-contracts.test.ts",
+        "scenario": "maps paged bug detail collections from the real controller contract",
+        "status": "passed"
+      },
+      {
+        "file": "tests/populated-contracts.test.ts",
+        "scenario": "maps notification content/ref fields and supports search without undefined crashes",
+        "status": "passed"
+      },
+      {
+        "file": "tests/project-access.test.tsx",
+        "scenario": "waits for project authorization before rendering child and publishes correct project",
+        "status": "passed"
+      },
+      {
+        "file": "tests/project-access.test.tsx",
+        "scenario": "withholds project content on HTTP 403",
+        "status": "passed"
+      },
+      {
+        "file": "tests/project-access.test.tsx",
+        "scenario": "withholds project content on HTTP 404",
+        "status": "passed"
+      },
+      {
+        "file": "tests/project-access.test.tsx",
+        "scenario": "withholds project content on HTTP 500",
+        "status": "passed"
+      },
+      {
+        "file": "tests/project-access.test.tsx",
+        "scenario": "rejects malformed project id 1garbage",
+        "status": "passed"
+      },
+      {
+        "file": "tests/project-access.test.tsx",
+        "scenario": "rejects malformed project id -1",
+        "status": "passed"
+      },
+      {
+        "file": "tests/project-access.test.tsx",
+        "scenario": "rejects malformed project id 0",
+        "status": "passed"
+      },
+      {
+        "file": "tests/services.test.ts",
+        "scenario": "API response adapters and mutation consistency clears demo notifications when backend returns an empty list",
+        "status": "passed"
+      },
+      {
+        "file": "tests/services.test.ts",
+        "scenario": "API response adapters and mutation consistency clears demo activity when backend returns an empty list",
+        "status": "passed"
+      },
+      {
+        "file": "tests/services.test.ts",
+        "scenario": "API response adapters and mutation consistency rejects failed task edits without changing cached task",
+        "status": "passed"
+      },
+      {
+        "file": "tests/services.test.ts",
+        "scenario": "API response adapters and mutation consistency persists description-only edits rather than only changing cache",
+        "status": "passed"
+      },
+      {
+        "file": "tests/services.test.ts",
+        "scenario": "API response adapters and mutation consistency does not claim WIP limits saved when API rejects",
+        "status": "passed"
+      },
+      {
+        "file": "tests/services.test.ts",
+        "scenario": "API response adapters and mutation consistency never sends demo task IDs to live delete endpoint",
+        "status": "passed"
+      },
+      {
+        "file": "tests/services.test.ts",
+        "scenario": "API response adapters and mutation consistency retains unread status when marking a real notification fails",
+        "status": "passed"
+      },
+      {
+        "file": "tests/services.test.ts",
+        "scenario": "API response adapters and mutation consistency retains unread status when mark-all API fails",
+        "status": "passed"
+      },
+      {
+        "file": "tests/services.test.ts",
+        "scenario": "API response adapters and mutation consistency rejects failed subtask creation without a fake local item",
+        "status": "passed"
+      },
+      {
+        "file": "tests/services.test.ts",
+        "scenario": "API response adapters and mutation consistency rejects failed comment creation without a fake local item",
+        "status": "passed"
+      },
+      {
+        "file": "tests/services.test.ts",
+        "scenario": "API response adapters and mutation consistency retains subtask state if backend status change fails",
+        "status": "passed"
+      },
+      {
+        "file": "tests/services.test.ts",
+        "scenario": "API response adapters and mutation consistency persists status changed from task details through board API",
+        "status": "passed"
+      },
+      {
+        "file": "tests/session.test.tsx",
+        "scenario": "clears newly stored credentials if post-login profile verification fails",
+        "status": "passed"
+      },
+      {
+        "file": "tests/session.test.tsx",
+        "scenario": "restores session from a fresh provider mount and logs out even if backend logout fails",
+        "status": "passed"
+      },
+      {
+        "file": "tests/session.test.tsx",
+        "scenario": "recognizes locked-account 403 from the current backend contract",
+        "status": "passed"
+      },
+      {
+        "file": "tests/settings.test.tsx",
+        "scenario": "shows rejected settings save and never claims success",
+        "status": "passed"
+      }
+    ],
+    "mockBrowser": [
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock empty: /projects renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock error: /projects renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock empty: /profile renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock error: /profile renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock empty: /chat renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock error: /chat renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock empty: /notifications renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock error: /notifications renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock empty: /activity renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock error: /activity renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock empty: /admin/users renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock error: /admin/users renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock empty: /admin/roles renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock error: /admin/roles renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock empty: /admin/settings renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock error: /admin/settings renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock empty: /admin/logs renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock error: /admin/logs renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock empty: /projects/1/dashboard renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock error: /projects/1/dashboard renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock empty: /projects/1/kanban renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock error: /projects/1/kanban renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock empty: /projects/1/backlog renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock error: /projects/1/backlog renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock empty: /projects/1/sprints renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock error: /projects/1/sprints renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock empty: /projects/1/epics renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock error: /projects/1/epics renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock empty: /projects/1/bugs renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock error: /projects/1/bugs renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock empty: /projects/1/metrics renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock error: /projects/1/metrics renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock empty: /projects/1/members renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "mock error: /projects/1/members renders without uncaught errors",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "anonymous direct URL /projects/1/dashboard redirects to login",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "anonymous direct URL /admin/roles redirects to login",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "anonymous direct URL /profile redirects to login",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "public page /login",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "public page /register",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "public page /forgot-password",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "public page /reset-password",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "public page /reset-sent",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "public page /logged-out",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "public page /account-locked",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "restored member is denied admin content",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "session restore loading does not render protected dashboard",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "frontend.spec.ts",
+        "scenario": "metrics initial query does not invent a sprint ID",
+        "status": "expected",
+        "attempts": 1
+      }
+    ],
+    "liveBrowser": [
+      {
+        "file": "authenticated.spec.ts",
+        "scenario": "live admin: login, read-only routes, logout and protected URL",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "authenticated.spec.ts",
+        "scenario": "live user1: login, read-only routes, logout and protected URL",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "authenticated.spec.ts",
+        "scenario": "live user2: login, read-only routes, logout and protected URL",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "qa-dataset.spec.ts",
+        "scenario": "QA project: update and department/member lifecycle via FE API wrappers",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "qa-dataset.spec.ts",
+        "scenario": "QA Epic and PBI: real backlog UI creation, response mapping and priority",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "qa-dataset.spec.ts",
+        "scenario": "QA sprint: planning, start, progress, burndown and close",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "qa-dataset.spec.ts",
+        "scenario": "QA task: create, update, assignee, deadline, board move, subtask and WIP",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "qa-dataset.spec.ts",
+        "scenario": "QA task: comments and authenticated attachment upload/download/delete",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "qa-dataset.spec.ts",
+        "scenario": "QA bugs and metrics: full status workflow plus real response reads",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "qa-dataset.spec.ts",
+        "scenario": "QA chat: project room, participants, message persistence and FE adapter",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "qa-dataset.spec.ts",
+        "scenario": "QA disposable records: delete and project close/delete round trip",
+        "status": "expected",
+        "attempts": 1
+      },
+      {
+        "file": "qa-dataset.spec.ts",
+        "scenario": "QA new accounts: registration/admin create, lock/unlock only owned test user",
+        "status": "expected",
+        "attempts": 1
+      }
+    ]
+  }
+}

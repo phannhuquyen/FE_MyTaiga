@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Icon } from '@/components/ui'
 import type { AdminUser } from '../types'
 
@@ -5,7 +6,7 @@ interface UnlockUserModalProps {
   isOpen: boolean
   onClose: () => void
   user: AdminUser | null
-  onConfirmUnlock: (userId: string) => void
+  onConfirmUnlock: (userId: string) => Promise<{ success: boolean; error?: string }>
 }
 
 export function UnlockUserModal({
@@ -14,11 +15,22 @@ export function UnlockUserModal({
   user,
   onConfirmUnlock,
 }: UnlockUserModalProps) {
+  const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   if (!isOpen || !user) return null
 
-  const handleConfirm = () => {
-    onConfirmUnlock(user.id)
-    onClose()
+  const handleConfirm = async () => {
+    setError(null)
+    setIsSubmitting(true)
+    try {
+      const result = await onConfirmUnlock(user.id)
+      if (result.success) onClose()
+      else setError(result.error || 'Không thể mở khóa tài khoản.')
+    } catch {
+      setError('Không thể mở khóa tài khoản. Vui lòng thử lại.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -54,6 +66,7 @@ export function UnlockUserModal({
 
         {/* Content */}
         <div className="p-6 space-y-4">
+          {error && <p role="alert" className="text-danger-600">{error}</p>}
           <p className="text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed">
             Khôi phục quyền truy cập cho tài khoản <strong>{user.name}</strong> ({user.email})? Người dùng sẽ có thể đăng nhập lại bình thường với vai trò <span className="px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 font-semibold">{user.roleLabel}</span> và tiếp tục tham gia các dự án đã được phân công.
           </p>
@@ -99,6 +112,7 @@ export function UnlockUserModal({
           <button
             type="button"
             onClick={handleConfirm}
+            disabled={isSubmitting}
             className="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-whiteboard flex items-center gap-1.5 shadow-sm cursor-pointer"
           >
             <Icon name="check" size={14} />

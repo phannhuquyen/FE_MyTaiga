@@ -54,12 +54,12 @@ export const authService = {
    * Đăng xuất
    */
   async logout(): Promise<void> {
+    const pendingLogout = api.auth.logout()
+    authStorage.clearAll()
     try {
-      await api.auth.logout()
-    } catch (err) {
-      console.warn('⚠️ Lỗi gọi API đăng xuất nhưng vẫn dọn token FE:', err)
-    } finally {
-      authStorage.clearAll()
+      await pendingLogout
+    } catch {
+      console.warn('Không thể xác nhận đăng xuất trên máy chủ; phiên cục bộ đã được xóa.')
     }
   },
 

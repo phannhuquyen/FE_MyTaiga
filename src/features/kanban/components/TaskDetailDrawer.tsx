@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import type { KanbanTask, KanbanColumnId, KanbanPriority, KanbanAttachment, KanbanComment } from '../types'
 import { Button, Icon } from '@/components/ui'
 import { api } from '@/services/api'
+import { parseBackendId } from '@/lib/utils'
+import { useParams } from 'react-router-dom'
 
 export interface TaskDetailDrawerProps {
   isOpen: boolean
@@ -13,15 +15,6 @@ export interface TaskDetailDrawerProps {
   onAddSubtask: (taskId: string, title: string) => Promise<void>
   onAddComment: (taskId: string, content: string) => Promise<void>
 }
-
-const MEMBERS = [
-  { name: 'Minh Quân', role: 'Tech Lead', avatar: 'MQ' },
-  { name: 'Tuấn Anh', role: 'Backend Engineer', avatar: 'TA' },
-  { name: 'Hoàng Linh', role: 'Frontend Dev', avatar: 'HL' },
-  { name: 'Minh Hải', role: 'DevOps Lead', avatar: 'MH' },
-  { name: 'Đỗ Thảo', role: 'QA Lead', avatar: 'ĐT' },
-  { name: 'Thùy Trang', role: 'Frontend Dev', avatar: 'TT' },
-]
 
 interface DrawerInnerProps {
   task: KanbanTask
@@ -42,6 +35,13 @@ function DrawerInner({
   onAddSubtask,
   onAddComment,
 }: DrawerInnerProps) {
+  const { projectId } = useParams()
+  const [members, setMembers] = useState<{ userId: number; fullName: string; projectRole: string }[]>([])
+  useEffect(() => {
+    let cancelled = false
+    if (projectId) api.projectMembers.list(Number(projectId), { pageSize: 100 }).then(res => { if (!cancelled) setMembers(res.data.items) }).catch(() => {})
+    return () => { cancelled = true }
+  }, [projectId])
   const [isEditingTitle, setIsEditingTitle] = useState(false)
   const [title, setTitle] = useState(task.title)
   const [description, setDescription] = useState(task.description || '')
@@ -54,9 +54,21 @@ function DrawerInner({
   const [comments, setComments] = useState<KanbanComment[]>(task.comments || [])
   const [attachments, setAttachments] = useState<KanbanAttachment[]>(task.attachments || [])
   const [isUploading, setIsUploading] = useState(false)
+  const [actionError, setActionError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const numericTaskId = parseInt(task.id.replace(/\D/g, ''), 10)
+  const numericTaskId = parseBackendId(task.id)
+
+  const runTaskAction = async (action: () => Promise<void>) => {
+    setActionError(null)
+    try {
+      await action()
+      return true
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Không thể lưu thay đổi. Vui lòng thử lại.')
+      return false
+    }
+  }
 
   // Tải Comments và Attachments từ API nếu có TaskId số
   useEffect(() => {
@@ -68,9 +80,9 @@ function DrawerInner({
           if (!isMounted) return
           const apiComments: KanbanComment[] = (res.data.items || []).map((c) => ({
             id: String(c.commentId),
-            authorName: `Thành viên #${c.userId}`,
-            authorRole: 'Thành viên',
-            authorAvatar: `U${c.userId}`,
+            authorName: c.authorName || `Thành viên #${c.userId}`,
+            authorRole: c.authorRole || 'Chưa có thông tin vai trò',
+            authorAvatar: c.authorAvatarCode || `U${c.userId}`,
             timestamp: new Date(c.createdAt).toLocaleString('vi-VN', {
               hour: '2-digit',
               minute: '2-digit',
@@ -91,11 +103,11 @@ function DrawerInner({
           if (!isMounted) return
           const apiAtts: KanbanAttachment[] = (res.data.items || []).map((a) => ({
             id: String(a.attachmentId),
-            name: a.fileName,
+            name: a.originalFileName || a.fileName,
             size: a.fileSize > 1024 * 1024
               ? `${(a.fileSize / (1024 * 1024)).toFixed(1)} MB`
               : `${Math.round(a.fileSize / 1024)} KB`,
-            uploadedBy: `Thành viên #${a.uploadedBy}`,
+            uploadedBy: a.uploadedByName || `Thành viên #${a.uploadedBy}`,
           }))
           if (apiAtts.length > 0) {
             setAttachments(apiAtts)
@@ -110,44 +122,35 @@ function DrawerInner({
 
   const handleSaveTitle = async () => {
     if (title.trim() && title !== task.title) {
-      await onUpdate(task.id, { title: title.trim() })
+      if (!await runTaskAction(() => onUpdate(task.id, { title: title.trim() }))) return
     }
     setIsEditingTitle(false)
   }
 
   const handleSaveDesc = async () => {
     if (description !== task.description) {
-      await onUpdate(task.id, { description })
+      if (!await runTaskAction(() => onUpdate(task.id, { description }))) return
     }
     setIsEditingDesc(false)
   }
 
   const handleStatusChange = async (colId: KanbanColumnId) => {
-    await onUpdate(task.id, { columnId: colId })
+    await runTaskAction(() => onUpdate(task.id, { columnId: colId }))
   }
 
   const handlePriorityChange = async (p: KanbanPriority) => {
-    await onUpdate(task.id, { priority: p })
+    await runTaskAction(() => onUpdate(task.id, { priority: p }))
   }
 
-  const handleAssigneeChange = async (name: string) => {
-    const member = MEMBERS.find((m) => m.name === name)
-    if (member) {
-      await onUpdate(task.id, {
-        assignee: {
-          name: member.name,
-          avatarCode: member.avatar,
-          role: member.role,
-          isCurrentUser: member.name.includes('Quân'),
-        },
-      })
-    }
+  const handleAssigneeChange = async (id: string) => {
+    const member = members.find(item => String(item.userId) === id)
+    await runTaskAction(() => onUpdate(task.id, { assignee: { id: member?.userId, name: member?.fullName || 'Chưa giao', avatarCode: member?.fullName.slice(0, 2) || '—', role: member?.projectRole } }))
   }
 
   const handleAddSubtaskSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newSubtaskTitle.trim()) return
-    await onAddSubtask(task.id, newSubtaskTitle.trim())
+    if (!await runTaskAction(() => onAddSubtask(task.id, newSubtaskTitle.trim()))) return
     setNewSubtaskTitle('')
   }
 
@@ -185,18 +188,21 @@ function DrawerInner({
         ])
       }
       setNewComment('')
+    } catch {
+      setActionError('Không thể gửi bình luận. Vui lòng thử lại.')
     } finally {
       setIsSubmittingComment(false)
     }
   }
 
   const handleDeleteComment = async (commentId: string) => {
-    const numId = parseInt(commentId.replace(/\D/g, ''), 10)
+    const numId = parseBackendId(commentId)
     if (numId > 0) {
       try {
         await api.comments.delete(numId)
-      } catch (err) {
-        console.warn('⚠️ Lỗi xóa bình luận trên BE:', err)
+      } catch {
+        alert('Không thể xóa bình luận. Vui lòng thử lại.')
+        return
       }
     }
     setComments((prev) => prev.filter((c) => c.id !== commentId))
@@ -238,7 +244,7 @@ function DrawerInner({
   }
 
   const handleDownloadAttachment = async (att: KanbanAttachment) => {
-    const numId = parseInt(att.id.replace(/\D/g, ''), 10)
+    const numId = parseBackendId(att.id)
     if (numId > 0) {
       try {
         const blob = await api.attachments.downloadBlob(numId)
@@ -260,7 +266,7 @@ function DrawerInner({
   }
 
   const handlePreviewAttachment = async (att: KanbanAttachment) => {
-    const numId = parseInt(att.id.replace(/\D/g, ''), 10)
+    const numId = parseBackendId(att.id)
     if (numId > 0) {
       try {
         const blob = await api.attachments.previewBlob(numId)
@@ -276,12 +282,13 @@ function DrawerInner({
   }
 
   const handleDeleteAttachment = async (attId: string) => {
-    const numId = parseInt(attId.replace(/\D/g, ''), 10)
+    const numId = parseBackendId(attId)
     if (numId > 0) {
       try {
         await api.attachments.delete(numId)
-      } catch (err) {
-        console.warn('⚠️ Lỗi xóa file đính kèm trên BE:', err)
+      } catch {
+        alert('Không thể xóa tệp đính kèm. Vui lòng thử lại.')
+        return
       }
     }
     setAttachments((prev) => prev.filter((a) => a.id !== attId))
@@ -293,6 +300,7 @@ function DrawerInner({
 
   return (
     <>
+      {actionError && <p role="alert" className="fixed top-4 right-4 z-60 p-3 bg-danger-50 text-danger-700">{actionError}</p>}
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-neutral-900/40 z-40 transition-opacity backdrop-blur-2xs"
@@ -353,7 +361,7 @@ function DrawerInner({
               <div className="space-y-2">
                 <input
                   type="text"
-                  value={title}
+                  aria-label="Tiêu đề tác vụ" value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   onBlur={handleSaveTitle}
                   onKeyDown={(e) => e.key === 'Enter' && handleSaveTitle()}
@@ -418,13 +426,15 @@ function DrawerInner({
               <span className="text-neutral-500 font-medium">Người thực hiện</span>
               <div className="relative">
                 <select
-                  value={task.assignee.name}
+                  aria-label="Người thực hiện tác vụ"
+                  value={task.assignee.id || ''}
                   onChange={(e) => handleAssigneeChange(e.target.value)}
                   className="w-full py-1.5 px-2 bg-white border border-neutral-300 rounded font-semibold text-neutral-800 focus:outline-none focus:ring-1 focus:ring-primary-500 appearance-none pr-7 cursor-pointer"
                 >
-                  {MEMBERS.map((m) => (
-                    <option key={m.name} value={m.name}>
-                      {m.name} ({m.role})
+                  <option value="">Chưa giao</option>
+                  {members.map((m) => (
+                    <option key={m.userId} value={m.userId}>
+                      {m.fullName} ({m.projectRole})
                     </option>
                   ))}
                 </select>
@@ -463,7 +473,7 @@ function DrawerInner({
               <span className="text-neutral-500 font-medium">Hạn định</span>
               <div className="flex items-center gap-1.5 font-semibold text-neutral-800 pt-1">
                 <Icon name="calendar" size={14} className="text-neutral-400" />
-                <span>{task.deadline || '28/10/2024'}</span>
+                <span>{task.deadline || 'Chưa có hạn'}</span>
                 {task.daysRemainingText && (
                   <span className="text-[10px] bg-danger-50 text-danger-700 px-1.5 py-0.5 rounded font-medium">
                     {task.daysRemainingText}
@@ -572,7 +582,7 @@ function DrawerInner({
                     <input
                       type="checkbox"
                       checked={st.completed}
-                      onChange={() => onToggleSubtask(task.id, st.id)}
+                      onChange={() => runTaskAction(() => onToggleSubtask(task.id, st.id))}
                       className="rounded border-neutral-300 text-primary-600 focus:ring-primary-500 cursor-pointer"
                     />
                     <span

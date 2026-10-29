@@ -41,15 +41,14 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   }, [activeProjectId])
 
   const handleLogout = async () => {
+    await navigate('/logged-out')
     await logout()
-    navigate('/logged-out')
   }
 
   // ── Tier-1 nav items (account level) ──
   const tier1Items: NavItem[] = [
     { label: 'Dự án của tôi', to: '/projects', iconName: 'folder' },
     { label: 'Thông báo', to: '/notifications', iconName: 'bell' },
-    { label: 'Trao đổi', to: '/chat', iconName: 'chat' },
     { label: 'Hoạt động', to: '/activity', iconName: 'clock' },
   ]
 
@@ -63,6 +62,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
     { label: 'Lỗi (Bug)', to: `/projects/${activeProjectId}/bugs`, iconName: 'bug' },
     { label: 'Flow Metrics', to: `/projects/${activeProjectId}/metrics`, iconName: 'metrics' },
     { label: 'Thành viên', to: `/projects/${activeProjectId}/members`, iconName: 'members' },
+    { label: 'Tin nhắn', to: `/projects/${activeProjectId}/chat`, iconName: 'chat' },
   ]
 
   const isNavItemActive = (item: NavItem) => {

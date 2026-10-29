@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Outlet, useLocation } from 'react-router-dom'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { useAuth } from '@/features/auth/hooks/useAuth'
 import { Header } from './Header'
 import { Sidebar } from './Sidebar'
 
@@ -10,6 +11,7 @@ import { Sidebar } from './Sidebar'
 export function AppLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const location = useLocation()
+  const { isAuthenticated, isLoading, user } = useAuth()
   const isProfileRoute =
     location.pathname.startsWith('/profile') || location.pathname.startsWith('/settings')
 
@@ -18,6 +20,9 @@ export function AppLayout() {
     window.addEventListener('toggle-mobile-sidebar', handleToggle)
     return () => window.removeEventListener('toggle-mobile-sidebar', handleToggle)
   }, [])
+
+  if (isLoading) return <div role="status">Đang khôi phục phiên đăng nhập...</div>
+  if (!isAuthenticated || !user) return <Navigate to="/login" replace />
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-paper-100 font-sans text-neutral-800">

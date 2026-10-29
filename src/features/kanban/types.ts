@@ -37,6 +37,7 @@ export interface KanbanTask {
   daysRemainingText?: string // e.g. "còn 3 ngày", "Hôm nay"
   isOverdue?: boolean
   assignee: {
+    id?: number
     name: string
     avatarCode: string
     role?: string
@@ -69,6 +70,7 @@ export interface KanbanColumnConfig {
 }
 
 export interface CreateTaskPayload {
+  assigneeId?: number
   title: string
   columnId?: KanbanColumnId
   assigneeName?: string
@@ -81,6 +83,7 @@ export interface CreateTaskPayload {
 }
 
 export interface UpdateTaskPayload {
+  assignee?: KanbanTask['assignee']
   title?: string
   description?: string
   columnId?: KanbanColumnId

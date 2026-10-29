@@ -5,7 +5,7 @@ import type { AdminRole, CreateAdminUserPayload } from '../types'
 interface CreateUserModalProps {
   isOpen: boolean
   onClose: () => void
-  onCreateUser: (payload: CreateAdminUserPayload) => void
+  onCreateUser: (payload: CreateAdminUserPayload) => Promise<{ success: boolean; error?: string }>
 }
 
 const DEPARTMENTS = [
@@ -26,6 +26,7 @@ export function CreateUserModal({ isOpen, onClose, onCreateUser }: CreateUserMod
   const [department, setDepartment] = useState('Kỹ thuật phần mềm (Engineering)')
   const [activateImmediately, setActivateImmediately] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleClose = () => {
     setError(null)
@@ -34,7 +35,7 @@ export function CreateUserModal({ isOpen, onClose, onCreateUser }: CreateUserMod
 
   if (!isOpen) return null
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name.trim()) {
       setError('Vui lòng nhập họ và tên')
@@ -45,14 +46,23 @@ export function CreateUserModal({ isOpen, onClose, onCreateUser }: CreateUserMod
       return
     }
 
-    onCreateUser({
-      name: name.trim(),
-      email: email.trim(),
-      role,
-      department,
-      activateImmediately,
-    })
-    onClose()
+    setIsSubmitting(true)
+    setError(null)
+    try {
+      const result = await onCreateUser({
+        name: name.trim(),
+        email: email.trim(),
+        role,
+        department,
+        activateImmediately,
+      })
+      if (result.success) onClose()
+      else setError(result.error || 'Không thể tạo người dùng.')
+    } catch {
+      setError('Không thể tạo người dùng. Vui lòng thử lại.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -230,7 +240,8 @@ export function CreateUserModal({ isOpen, onClose, onCreateUser }: CreateUserMod
                 Hủy
               </button>
               <button
-                type="submit"
+              type="submit"
+              disabled={isSubmitting}
                 className="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-whiteboard flex items-center gap-1.5 shadow-sm cursor-pointer"
               >
                 <Icon name="check" size={14} />

@@ -11,22 +11,43 @@ import { ThroughputChart } from './components/ThroughputChart'
 import { FlowRisksBlockers } from './components/FlowRisksBlockers'
 import { EmptyMetricsState } from './components/EmptyMetricsState'
 import { ConfigAlertModal } from './components/ConfigAlertModal'
+import { api, type SprintData } from '@/services/api'
 
 export default function FlowMetricsPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const numericProjectId = projectId ? parseInt(projectId, 10) : undefined
 
-  const [selectedSprint, setSelectedSprint] = useState('sprint-14')
+  const [selectedSprint, setSelectedSprint] = useState('all')
+  const [sprints, setSprints] = useState<SprintData[]>([])
   const [selectedRange, setSelectedRange] = useState('current')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [activeTab, setActiveTab] = useState<MetricTabId>('wip')
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false)
   const [wipLimit, setWipLimit] = useState(metricService.getWipLimit())
   const [metricsData, setMetricsData] = useState<FlowMetricsData | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    metricService.getMetricsData(numericProjectId, selectedSprint, wipLimit).then(setMetricsData)
+    let cancelled = false
+    metricService.getMetricsData(numericProjectId, selectedSprint, wipLimit).then(data => {
+      if (!cancelled) {
+        setMetricsData(data)
+        setError(null)
+      }
+    }).catch((err: unknown) => {
+      if (!cancelled) setError(err instanceof Error ? err.message : 'Không thể tải Flow Metrics.')
+    })
+    return () => { cancelled = true }
   }, [numericProjectId, selectedSprint, wipLimit])
+
+  useEffect(() => {
+    if (!numericProjectId) return
+    let cancelled = false
+    api.sprints.list({ projectId: numericProjectId, pageSize: 100 }).then(res => {
+      if (!cancelled) setSprints(res.data.items)
+    }).catch(() => { if (!cancelled) setSprints([]) })
+    return () => { cancelled = true }
+  }, [numericProjectId])
 
   const handleExport = () => {
     alert(
@@ -39,6 +60,8 @@ export default function FlowMetricsPage() {
     setWipLimit(newLimit)
   }
 
+  if (error) return <div role="alert" className="p-8 text-danger-600">{error}</div>
+
   if (!metricsData) {
     return (
       <div className="p-8 text-center text-neutral-400">Đang tải dữ liệu Flow Metrics...</div>
@@ -47,6 +70,9 @@ export default function FlowMetricsPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
+      <p className="text-xs text-neutral-500" title="Một số biểu đồ lịch sử và mục tiêu chưa có nguồn dữ liệu API đầy đủ">
+        WIP lịch sử và một số mục tiêu/ngưỡng còn dùng dữ liệu minh họa; không dùng làm báo cáo nghiệp vụ.
+      </p>
       {/* Header & Breadcrumb (S10-01) */}
       <div>
         <div className="text-xs text-neutral-500 dark:text-neutral-400 mb-1 flex items-center gap-1.5">
@@ -101,9 +127,8 @@ export default function FlowMetricsPage() {
                 onChange={(e) => setSelectedSprint(e.target.value)}
                 className="font-semibold rounded-lg border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 px-3 py-1.5 text-neutral-800 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-primary-500"
               >
-                <option value="sprint-14">Sprint 14: Tối ưu luồng (Đang diễn ra)</option>
-                <option value="sprint-16">Sprint 16: Tự động hóa Báo cáo (Chưa bắt đầu)</option>
-                <option value="sprint-13">Sprint 13: Gateway Staging</option>
+                <option value="all">Tất cả Sprint</option>
+                {sprints.map(sprint => <option key={sprint.sprintId} value={String(sprint.sprintId)}>{sprint.sprintName}</option>)}
               </select>
             </div>
 

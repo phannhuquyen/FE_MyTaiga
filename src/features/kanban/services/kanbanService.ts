@@ -7,6 +7,7 @@ import type {
   WIPSettingsPayload,
 } from '../types'
 import { api, type BoardTaskCard } from '@/services/api'
+import { parseBackendId } from '@/lib/utils'
 
 const DEFAULT_COLUMNS: KanbanColumnConfig[] = [
   {
@@ -156,8 +157,8 @@ export const kanbanService = {
             }
           }
         }
-      } catch (err) {
-        console.warn('⚠️ [KanbanService] Lỗi lưu WIP limit lên BE:', err)
+      } catch {
+        throw new Error('Không thể lưu giới hạn WIP. Vui lòng kiểm tra quyền và thử lại.')
       }
     }
 
@@ -208,10 +209,15 @@ export const kanbanService = {
               daysRemainingText: computeRemainingDays(t.deadline),
               isOverdue,
               assignee: {
-                name: t.assigneeId ? `Thành viên #${t.assigneeId}` : 'Chưa giao',
-                avatarCode: t.assigneeId ? `U${t.assigneeId}` : 'NA',
-                role: 'Thực hiện',
+                id: t.assigneeId || undefined,
+                name: t.assigneeName || (t.assigneeId ? `Thành viên #${t.assigneeId}` : 'Chưa giao'),
+                avatarCode: t.assigneeAvatarCode || 'NA',
+                role: t.assigneeRole || undefined,
               },
+              storyPoints: t.storyPoints ?? undefined,
+              tags: t.tags,
+              epicName: t.epicTitle || undefined,
+              epicColor: t.epicColor || undefined,
               pbiCode: t.parentTaskId ? `#TASK-${t.parentTaskId}` : undefined,
               subtasks: [],
               order: t.position ?? idx,
@@ -230,7 +236,7 @@ export const kanbanService = {
   },
 
   async getTaskById(id: string): Promise<KanbanTask | null> {
-    const numericId = parseInt(id.replace(/\D/g, ''), 10)
+    const numericId = parseBackendId(id)
     if (numericId > 0) {
       try {
         const res = await api.tasks.get(numericId)
@@ -246,8 +252,10 @@ export const kanbanService = {
           deadline: t.deadline ? new Date(t.deadline).toLocaleDateString('vi-VN') : undefined,
           daysRemainingText: computeRemainingDays(t.deadline),
           assignee: {
-            name: t.assigneeId ? `Thành viên #${t.assigneeId}` : 'Chưa giao',
-            avatarCode: t.assigneeId ? `U${t.assigneeId}` : 'NA',
+            id: t.assigneeId || undefined,
+            name: t.assigneeName || (t.assigneeId ? `Thành viên #${t.assigneeId}` : 'Chưa giao'),
+            avatarCode: t.assigneeAvatarCode || 'NA',
+            role: t.assigneeRole || undefined,
           },
           subtasks: subtasks.map((s) => ({
             id: String(s.taskId),
@@ -255,6 +263,11 @@ export const kanbanService = {
             completed: s.status === 'DONE',
             statusLabel: s.status === 'DONE' ? 'Xong' : 'Đang làm',
           })),
+          storyPoints: t.storyPoints ?? undefined,
+          tags: t.tags,
+          epicName: t.epicTitle || undefined,
+          epicColor: t.epicColor || undefined,
+          creator: t.reporterName ? { name: t.reporterName } : undefined,
           order: t.position,
         }
       } catch (err) {
@@ -276,12 +289,19 @@ export const kanbanService = {
       try {
         const res = await api.tasks.create(projectId, {
           title: payload.title.trim(),
+          assigneeId: payload.assigneeId || null,
           description: payload.description,
+          tags: payload.tags,
+          storyPoints: payload.storyPoints,
           priority: mapPriorityToBe(payload.priority),
-          deadline: payload.deadline ? new Date(payload.deadline).toISOString() : null,
+          deadline: payload.deadline ? `${payload.deadline}T23:59:00+07:00` : null,
         })
 
         const t = res.data
+        if (payload.columnId && payload.columnId !== 'todo') {
+          try { await api.board.move(t.taskId, { toStatus: columnIdToStatus(payload.columnId), newPosition: 0 }); t.status = columnIdToStatus(payload.columnId) }
+          catch { throw new Error(`Đã tạo TASK-${t.taskId} ở Cần làm, nhưng chưa chuyển được cột. Vui lòng mở thẻ này, không tạo lại.`) }
+        }
         const newTask: KanbanTask = {
           id: String(t.taskId),
           code: `TASK-${t.taskId}`,
@@ -292,8 +312,8 @@ export const kanbanService = {
           deadline: t.deadline ? new Date(t.deadline).toLocaleDateString('vi-VN') : undefined,
           daysRemainingText: computeRemainingDays(t.deadline),
           assignee: {
-            name: 'Chưa giao',
-            avatarCode: 'NA',
+            name: t.assigneeName || 'Chưa giao',
+            avatarCode: t.assigneeAvatarCode || 'NA',
           },
           subtasks: [],
           order: t.position,
@@ -305,7 +325,7 @@ export const kanbanService = {
         if (errorObj.response?.status === 409) {
           throw new Error(errorObj.response?.data?.message || 'Không thể tạo task: Cột Cần làm (TODO) đã đầy giới hạn WIP.')
         }
-        throw new Error(errorObj.response?.data?.message || 'Lỗi khi tạo công việc mới.')
+        throw new Error(errorObj.response?.data?.message || (err instanceof Error ? err.message : 'Lỗi khi tạo công việc mới.'))
       }
     }
 
@@ -334,13 +354,18 @@ export const kanbanService = {
    * Cập nhật công việc
    */
   async updateTask(id: string, payload: UpdateTaskPayload): Promise<KanbanTask> {
-    const numericId = parseInt(id.replace(/\D/g, ''), 10)
+    const existingTask = tasksState.find((task) => task.id === id)
+    if (!existingTask) throw new Error('Không tìm thấy tác vụ.')
+    const numericId = parseBackendId(id)
     if (numericId > 0) {
       try {
-        if (payload.title !== undefined) {
+        if (payload.title !== undefined || payload.description !== undefined || payload.tags !== undefined || payload.storyPoints !== undefined) {
+          const description = payload.description ?? existingTask.description ?? (await api.tasks.get(numericId)).data.task.description
           await api.tasks.update(numericId, {
-            title: payload.title,
-            description: payload.description,
+            title: payload.title ?? existingTask.title,
+            description,
+            tags: payload.tags,
+            storyPoints: payload.storyPoints,
           })
         }
         if (payload.priority) {
@@ -348,9 +373,18 @@ export const kanbanService = {
             priority: mapPriorityToBe(payload.priority),
           })
         }
+        if (payload.assignee !== undefined) {
+          await api.tasks.assign(numericId, { assigneeId: payload.assignee.id || null })
+        }
+        if (payload.deadline !== undefined) {
+          await api.tasks.setDeadline(numericId, { deadline: payload.deadline ? `${payload.deadline}T23:59:00+07:00` : null })
+        }
+        if (payload.columnId && payload.columnId !== existingTask.columnId) {
+          await this.moveTask(id, payload.columnId)
+        }
       } catch (err: unknown) {
         const errorObj = err as { response?: { data?: { message?: string } } }
-        console.warn('⚠️ Lỗi cập nhật task lên API:', errorObj.response?.data?.message)
+        throw new Error(errorObj.response?.data?.message || 'Không thể cập nhật công việc. Vui lòng thử lại.')
       }
     }
 
@@ -374,7 +408,7 @@ export const kanbanService = {
     targetColumnId: KanbanColumnId,
     newPosition: number = 0,
   ): Promise<{ task: KanbanTask; isWIPExceeded: boolean }> {
-    const numericId = parseInt(taskId.replace(/\D/g, ''), 10)
+    const numericId = parseBackendId(taskId)
     if (numericId > 0) {
       try {
         const res = await api.board.move(numericId, {
@@ -409,7 +443,7 @@ export const kanbanService = {
    * Xóa công việc
    */
   async deleteTask(id: string): Promise<boolean> {
-    const numericId = parseInt(id.replace(/\D/g, ''), 10)
+    const numericId = parseBackendId(id)
     if (numericId > 0) {
       try {
         await api.tasks.delete(numericId)
@@ -427,19 +461,20 @@ export const kanbanService = {
     if (!task) throw new Error('Không tìm thấy tác vụ.')
     const sub = task.subtasks.find((s) => s.id === subtaskId)
     if (sub) {
-      sub.completed = !sub.completed
-      sub.statusLabel = sub.completed ? 'Xong' : 'Đang làm'
-      const numSubId = parseInt(subtaskId.replace(/\D/g, ''), 10)
+      const completed = !sub.completed
+      const numSubId = parseBackendId(subtaskId)
       if (numSubId > 0) {
         try {
           await api.board.move(numSubId, {
-            toStatus: sub.completed ? 'DONE' : 'IN_PROGRESS',
+            toStatus: completed ? 'DONE' : 'IN_PROGRESS',
             newPosition: 0,
           })
-        } catch (err) {
-          console.warn('⚠️ Lỗi chuyển trạng thái subtask trên BE:', err)
+        } catch {
+          throw new Error('Không thể cập nhật trạng thái subtask.')
         }
       }
+      sub.completed = completed
+      sub.statusLabel = completed ? 'Xong' : 'Đang làm'
     }
     return task
   },
@@ -447,15 +482,15 @@ export const kanbanService = {
   async addSubtask(taskId: string, title: string): Promise<KanbanTask> {
     const task = tasksState.find((t) => t.id === taskId)
     if (!task) throw new Error('Không tìm thấy tác vụ.')
-    const numericParentId = parseInt(taskId.replace(/\D/g, ''), 10)
+    const numericParentId = parseBackendId(taskId)
 
     let createdId = `st-${Date.now()}`
     if (numericParentId > 0) {
       try {
         const res = await api.tasks.createSubtask(numericParentId, { title })
         createdId = String(res.data.taskId)
-      } catch (err) {
-        console.warn('⚠️ Lỗi tạo subtask trên BE:', err)
+      } catch {
+        throw new Error('Không thể tạo subtask.')
       }
     }
 
@@ -471,15 +506,15 @@ export const kanbanService = {
   async addComment(taskId: string, content: string): Promise<KanbanTask> {
     const task = tasksState.find((t) => t.id === taskId)
     if (!task) throw new Error('Không tìm thấy tác vụ.')
-    const numericId = parseInt(taskId.replace(/\D/g, ''), 10)
+    const numericId = parseBackendId(taskId)
 
     let commentId = `cm-${Date.now()}`
     if (numericId > 0) {
       try {
         const res = await api.comments.createForTask(numericId, { content })
         commentId = String(res.data.commentId)
-      } catch (err) {
-        console.warn('⚠️ Lỗi gửi comment lên BE:', err)
+      } catch {
+        throw new Error('Không thể gửi bình luận.')
       }
     }
 

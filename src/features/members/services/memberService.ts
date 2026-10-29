@@ -71,39 +71,6 @@ function mapBeMemberToFe(m: ProjectMemberData): Member {
 let cachedDepartments: Department[] = []
 let cachedMembers: Member[] = []
 
-const INITIAL_CANDIDATES: Candidate[] = [
-  {
-    id: 'can-001',
-    employeeCode: 'PA-201',
-    name: 'Vũ Thị Mai (User ID: 2)',
-    avatarCode: 'VM',
-    email: 'vumai@scrumban.io',
-    roleTitle: 'PRODUCT ANALYST',
-    departmentName: 'Product Management',
-    isOnline: true,
-  },
-  {
-    id: 'can-002',
-    employeeCode: 'DE-302',
-    name: 'Hoàng Trọng Nghĩa (User ID: 3)',
-    avatarCode: 'HN',
-    email: 'nghia.ht@scrumban.io',
-    roleTitle: 'DEVOPS ENGINEER',
-    departmentName: 'Backend Services',
-    isOnline: false,
-  },
-  {
-    id: 'can-003',
-    employeeCode: 'MD-403',
-    name: 'Đặng Thanh Tùng (User ID: 4)',
-    avatarCode: 'TT',
-    email: 'tung.dt@scrumban.io',
-    roleTitle: 'MOBILE DEVELOPER',
-    departmentName: 'Frontend Engineering',
-    isOnline: false,
-  },
-]
-
 export const memberService = {
   getDepartments: async (): Promise<Department[]> => {
     const projectId = projectService.getActiveProjectId()
@@ -160,21 +127,40 @@ export const memberService = {
   },
 
   getCandidates: async (query?: string): Promise<Candidate[]> => {
-    if (!query?.trim()) return INITIAL_CANDIDATES
-    const q = query.toLowerCase().trim()
-    return INITIAL_CANDIDATES.filter(
-      (c) =>
-        c.name.toLowerCase().includes(q) ||
-        c.email.toLowerCase().includes(q) ||
-        c.roleTitle.toLowerCase().includes(q),
-    )
+    const users = []
+    let page = 1
+    let total = 0
+    do {
+      const res = await api.users.search({ keyword: query?.trim() || undefined, page, pageSize: 100 })
+      users.push(...res.data.items)
+      total = res.data.total
+      if (!res.data.items.length) break
+      page++
+    } while (users.length < total)
+    return users.map((user) => {
+      const member = cachedMembers.find((m) => m.id === String(user.userId))
+      return {
+        id: String(user.userId),
+        employeeCode: `USER-${user.userId}`,
+        name: user.fullName,
+        email: user.email,
+        avatarCode: user.fullName.trim().split(/\s+/).slice(-2).map((part) => part[0]).join('').toUpperCase(),
+        roleTitle: 'Chưa có thông tin chức danh',
+        departmentName: member?.departmentName || 'Chưa có thông tin phòng ban',
+        alreadyInProject: Boolean(member),
+        existingDepartment: member?.departmentName,
+      }
+    })
   },
 
   addMember: async (payload: CreateMemberPayload): Promise<Member> => {
     const projectId = projectService.getActiveProjectId()
     if (!projectId) throw new Error('Vui lòng chọn dự án trước khi thêm thành viên.')
 
-    const numericUserId = parseInt(payload.candidateId.replace(/\D/g, ''), 10) || 2
+    const numericUserId = /^\d+$/.test(payload.candidateId) ? Number(payload.candidateId) : NaN
+    if (!Number.isSafeInteger(numericUserId) || numericUserId <= 0) {
+      throw new Error('Ứng viên đang là dữ liệu mẫu, chưa có User ID thật để thêm vào dự án.')
+    }
 
     // 1. Add to project
     await api.projectMembers.add(projectId, { userId: numericUserId })

@@ -1,0 +1,56 @@
+{
+  "generatedAt": "2026-10-28T11:09:59.383Z",
+  "projectId": 3,
+  "retained": {
+    "memberId": 6,
+    "epicId": 23,
+    "taskId": 34,
+    "commentId": 22,
+    "roomName": "qa-delta-1793185784905",
+    "roomId": 12,
+    "replyRoomId": 13,
+    "imageTaskId": 30,
+    "imageRoomId": 9
+  },
+  "evidence": [
+    {
+      "scenario": "delta Avatar UI: exact PNG on dedicated QA account, absolute CDN URL and reload",
+      "result": "FAIL",
+      "detail": "See test runner assertion; no raw responses retained"
+    },
+    {
+      "scenario": "delta Members UI: search and add real user5 in authorized QA project",
+      "result": "PASS"
+    },
+    {
+      "scenario": "delta data: Epic color, Task enriched fields/tags/points, comment author, board and activity",
+      "result": "PASS"
+    },
+    {
+      "scenario": "delta Chat UI: create project room, send/edit message and retain after reload",
+      "result": "PASS"
+    },
+    {
+      "scenario": "delta directory: real USER query, trim, empty, pagination, validation and admin denial",
+      "result": "PASS"
+    },
+    {
+      "scenario": "delta Chat reply without cloud: persisted reply survives FE reload",
+      "result": "PASS"
+    },
+    {
+      "scenario": "delta notifications: populated actor/alias response is not confused with recipient",
+      "result": "PASS"
+    },
+    {
+      "scenario": "delta task image: exact PNG upload, metadata, signed preview and download",
+      "result": "FAIL",
+      "detail": "See test runner assertion; no raw responses retained"
+    },
+    {
+      "scenario": "delta Chat image and reply: backend metadata and FE history preservation",
+      "result": "FAIL",
+      "detail": "See test runner assertion; no raw responses retained"
+    }
+  ]
+}

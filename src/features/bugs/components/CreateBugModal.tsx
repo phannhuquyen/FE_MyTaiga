@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { api } from '@/services/api'
 import { Modal, Icon } from '@/components/ui'
 import type { BugSeverity, BugPriority, CreateBugPayload } from '../types'
 
@@ -9,19 +11,25 @@ interface CreateBugModalProps {
 }
 
 export function CreateBugModal({ isOpen, onClose, onSubmit }: CreateBugModalProps) {
+  const { projectId } = useParams()
+  const [tasks, setTasks] = useState<{ taskId: number; title: string }[]>([])
   const [title, setTitle] = useState('')
-  const [steps, setSteps] = useState(
-    '1. Mở bảng Kanban Sprint 14\n2. Kéo thẻ sang cột \'Đang kiểm tra\'\n3. Quan sát hiện tượng dropped frame và thẻ nhảy vị trí',
-  )
-  const [environment, setEnvironment] = useState('Production - Chrome 129 / macOS Sonoma 14.5')
+  const [steps, setSteps] = useState('')
+  const [environment, setEnvironment] = useState('')
   const [severity, setSeverity] = useState<BugSeverity>('blocker')
   const [priority, setPriority] = useState<BugPriority>('p1')
-  const [relatedTaskId, setRelatedTaskId] = useState('task-241')
-  const [attachedFiles, setAttachedFiles] = useState<Array<{ name: string; size: string }>>([
-    { name: 'screencast_kanban_lag.mov', size: '4.2 MB' },
-  ])
+  const [relatedTaskId, setRelatedTaskId] = useState('')
+  const [attachedFiles, setAttachedFiles] = useState<Array<{ name: string; size: string }>>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  useEffect(() => {
+    if (!isOpen || !projectId) return
+    let cancelled = false
+    api.tasks.list(Number(projectId), { page: 1, pageSize: 100 }).then(res => {
+      if (!cancelled) setTasks(res.data.items)
+    }).catch(() => { if (!cancelled) setError('Không thể tải Task của dự án.') })
+    return () => { cancelled = true }
+  }, [isOpen, projectId])
 
   if (!isOpen) return null
 
@@ -31,13 +39,16 @@ export function CreateBugModal({ isOpen, onClose, onSubmit }: CreateBugModalProp
       setError('Tiêu đề bug là bắt buộc')
       return
     }
+    if (!tasks.some(task => String(task.taskId) === relatedTaskId)) {
+      setError('Vui lòng chọn Task thật trong dự án. Tạo Task ở Kanban nếu chưa có.'); return
+    }
 
     try {
       setIsSubmitting(true)
       setError(null)
       await onSubmit({
         title: title.trim(),
-        description: steps.trim() || 'Lỗi kéo thả giật lag',
+        description: steps.trim() || title.trim(),
         stepsToReproduce: steps,
         environment,
         severity,
@@ -101,20 +112,19 @@ export function CreateBugModal({ isOpen, onClose, onSubmit }: CreateBugModalProp
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                Task hoặc PBI liên quan
+                Task liên quan
               </label>
-              <span className="text-xs text-neutral-400">Tùy chọn</span>
+              <span className="text-xs text-neutral-400">Bắt buộc theo API</span>
             </div>
             <div className="relative">
               <select
+                aria-label="Task liên quan"
                 value={relatedTaskId}
                 onChange={(e) => setRelatedTaskId(e.target.value)}
                 className="w-full text-sm rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-neutral-800 dark:text-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
-                <option value="task-241">#TASK-241: Tối ưu luồng truy vấn SQL (Sprint 14)</option>
-                <option value="task-239">#TASK-239: WebSocket Sync Engine</option>
-                <option value="task-201">#TASK-201: Tối ưu hiệu năng Kanban Board</option>
-                <option value="">-- Không liên kết --</option>
+                <option value="">-- Chọn Task của dự án --</option>
+                {tasks.map(task => <option key={task.taskId} value={task.taskId}>TASK-{task.taskId}: {task.title}</option>)}
               </select>
             </div>
           </div>
@@ -208,7 +218,7 @@ export function CreateBugModal({ isOpen, onClose, onSubmit }: CreateBugModalProp
           {/* Attachments */}
           <div>
             <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
-              Tệp đính kèm & Bản ghi log
+              Tệp đính kèm & Bản ghi log (demo, chưa tải lên máy chủ)
             </label>
             <div
               onClick={handleSimulateAddFile}

@@ -4,7 +4,7 @@
  *
  * Quy tắc kiến trúc:
  * 1. Biến API_ROOT lưu địa chỉ gốc của Backend. Khi đổi host/port chỉ cần sửa biến này.
- * 2. Tất cả API đều console.log res.data kèm mô tả tiếng Việt.
+ * 2. Không log response payload vì có thể chứa token hoặc dữ liệu cá nhân.
  * 3. Tập trung đầy đủ 124 endpoints Backend theo chuẩn OpenAPI 3.0.1.
  * 4. Không tạo axios instance riêng lẻ ở các feature.
  */
@@ -45,7 +45,10 @@ httpClient.interceptors.request.use(
 httpClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const currentToken = tokenStorage.get()
+    const requestAuthorization = error.config?.headers?.Authorization
+    if (error.response?.status === 401 && currentToken &&
+      (!requestAuthorization || requestAuthorization === `Bearer ${currentToken}`)) {
       tokenStorage.remove()
       const publicPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/reset-sent']
       const isPublic = publicPaths.some((p) => window.location.pathname.startsWith(p))
@@ -251,6 +254,7 @@ export interface AssignDepartmentResult {
 // ─── EPICS TYPES (UC9–UC10) ──────────────────────────────────────────────────
 
 export interface EpicData {
+  color?: string | null
   epicId: number
   projectId: number
   title: string
@@ -263,6 +267,7 @@ export interface EpicData {
 }
 
 export interface EpicRequest {
+  color?: string | null
   title: string
   description?: string | null
   priority: number
@@ -399,7 +404,34 @@ export interface SprintBurndownData {
 
 // ─── TASKS & SUBTASKS TYPES (UC13–UC15) ──────────────────────────────────────
 
-export interface TaskData {
+export interface PersonSummary {
+  userId: number
+  fullName: string
+  avatarCode: string
+  avatarUrl: string | null
+  role: string | null
+}
+
+export interface TaskExtra {
+  assignee?: PersonSummary | null
+  assigneeName?: string | null
+  assigneeAvatarCode?: string | null
+  assigneeRole?: string | null
+  reporterName?: string | null
+  epicTitle?: string | null
+  epicColor?: string | null
+  tags?: string[]
+  storyPoints?: number | null
+}
+
+export interface DirectoryUserData {
+  userId: number
+  fullName: string
+  email: string
+  avatarUrl: string | null
+}
+
+export interface TaskData extends TaskExtra {
   taskId: number
   projectId: number
   sprintId: number | null
@@ -426,6 +458,8 @@ export interface TaskDetailData {
 }
 
 export interface TaskCreatePayload {
+  tags?: string[]
+  storyPoints?: number | null
   title: string
   description?: string | null
   sprintId?: number | null
@@ -437,6 +471,8 @@ export interface TaskCreatePayload {
 }
 
 export interface TaskUpdatePayload {
+  tags?: string[]
+  storyPoints?: number | null
   title: string
   description?: string | null
 }
@@ -482,7 +518,7 @@ export interface DeadlineAlertsData {
 
 // ─── BOARD & KANBAN TYPES (UC16–UC17) ────────────────────────────────────────
 
-export interface BoardTaskCard {
+export interface BoardTaskCard extends TaskExtra {
   taskId: number
   title: string
   status: string
@@ -603,9 +639,10 @@ export interface ThroughputData {
 
 export interface SprintThroughputItem {
   sprintId: number
-  name: string
+  sprintName: string
   status: string
-  dates: string
+  startDate: string
+  endDate: string
   doneTasks: number
 }
 
@@ -659,7 +696,9 @@ export interface WorkItemAgeData {
 
 // ─── BUGS TYPES (UC24–UC25) ──────────────────────────────────────────────────
 
-export interface BugData {
+export interface BugData extends TaskExtra {
+  taskTitle?: string | null
+  taskCode?: string | null
   bugId: number
   taskId: number
   reporterId: number
@@ -706,10 +745,10 @@ export interface BugStatusPayload {
 
 export interface BugDetailData {
   bug: BugData
-  task: TaskData | null
-  taskComments: CommentData[]
-  taskAttachments: AttachmentData[]
-  history: ActivityLogItem[]
+  task: { taskId: number; title: string; status: string; sprintId: number | null }
+  taskComments: { total: number; items: { commentId: number; userId: number; content: string; createdAt: string; updatedAt: string | null }[] }
+  taskAttachments: { total: number; items: { attachmentId: number; fileName: string; fileSize: number; uploadedBy: number; uploadedAt: string }[] }
+  history: { total: number; items: { activityLogId: number; userId: number; action: string; description: string; createdAt: string }[] }
 }
 
 export interface ListBugsQuery {
@@ -726,6 +765,10 @@ export interface ListBugsQuery {
 // ─── COMMENTS TYPES (UC26) ───────────────────────────────────────────────────
 
 export interface CommentData {
+  authorName?: string
+  authorAvatarCode?: string
+  authorRole?: string | null
+  isEditable?: boolean
   commentId: number
   taskId: number
   userId: number
@@ -742,6 +785,11 @@ export interface CommentPayload {
 // ─── ATTACHMENTS TYPES (UC27) ────────────────────────────────────────────────
 
 export interface AttachmentData {
+  originalFileName?: string
+  uploadedByName?: string
+  mimeType?: string
+  fileSizeBytes?: number
+  url?: string | null
   attachmentId: number
   taskId: number
   fileName: string
@@ -755,13 +803,18 @@ export interface AttachmentData {
 // ─── NOTIFICATIONS & ACTIVITY LOGS TYPES (UC28) ──────────────────────────────
 
 export interface NotificationData {
+  actorName?: string | null
+  actorAvatarCode?: string | null
+  actorRole?: string | null
+  actorUnknown?: boolean
+  targetTitle?: string | null
+  isUrgent?: boolean
   notificationId: number
-  userId: number
   title: string
-  message: string
+  content: string | null
   type: string
-  referenceType: string | null
-  referenceId: number | null
+  refType: string | null
+  refId: number | null
   isRead: boolean
   createdAt: string
   readAt: string | null
@@ -774,6 +827,12 @@ export interface ListNotificationsQuery {
 }
 
 export interface ActivityLogItem {
+  userName?: string | null
+  userAvatarCode?: string | null
+  userRole?: string | null
+  entityTitle?: string | null
+  isSystemAction?: boolean
+  changes?: Record<string, { from: unknown; to: unknown }> | null
   activityLogId: number
   userId: number
   action: string
@@ -795,38 +854,52 @@ export interface ListActivityLogsQuery {
 export interface ChatParticipantData {
   userId: number
   fullName: string
-  avatar: string | null
-  role: string
-  joinedAt: string
 }
 
 export interface ChatAttachmentData {
-  chatAttachmentId: number
-  chatMessageId: number
+  originalFileName?: string
+  mimeType?: string
+  fileSizeBytes?: number
+  previewUrl?: string | null
+  url?: string | null
+  messageAttachmentId: number
   fileName: string
   fileSize: number
-  previewUrl: string
   downloadUrl: string
 }
 
 export interface ChatMessageData {
-  chatMessageId: number
+  senderName?: string | null
+  senderAvatarCode?: string | null
+  senderRole?: string | null
+  isEdited?: boolean
+  editedAt?: string | null
+  replyToMessageId?: number | null
+  isEditable?: boolean
+  messageId: number
   chatRoomId: number
   senderId: number
   content: string | null
-  createdAt: string
+  sentAt: string
   attachments?: ChatAttachmentData[]
 }
 
+export interface ChatMessagesData {
+  items: ChatMessageData[]
+  hasMore: boolean
+  nextBefore: number | null
+}
+
 export interface ChatRoomData {
+  otherParticipantName?: string | null
+  otherParticipantAvatarCode?: string | null
+  otherParticipantStatus?: 'ONLINE' | 'OFFLINE'
+  participantsCount?: number
+  lastMessageSenderName?: string | null
   chatRoomId: number
   roomType: 'PRIVATE' | 'GROUP'
   roomName: string | null
   projectId: number | null
-  privateUserLowId: number | null
-  privateUserHighId: number | null
-  createdBy: number
-  createdAt: string
   lastMessage?: ChatMessageData | null
   unreadCount?: number
 }
@@ -840,6 +913,7 @@ export interface CreateRoomPayload {
 }
 
 export interface SendMessagePayload {
+  replyToMessageId?: number
   content?: string
 }
 
@@ -878,9 +952,14 @@ export interface SystemRoleData {
   description: string | null
 }
 
-export interface SystemConfigData {
-  values: Record<string, string>
+export interface SystemConfigEntry {
+  configKey: string
+  configValue: string
+  description: string | null
+  updatedAt: string | null
 }
+
+export type SystemConfigData = SystemConfigEntry[]
 
 export interface PermissionsData {
   systemRole: string
@@ -898,52 +977,51 @@ export const api = {
   auth: {
     login: async (payload: LoginPayload): Promise<ApiResponse<LoginResultData>> => {
       const res = await httpClient.post<ApiResponse<LoginResultData>>('/auth/login', payload)
-      console.log('📢 [API] Đăng nhập thành công:', res.data)
       return res.data
     },
 
     logout: async (): Promise<ApiResponse<null>> => {
-      const res = await httpClient.post<ApiResponse<null>>('/auth/logout')
-      console.log('📢 [API] Đăng xuất thành công:', res.data)
+      const token = tokenStorage.get()
+      const res = await httpClient.post<ApiResponse<null>>('/auth/logout', undefined, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       return res.data
     },
 
     register: async (payload: RegisterPayload): Promise<ApiResponse<RegisterResultData>> => {
       const res = await httpClient.post<ApiResponse<RegisterResultData>>('/auth/register', payload)
-      console.log('📢 [API] Đăng ký tài khoản thành công:', res.data)
       return res.data
     },
 
     forgotPassword: async (payload: ForgotPasswordPayload): Promise<ApiResponse<null>> => {
       const res = await httpClient.post<ApiResponse<null>>('/auth/forgot-password', payload)
-      console.log('📢 [API] Gửi yêu cầu quên mật khẩu:', res.data)
       return res.data
     },
 
     resetPassword: async (payload: ResetPasswordPayload): Promise<ApiResponse<null>> => {
       const res = await httpClient.post<ApiResponse<null>>('/auth/reset-password', payload)
-      console.log('📢 [API] Đặt lại mật khẩu thành công:', res.data)
       return res.data
     },
 
     changePassword: async (payload: ChangePasswordPayload): Promise<ApiResponse<null>> => {
       const res = await httpClient.post<ApiResponse<null>>('/auth/change-password', payload)
-      console.log('📢 [API] Đổi mật khẩu thành công:', res.data)
       return res.data
     },
   },
 
   // ── NHÓM 2: USERS / PROFILE (/api/v1/users) ────────────────────────────────
   users: {
+    search: async (query?: { keyword?: string; page?: number; pageSize?: number }): Promise<ApiResponse<PaginatedData<DirectoryUserData>>> => {
+      const res = await httpClient.get<ApiResponse<PaginatedData<DirectoryUserData>>>('/users', { params: query })
+      return res.data
+    },
     getMe: async (): Promise<ApiResponse<UserProfileData>> => {
       const res = await httpClient.get<ApiResponse<UserProfileData>>('/users/me')
-      console.log('📢 [API] Lấy thông tin hồ sơ (users/me):', res.data)
       return res.data
     },
 
     updateMe: async (payload: UpdateProfilePayload): Promise<ApiResponse<UpdateProfileResultData>> => {
       const res = await httpClient.put<ApiResponse<UpdateProfileResultData>>('/users/me', payload)
-      console.log('📢 [API] Cập nhật hồ sơ (users/me):', res.data)
       return res.data
     },
 
@@ -953,7 +1031,6 @@ export const api = {
       const res = await httpClient.put<ApiResponse<UpdateAvatarResultData>>('/users/me/avatar', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
-      console.log('📢 [API] Cập nhật ảnh đại diện:', res.data)
       return res.data
     },
 
@@ -969,13 +1046,11 @@ export const api = {
   adminUsers: {
     lockUser: async (userId: number): Promise<ApiResponse<LockUnlockUserResultData>> => {
       const res = await httpClient.patch<ApiResponse<LockUnlockUserResultData>>(`/admin/users/${userId}/lock`)
-      console.log(`📢 [API] Khóa tài khoản ID ${userId}:`, res.data)
       return res.data
     },
 
     unlockUser: async (userId: number): Promise<ApiResponse<LockUnlockUserResultData>> => {
       const res = await httpClient.patch<ApiResponse<LockUnlockUserResultData>>(`/admin/users/${userId}/unlock`)
-      console.log(`📢 [API] Mở khóa tài khoản ID ${userId}:`, res.data)
       return res.data
     },
   },
@@ -984,37 +1059,31 @@ export const api = {
   projects: {
     create: async (payload: ProjectRequest): Promise<ApiResponse<ProjectData>> => {
       const res = await httpClient.post<ApiResponse<ProjectData>>('/projects', payload)
-      console.log('📢 [API] Tạo dự án mới:', res.data)
       return res.data
     },
 
     list: async (query?: ListProjectsQuery): Promise<ApiResponse<PaginatedData<ProjectData>>> => {
       const res = await httpClient.get<ApiResponse<PaginatedData<ProjectData>>>('/projects', { params: query })
-      console.log('📢 [API] Lấy danh sách dự án:', res.data)
       return res.data
     },
 
     get: async (projectId: number): Promise<ApiResponse<ProjectData>> => {
       const res = await httpClient.get<ApiResponse<ProjectData>>(`/projects/${projectId}`)
-      console.log(`📢 [API] Lấy chi tiết dự án ID ${projectId}:`, res.data)
       return res.data
     },
 
     update: async (projectId: number, payload: ProjectRequest): Promise<ApiResponse<ProjectData>> => {
       const res = await httpClient.put<ApiResponse<ProjectData>>(`/projects/${projectId}`, payload)
-      console.log(`📢 [API] Cập nhật dự án ID ${projectId}:`, res.data)
       return res.data
     },
 
     close: async (projectId: number): Promise<ApiResponse<ProjectData>> => {
       const res = await httpClient.patch<ApiResponse<ProjectData>>(`/projects/${projectId}/close`)
-      console.log(`📢 [API] Đóng dự án ID ${projectId}:`, res.data)
       return res.data
     },
 
     delete: async (projectId: number): Promise<ApiResponse<ProjectData>> => {
       const res = await httpClient.delete<ApiResponse<ProjectData>>(`/projects/${projectId}`)
-      console.log(`📢 [API] Xóa mềm dự án ID ${projectId}:`, res.data)
       return res.data
     },
   },
@@ -1023,25 +1092,21 @@ export const api = {
   projectMembers: {
     list: async (projectId: number, query?: ListProjectMembersQuery): Promise<ApiResponse<PaginatedData<ProjectMemberData>>> => {
       const res = await httpClient.get<ApiResponse<PaginatedData<ProjectMemberData>>>(`/projects/${projectId}/members`, { params: query })
-      console.log(`📢 [API] Lấy danh sách thành viên dự án ID ${projectId}:`, res.data)
       return res.data
     },
 
     add: async (projectId: number, payload: AddProjectMemberPayload): Promise<ApiResponse<ProjectMemberMutationResult>> => {
       const res = await httpClient.post<ApiResponse<ProjectMemberMutationResult>>(`/projects/${projectId}/members`, payload)
-      console.log(`📢 [API] Thêm thành viên vào dự án ID ${projectId}:`, res.data)
       return res.data
     },
 
     remove: async (projectId: number, userId: number): Promise<ApiResponse<ProjectMemberMutationResult>> => {
       const res = await httpClient.delete<ApiResponse<ProjectMemberMutationResult>>(`/projects/${projectId}/members/${userId}`)
-      console.log(`📢 [API] Xóa thành viên ${userId} khỏi dự án ID ${projectId}:`, res.data)
       return res.data
     },
 
     promote: async (projectId: number, userId: number, payload: PromoteProjectMemberPayload = { role: 'MANAGER' }): Promise<ApiResponse<ProjectMemberMutationResult>> => {
       const res = await httpClient.patch<ApiResponse<ProjectMemberMutationResult>>(`/projects/${projectId}/members/${userId}/role`, payload)
-      console.log(`📢 [API] Nâng quyền Manager cho user ${userId} trong dự án ID ${projectId}:`, res.data)
       return res.data
     },
   },
@@ -1052,31 +1117,26 @@ export const api = {
       const res = await httpClient.get<ApiResponse<PaginatedData<DepartmentData>>>(`/projects/${projectId}/departments`, {
         params: { page, pageSize },
       })
-      console.log(`📢 [API] Lấy danh sách phòng ban dự án ID ${projectId}:`, res.data)
       return res.data
     },
 
     create: async (projectId: number, payload: DepartmentRequest): Promise<ApiResponse<DepartmentMutationResult>> => {
       const res = await httpClient.post<ApiResponse<DepartmentMutationResult>>(`/projects/${projectId}/departments`, payload)
-      console.log(`📢 [API] Tạo phòng ban mới trong dự án ID ${projectId}:`, res.data)
       return res.data
     },
 
     update: async (projectId: number, departmentId: number, payload: DepartmentRequest): Promise<ApiResponse<DepartmentMutationResult>> => {
       const res = await httpClient.put<ApiResponse<DepartmentMutationResult>>(`/projects/${projectId}/departments/${departmentId}`, payload)
-      console.log(`📢 [API] Cập nhật phòng ban ID ${departmentId} trong dự án ${projectId}:`, res.data)
       return res.data
     },
 
     delete: async (projectId: number, departmentId: number): Promise<ApiResponse<null>> => {
       const res = await httpClient.delete<ApiResponse<null>>(`/projects/${projectId}/departments/${departmentId}`)
-      console.log(`📢 [API] Xóa phòng ban ID ${departmentId} khỏi dự án ${projectId}:`, res.data)
       return res.data
     },
 
     assignMember: async (projectId: number, userId: number, payload: AssignDepartmentPayload): Promise<ApiResponse<AssignDepartmentResult>> => {
       const res = await httpClient.patch<ApiResponse<AssignDepartmentResult>>(`/projects/${projectId}/members/${userId}/department`, payload)
-      console.log(`📢 [API] Gán phòng ban cho user ${userId} trong dự án ${projectId}:`, res.data)
       return res.data
     },
   },
@@ -1085,55 +1145,46 @@ export const api = {
   epics: {
     list: async (projectId: number, query?: ListEpicsQuery): Promise<ApiResponse<PaginatedData<EpicData>>> => {
       const res = await httpClient.get<ApiResponse<PaginatedData<EpicData>>>(`/projects/${projectId}/epics`, { params: query })
-      console.log(`📢 [API] Lấy danh sách Epic của dự án ID ${projectId}:`, res.data)
       return res.data
     },
 
     create: async (projectId: number, payload: EpicRequest): Promise<ApiResponse<EpicData>> => {
       const res = await httpClient.post<ApiResponse<EpicData>>(`/projects/${projectId}/epics`, payload)
-      console.log(`📢 [API] Tạo Epic mới trong dự án ID ${projectId}:`, res.data)
       return res.data
     },
 
     get: async (epicId: number): Promise<ApiResponse<EpicData>> => {
       const res = await httpClient.get<ApiResponse<EpicData>>(`/epics/${epicId}`)
-      console.log(`📢 [API] Lấy chi tiết Epic ID ${epicId}:`, res.data)
       return res.data
     },
 
     update: async (epicId: number, payload: EpicRequest): Promise<ApiResponse<EpicData>> => {
       const res = await httpClient.put<ApiResponse<EpicData>>(`/epics/${epicId}`, payload)
-      console.log(`📢 [API] Cập nhật Epic ID ${epicId}:`, res.data)
       return res.data
     },
 
     delete: async (epicId: number): Promise<ApiResponse<EpicData>> => {
       const res = await httpClient.delete<ApiResponse<EpicData>>(`/epics/${epicId}`)
-      console.log(`📢 [API] Xóa Epic ID ${epicId}:`, res.data)
       return res.data
     },
 
     progress: async (epicId: number): Promise<ApiResponse<EpicProgressData>> => {
       const res = await httpClient.get<ApiResponse<EpicProgressData>>(`/epics/${epicId}/progress`)
-      console.log(`📢 [API] Lấy tiến độ Epic ID ${epicId}:`, res.data)
       return res.data
     },
 
     linkPbi: async (pbiId: number, payload: LinkEpicPayload): Promise<ApiResponse<{ itemId: number; epicId: number }>> => {
       const res = await httpClient.patch<ApiResponse<{ itemId: number; epicId: number }>>(`/pbis/${pbiId}/epic`, payload)
-      console.log(`📢 [API] Liên kết PBI ${pbiId} với Epic ${payload.epicId}:`, res.data)
       return res.data
     },
 
     linkProductBacklogItem: async (pbiId: number, payload: LinkEpicPayload): Promise<ApiResponse<{ itemId: number; epicId: number }>> => {
       const res = await httpClient.patch<ApiResponse<{ itemId: number; epicId: number }>>(`/product-backlog-items/${pbiId}/epic`, payload)
-      console.log(`📢 [API] Liên kết PBI ${pbiId} với Epic ${payload.epicId} (route mở rộng):`, res.data)
       return res.data
     },
 
     linkTask: async (taskId: number, payload: LinkEpicPayload): Promise<ApiResponse<{ itemId: number; epicId: number }>> => {
       const res = await httpClient.patch<ApiResponse<{ itemId: number; epicId: number }>>(`/tasks/${taskId}/epic`, payload)
-      console.log(`📢 [API] Liên kết Task ${taskId} với Epic ${payload.epicId}:`, res.data)
       return res.data
     },
   },
@@ -1142,43 +1193,36 @@ export const api = {
   productBacklog: {
     list: async (query: ListBacklogQuery): Promise<ApiResponse<PaginatedData<ProductBacklogItemData>>> => {
       const res = await httpClient.get<ApiResponse<PaginatedData<ProductBacklogItemData>>>('/product-backlog-items', { params: query })
-      console.log(`📢 [API] Lấy danh sách Product Backlog (Project ${query.projectId}):`, res.data)
       return res.data
     },
 
     create: async (payload: BacklogRequest): Promise<ApiResponse<ProductBacklogItemData>> => {
       const res = await httpClient.post<ApiResponse<ProductBacklogItemData>>('/product-backlog-items', payload)
-      console.log('📢 [API] Tạo PBI mới:', res.data)
       return res.data
     },
 
     get: async (pbiId: number): Promise<ApiResponse<ProductBacklogItemData>> => {
       const res = await httpClient.get<ApiResponse<ProductBacklogItemData>>(`/product-backlog-items/${pbiId}`)
-      console.log(`📢 [API] Lấy chi tiết PBI ID ${pbiId}:`, res.data)
       return res.data
     },
 
     update: async (pbiId: number, payload: BacklogRequest): Promise<ApiResponse<ProductBacklogItemData>> => {
       const res = await httpClient.put<ApiResponse<ProductBacklogItemData>>(`/product-backlog-items/${pbiId}`, payload)
-      console.log(`📢 [API] Cập nhật PBI ID ${pbiId}:`, res.data)
       return res.data
     },
 
     delete: async (pbiId: number): Promise<ApiResponse<ProductBacklogItemData>> => {
       const res = await httpClient.delete<ApiResponse<ProductBacklogItemData>>(`/product-backlog-items/${pbiId}`)
-      console.log(`📢 [API] Xóa PBI ID ${pbiId}:`, res.data)
       return res.data
     },
 
     changePriority: async (pbiId: number, payload: ChangePriorityPayload): Promise<ApiResponse<ProductBacklogItemData>> => {
       const res = await httpClient.patch<ApiResponse<ProductBacklogItemData>>(`/product-backlog-items/${pbiId}/priority`, payload)
-      console.log(`📢 [API] Đổi priority PBI ID ${pbiId}:`, res.data)
       return res.data
     },
 
     reorder: async (payload: BacklogOrderPayload): Promise<ApiResponse<{ epicId: number; pbiIds: number[] }>> => {
       const res = await httpClient.put<ApiResponse<{ epicId: number; pbiIds: number[] }>>('/product-backlog-items/order', payload)
-      console.log(`📢 [API] Sắp xếp lại PBI trong Epic ${payload.epicId}:`, res.data)
       return res.data
     },
   },
@@ -1187,73 +1231,61 @@ export const api = {
   sprints: {
     list: async (query: ListSprintsQuery): Promise<ApiResponse<PaginatedData<SprintData>>> => {
       const res = await httpClient.get<ApiResponse<PaginatedData<SprintData>>>('/sprints', { params: query })
-      console.log(`📢 [API] Lấy danh sách Sprint (Project ${query.projectId}):`, res.data)
       return res.data
     },
 
     create: async (payload: SprintRequest): Promise<ApiResponse<SprintData>> => {
       const res = await httpClient.post<ApiResponse<SprintData>>('/sprints', payload)
-      console.log('📢 [API] Tạo Sprint mới:', res.data)
       return res.data
     },
 
     get: async (sprintId: number): Promise<ApiResponse<SprintData>> => {
       const res = await httpClient.get<ApiResponse<SprintData>>(`/sprints/${sprintId}`)
-      console.log(`📢 [API] Lấy chi tiết Sprint ID ${sprintId}:`, res.data)
       return res.data
     },
 
     update: async (sprintId: number, payload: SprintRequest): Promise<ApiResponse<SprintData>> => {
       const res = await httpClient.put<ApiResponse<SprintData>>(`/sprints/${sprintId}`, payload)
-      console.log(`📢 [API] Cập nhật Sprint ID ${sprintId}:`, res.data)
       return res.data
     },
 
     delete: async (sprintId: number): Promise<ApiResponse<null>> => {
       const res = await httpClient.delete<ApiResponse<null>>(`/sprints/${sprintId}`)
-      console.log(`📢 [API] Xóa Sprint ID ${sprintId}:`, res.data)
       return res.data
     },
 
     start: async (sprintId: number): Promise<ApiResponse<SprintData>> => {
       const res = await httpClient.post<ApiResponse<SprintData>>(`/sprints/${sprintId}/start`)
-      console.log(`📢 [API] Bắt đầu Sprint ID ${sprintId}:`, res.data)
       return res.data
     },
 
     close: async (sprintId: number): Promise<ApiResponse<SprintData>> => {
       const res = await httpClient.post<ApiResponse<SprintData>>(`/sprints/${sprintId}/close`)
-      console.log(`📢 [API] Đóng Sprint ID ${sprintId}:`, res.data)
       return res.data
     },
 
     addBacklogItems: async (sprintId: number, payload: AddPbisToSprintPayload): Promise<ApiResponse<null>> => {
       const res = await httpClient.post<ApiResponse<null>>(`/sprints/${sprintId}/backlog-items`, payload)
-      console.log(`📢 [API] Thêm PBI vào Sprint ID ${sprintId}:`, res.data)
       return res.data
     },
 
-    getBacklogItems: async (sprintId: number): Promise<ApiResponse<ProductBacklogItemData[]>> => {
-      const res = await httpClient.get<ApiResponse<ProductBacklogItemData[]>>(`/sprints/${sprintId}/backlog-items`)
-      console.log(`📢 [API] Lấy danh sách PBI trong Sprint ID ${sprintId}:`, res.data)
+    getBacklogItems: async (sprintId: number): Promise<ApiResponse<SprintProgressData>> => {
+      const res = await httpClient.get<ApiResponse<SprintProgressData>>(`/sprints/${sprintId}/backlog-items`)
       return res.data
     },
 
     removeBacklogItem: async (sprintId: number, pbiId: number): Promise<ApiResponse<null>> => {
       const res = await httpClient.delete<ApiResponse<null>>(`/sprints/${sprintId}/backlog-items/${pbiId}`)
-      console.log(`📢 [API] Loại PBI ${pbiId} khỏi Sprint ${sprintId}:`, res.data)
       return res.data
     },
 
     progress: async (sprintId: number): Promise<ApiResponse<SprintProgressData>> => {
       const res = await httpClient.get<ApiResponse<SprintProgressData>>(`/sprints/${sprintId}/progress`)
-      console.log(`📢 [API] Lấy tiến độ Sprint ID ${sprintId}:`, res.data)
       return res.data
     },
 
     burndown: async (sprintId: number): Promise<ApiResponse<SprintBurndownData>> => {
       const res = await httpClient.get<ApiResponse<SprintBurndownData>>(`/sprints/${sprintId}/burndown`)
-      console.log(`📢 [API] Lấy dữ liệu Burndown Sprint ID ${sprintId}:`, res.data)
       return res.data
     },
   },
@@ -1262,61 +1294,51 @@ export const api = {
   tasks: {
     list: async (projectId: number, query?: ListTasksQuery): Promise<ApiResponse<PaginatedData<TaskData>>> => {
       const res = await httpClient.get<ApiResponse<PaginatedData<TaskData>>>(`/projects/${projectId}/tasks`, { params: query })
-      console.log(`📢 [API] Lấy danh sách công việc dự án ${projectId}:`, res.data)
       return res.data
     },
 
     create: async (projectId: number, payload: TaskCreatePayload): Promise<ApiResponse<TaskData>> => {
       const res = await httpClient.post<ApiResponse<TaskData>>(`/projects/${projectId}/tasks`, payload)
-      console.log(`📢 [API] Tạo công việc mới trong dự án ${projectId}:`, res.data)
       return res.data
     },
 
     get: async (taskId: number): Promise<ApiResponse<TaskDetailData>> => {
       const res = await httpClient.get<ApiResponse<TaskDetailData>>(`/tasks/${taskId}`)
-      console.log(`📢 [API] Lấy chi tiết công việc ID ${taskId}:`, res.data)
       return res.data
     },
 
     update: async (taskId: number, payload: TaskUpdatePayload): Promise<ApiResponse<TaskData>> => {
       const res = await httpClient.put<ApiResponse<TaskData>>(`/tasks/${taskId}`, payload)
-      console.log(`📢 [API] Cập nhật công việc ID ${taskId}:`, res.data)
       return res.data
     },
 
     delete: async (taskId: number): Promise<ApiResponse<null>> => {
       const res = await httpClient.delete<ApiResponse<null>>(`/tasks/${taskId}`)
-      console.log(`📢 [API] Xóa công việc ID ${taskId}:`, res.data)
       return res.data
     },
 
     createSubtask: async (taskId: number, payload: TaskCreatePayload): Promise<ApiResponse<TaskData>> => {
       const res = await httpClient.post<ApiResponse<TaskData>>(`/tasks/${taskId}/subtasks`, payload)
-      console.log(`📢 [API] Tạo subtask cho task ID ${taskId}:`, res.data)
       return res.data
     },
 
     assign: async (taskId: number, payload: AssignTaskPayload): Promise<ApiResponse<TaskData>> => {
       const res = await httpClient.patch<ApiResponse<TaskData>>(`/tasks/${taskId}/assignee`, payload)
-      console.log(`📢 [API] Gán người thực hiện task ID ${taskId}:`, res.data)
       return res.data
     },
 
     changePriority: async (taskId: number, payload: TaskPriorityPayload): Promise<ApiResponse<TaskData>> => {
       const res = await httpClient.patch<ApiResponse<TaskData>>(`/tasks/${taskId}/priority`, payload)
-      console.log(`📢 [API] Đổi độ ưu tiên task ID ${taskId}:`, res.data)
       return res.data
     },
 
     setDeadline: async (taskId: number, payload: TaskDeadlinePayload): Promise<ApiResponse<TaskData>> => {
       const res = await httpClient.patch<ApiResponse<TaskData>>(`/tasks/${taskId}/deadline`, payload)
-      console.log(`📢 [API] Cài đặt hạn chót task ID ${taskId}:`, res.data)
       return res.data
     },
 
     updateProgress: async (taskId: number, payload: TaskProgressPayload): Promise<ApiResponse<TaskData>> => {
       const res = await httpClient.patch<ApiResponse<TaskData>>(`/tasks/${taskId}/progress`, payload)
-      console.log(`📢 [API] Cập nhật tiến độ task ID ${taskId}:`, res.data)
       return res.data
     },
 
@@ -1324,7 +1346,6 @@ export const api = {
       const res = await httpClient.get<ApiResponse<PaginatedData<TaskData>>>(`/projects/${projectId}/tasks/overdue`, {
         params: { page, pageSize },
       })
-      console.log(`📢 [API] Lấy danh sách task quá hạn dự án ${projectId}:`, res.data)
       return res.data
     },
 
@@ -1332,7 +1353,6 @@ export const api = {
       const res = await httpClient.get<ApiResponse<DeadlineAlertsData>>(`/projects/${projectId}/tasks/deadline-alerts`, {
         params: { page, pageSize },
       })
-      console.log(`📢 [API] Lấy cảnh báo deadline dự án ${projectId}:`, res.data)
       return res.data
     },
   },
@@ -1341,13 +1361,11 @@ export const api = {
   board: {
     get: async (projectId: number, query?: BoardFilterQuery): Promise<ApiResponse<BoardData>> => {
       const res = await httpClient.get<ApiResponse<BoardData>>(`/projects/${projectId}/board`, { params: query })
-      console.log(`📢 [API] Lấy dữ liệu bảng Kanban dự án ${projectId}:`, res.data)
       return res.data
     },
 
     move: async (taskId: number, payload: MoveTaskPayload): Promise<ApiResponse<MoveTaskResult>> => {
       const res = await httpClient.patch<ApiResponse<MoveTaskResult>>(`/tasks/${taskId}/move`, payload)
-      console.log(`📢 [API] Di chuyển công việc ID ${taskId}:`, res.data)
       return res.data
     },
   },
@@ -1356,25 +1374,21 @@ export const api = {
   wip: {
     get: async (projectId: number): Promise<ApiResponse<WipStatusData>> => {
       const res = await httpClient.get<ApiResponse<WipStatusData>>(`/projects/${projectId}/wip`)
-      console.log(`📢 [API] Lấy trạng thái giới hạn WIP dự án ${projectId}:`, res.data)
       return res.data
     },
 
     getAlerts: async (projectId: number): Promise<ApiResponse<WipStatusData>> => {
       const res = await httpClient.get<ApiResponse<WipStatusData>>(`/projects/${projectId}/wip/alerts`)
-      console.log(`📢 [API] Lấy cảnh báo quá tải WIP dự án ${projectId}:`, res.data)
       return res.data
     },
 
     setLimit: async (projectId: number, columnId: number, payload: WipLimitPayload): Promise<ApiResponse<WipLimitResult>> => {
       const res = await httpClient.put<ApiResponse<WipLimitResult>>(`/projects/${projectId}/board/columns/${columnId}/wip-limit`, payload)
-      console.log(`📢 [API] Đặt giới hạn WIP cho cột ${columnId} dự án ${projectId}:`, res.data)
       return res.data
     },
 
     removeLimit: async (projectId: number, columnId: number): Promise<ApiResponse<WipLimitResult>> => {
       const res = await httpClient.delete<ApiResponse<WipLimitResult>>(`/projects/${projectId}/board/columns/${columnId}/wip-limit`)
-      console.log(`📢 [API] Xóa bỏ giới hạn WIP cột ${columnId} dự án ${projectId}:`, res.data)
       return res.data
     },
   },
@@ -1385,7 +1399,6 @@ export const api = {
       const res = await httpClient.get<ApiResponse<FlowWipData>>(`/projects/${projectId}/flow-metrics/wip`, {
         params: { sprintId },
       })
-      console.log(`📢 [API] Lấy chỉ số WIP luồng dự án ${projectId}:`, res.data)
       return res.data
     },
 
@@ -1393,7 +1406,6 @@ export const api = {
       const res = await httpClient.get<ApiResponse<ThroughputData>>(`/projects/${projectId}/flow-metrics/throughput`, {
         params: query,
       })
-      console.log(`📢 [API] Lấy Throughput dự án ${projectId}:`, res.data)
       return res.data
     },
 
@@ -1401,7 +1413,6 @@ export const api = {
       const res = await httpClient.get<ApiResponse<SprintsThroughputData>>(`/projects/${projectId}/flow-metrics/throughput/sprints`, {
         params: query,
       })
-      console.log(`📢 [API] Lấy so sánh Throughput theo Sprint dự án ${projectId}:`, res.data)
       return res.data
     },
 
@@ -1409,7 +1420,6 @@ export const api = {
       const res = await httpClient.get<ApiResponse<PaginatedData<CycleTimeItem>>>(`/projects/${projectId}/flow-metrics/cycle-time`, {
         params: query,
       })
-      console.log(`📢 [API] Lấy danh sách Cycle Time dự án ${projectId}:`, res.data)
       return res.data
     },
 
@@ -1417,7 +1427,6 @@ export const api = {
       const res = await httpClient.get<ApiResponse<CycleTimeAverageData>>(`/projects/${projectId}/flow-metrics/cycle-time/average`, {
         params: { sprintId },
       })
-      console.log(`📢 [API] Lấy Cycle Time trung bình dự án ${projectId}:`, res.data)
       return res.data
     },
 
@@ -1425,7 +1434,6 @@ export const api = {
       const res = await httpClient.get<ApiResponse<WorkItemAgeData>>(`/projects/${projectId}/flow-metrics/work-item-age`, {
         params: query,
       })
-      console.log(`📢 [API] Lấy Work Item Age dự án ${projectId}:`, res.data)
       return res.data
     },
   },
@@ -1434,61 +1442,51 @@ export const api = {
   bugs: {
     list: async (projectId: number, query?: ListBugsQuery): Promise<ApiResponse<PaginatedData<BugData>>> => {
       const res = await httpClient.get<ApiResponse<PaginatedData<BugData>>>(`/projects/${projectId}/bugs`, { params: query })
-      console.log(`📢 [API] Lấy danh sách Bug dự án ${projectId}:`, res.data)
       return res.data
     },
 
     create: async (payload: BugCreatePayload): Promise<ApiResponse<BugData>> => {
       const res = await httpClient.post<ApiResponse<BugData>>('/bugs', payload)
-      console.log('📢 [API] Tạo Bug mới:', res.data)
       return res.data
     },
 
     createForTask: async (taskId: number, payload: Omit<BugCreatePayload, 'taskId'>): Promise<ApiResponse<BugData>> => {
       const res = await httpClient.post<ApiResponse<BugData>>(`/tasks/${taskId}/bugs`, payload)
-      console.log(`📢 [API] Tạo Bug gắn với Task ID ${taskId}:`, res.data)
       return res.data
     },
 
     get: async (bugId: number): Promise<ApiResponse<BugDetailData>> => {
       const res = await httpClient.get<ApiResponse<BugDetailData>>(`/bugs/${bugId}`)
-      console.log(`📢 [API] Lấy chi tiết Bug ID ${bugId}:`, res.data)
       return res.data
     },
 
     update: async (bugId: number, payload: BugUpdatePayload): Promise<ApiResponse<BugData>> => {
       const res = await httpClient.put<ApiResponse<BugData>>(`/bugs/${bugId}`, payload)
-      console.log(`📢 [API] Cập nhật Bug ID ${bugId}:`, res.data)
       return res.data
     },
 
     delete: async (bugId: number): Promise<ApiResponse<null>> => {
       const res = await httpClient.delete<ApiResponse<null>>(`/bugs/${bugId}`)
-      console.log(`📢 [API] Xóa Bug ID ${bugId}:`, res.data)
       return res.data
     },
 
     assign: async (bugId: number, payload: BugAssigneePayload): Promise<ApiResponse<BugData>> => {
       const res = await httpClient.patch<ApiResponse<BugData>>(`/bugs/${bugId}/assignee`, payload)
-      console.log(`📢 [API] Gán người sửa Bug ID ${bugId}:`, res.data)
       return res.data
     },
 
     changePriority: async (bugId: number, payload: BugPriorityPayload): Promise<ApiResponse<BugData>> => {
       const res = await httpClient.patch<ApiResponse<BugData>>(`/bugs/${bugId}/priority`, payload)
-      console.log(`📢 [API] Đổi độ ưu tiên Bug ID ${bugId}:`, res.data)
       return res.data
     },
 
     changeStatus: async (bugId: number, payload: BugStatusPayload): Promise<ApiResponse<BugData>> => {
       const res = await httpClient.patch<ApiResponse<BugData>>(`/bugs/${bugId}/status`, payload)
-      console.log(`📢 [API] Chuyển trạng thái Bug ID ${bugId}:`, res.data)
       return res.data
     },
 
     close: async (bugId: number): Promise<ApiResponse<BugData>> => {
       const res = await httpClient.post<ApiResponse<BugData>>(`/bugs/${bugId}/close`)
-      console.log(`📢 [API] Đóng Bug ID ${bugId}:`, res.data)
       return res.data
     },
   },
@@ -1499,31 +1497,26 @@ export const api = {
       const res = await httpClient.get<ApiResponse<PaginatedData<CommentData>>>(`/tasks/${taskId}/comments`, {
         params: { page, pageSize },
       })
-      console.log(`📢 [API] Lấy bình luận Task ID ${taskId}:`, res.data)
       return res.data
     },
 
     createForTask: async (taskId: number, payload: CommentPayload): Promise<ApiResponse<CommentData>> => {
       const res = await httpClient.post<ApiResponse<CommentData>>(`/tasks/${taskId}/comments`, payload)
-      console.log(`📢 [API] Thêm bình luận Task ID ${taskId}:`, res.data)
       return res.data
     },
 
     get: async (commentId: number): Promise<ApiResponse<CommentData>> => {
       const res = await httpClient.get<ApiResponse<CommentData>>(`/comments/${commentId}`)
-      console.log(`📢 [API] Lấy chi tiết bình luận ID ${commentId}:`, res.data)
       return res.data
     },
 
     update: async (commentId: number, payload: CommentPayload): Promise<ApiResponse<CommentData>> => {
       const res = await httpClient.put<ApiResponse<CommentData>>(`/comments/${commentId}`, payload)
-      console.log(`📢 [API] Sửa bình luận ID ${commentId}:`, res.data)
       return res.data
     },
 
     delete: async (commentId: number): Promise<ApiResponse<null>> => {
       const res = await httpClient.delete<ApiResponse<null>>(`/comments/${commentId}`)
-      console.log(`📢 [API] Xóa bình luận ID ${commentId}:`, res.data)
       return res.data
     },
   },
@@ -1536,7 +1529,6 @@ export const api = {
       const res = await httpClient.post<ApiResponse<{ items: AttachmentData[] }>>(`/tasks/${taskId}/attachments`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
-      console.log(`📢 [API] Đính kèm tệp cho Task ID ${taskId}:`, res.data)
       return res.data
     },
 
@@ -1544,19 +1536,16 @@ export const api = {
       const res = await httpClient.get<ApiResponse<PaginatedData<AttachmentData>>>(`/tasks/${taskId}/attachments`, {
         params: { page, pageSize },
       })
-      console.log(`📢 [API] Lấy tệp đính kèm Task ID ${taskId}:`, res.data)
       return res.data
     },
 
     get: async (attachmentId: number): Promise<ApiResponse<AttachmentData>> => {
       const res = await httpClient.get<ApiResponse<AttachmentData>>(`/attachments/${attachmentId}`)
-      console.log(`📢 [API] Lấy metadata tệp ID ${attachmentId}:`, res.data)
       return res.data
     },
 
     delete: async (attachmentId: number): Promise<ApiResponse<null>> => {
       const res = await httpClient.delete<ApiResponse<null>>(`/attachments/${attachmentId}`)
-      console.log(`📢 [API] Xóa tệp đính kèm ID ${attachmentId}:`, res.data)
       return res.data
     },
 
@@ -1579,25 +1568,21 @@ export const api = {
   notifications: {
     list: async (query?: ListNotificationsQuery): Promise<ApiResponse<PaginatedData<NotificationData>>> => {
       const res = await httpClient.get<ApiResponse<PaginatedData<NotificationData>>>('/notifications', { params: query })
-      console.log('📢 [API] Lấy danh sách thông báo:', res.data)
       return res.data
     },
 
     getUnreadCount: async (): Promise<ApiResponse<{ unreadCount: number }>> => {
       const res = await httpClient.get<ApiResponse<{ unreadCount: number }>>('/notifications/unread-count')
-      console.log('📢 [API] Lấy số thông báo chưa đọc:', res.data)
       return res.data
     },
 
     markAsRead: async (notificationId: number): Promise<ApiResponse<NotificationData>> => {
       const res = await httpClient.patch<ApiResponse<NotificationData>>(`/notifications/${notificationId}/read`)
-      console.log(`📢 [API] Đánh dấu đã đọc thông báo ID ${notificationId}:`, res.data)
       return res.data
     },
 
     markAllAsRead: async (): Promise<ApiResponse<{ updated: number }>> => {
       const res = await httpClient.patch<ApiResponse<{ updated: number }>>('/notifications/read-all')
-      console.log('📢 [API] Đánh dấu đã đọc tất cả thông báo:', res.data)
       return res.data
     },
   },
@@ -1606,46 +1591,43 @@ export const api = {
   activityLogs: {
     listByProject: async (projectId: number, query?: ListActivityLogsQuery): Promise<ApiResponse<PaginatedData<ActivityLogItem>>> => {
       const res = await httpClient.get<ApiResponse<PaginatedData<ActivityLogItem>>>(`/projects/${projectId}/activity-logs`, { params: query })
-      console.log(`📢 [API] Lấy nhật ký hoạt động dự án ${projectId}:`, res.data)
       return res.data
     },
   },
 
   // ── NHÓM 19: CHAT & REALTIME (/api/v1/chat) ──────────────────────────────────
   chat: {
+    editMessage: async (roomId: number, messageId: number, content: string): Promise<ApiResponse<ChatMessageData>> => {
+      const res = await httpClient.put<ApiResponse<ChatMessageData>>(`/chat/rooms/${roomId}/messages/${messageId}`, { content })
+      return res.data
+    },
     listRooms: async (): Promise<ApiResponse<ChatRoomData[]>> => {
       const res = await httpClient.get<ApiResponse<ChatRoomData[]>>('/chat/rooms')
-      console.log('📢 [API] Lấy danh sách phòng chat:', res.data)
       return res.data
     },
 
-    createRoom: async (payload: CreateRoomPayload): Promise<ApiResponse<ChatRoomData>> => {
-      const res = await httpClient.post<ApiResponse<ChatRoomData>>('/chat/rooms', payload)
-      console.log('📢 [API] Tạo phòng chat mới:', res.data)
+    createRoom: async (payload: CreateRoomPayload): Promise<ApiResponse<{ chatRoomId: number }>> => {
+      const res = await httpClient.post<ApiResponse<{ chatRoomId: number }>>('/chat/rooms', payload)
       return res.data
     },
 
     listParticipants: async (roomId: number): Promise<ApiResponse<ChatParticipantData[]>> => {
       const res = await httpClient.get<ApiResponse<ChatParticipantData[]>>(`/chat/rooms/${roomId}/participants`)
-      console.log(`📢 [API] Lấy thành viên phòng chat ID ${roomId}:`, res.data)
       return res.data
     },
 
     addParticipants: async (roomId: number, userIds: number[]): Promise<ApiResponse<null>> => {
       const res = await httpClient.post<ApiResponse<null>>(`/chat/rooms/${roomId}/participants`, { userIds })
-      console.log(`📢 [API] Thêm thành viên vào phòng chat ID ${roomId}:`, res.data)
       return res.data
     },
 
     removeParticipant: async (roomId: number, userId: number): Promise<ApiResponse<null>> => {
       const res = await httpClient.delete<ApiResponse<null>>(`/chat/rooms/${roomId}/participants/${userId}`)
-      console.log(`📢 [API] Xóa thành viên ${userId} khỏi phòng chat ${roomId}:`, res.data)
       return res.data
     },
 
-    listMessages: async (roomId: number, query?: ListMessagesQuery): Promise<ApiResponse<ChatMessageData[]>> => {
-      const res = await httpClient.get<ApiResponse<ChatMessageData[]>>(`/chat/rooms/${roomId}/messages`, { params: query })
-      console.log(`📢 [API] Lấy tin nhắn phòng chat ID ${roomId}:`, res.data)
+    listMessages: async (roomId: number, query?: ListMessagesQuery): Promise<ApiResponse<ChatMessagesData>> => {
+      const res = await httpClient.get<ApiResponse<ChatMessagesData>>(`/chat/rooms/${roomId}/messages`, { params: query })
       return res.data
     },
 
@@ -1653,27 +1635,24 @@ export const api = {
       if (files && files.length > 0) {
         const formData = new FormData()
         if (payload.content) formData.append('content', payload.content)
+        if (payload.replyToMessageId) formData.append('replyToMessageId', String(payload.replyToMessageId))
         files.forEach((f) => formData.append('files', f))
         const res = await httpClient.post<ApiResponse<ChatMessageData>>(`/chat/rooms/${roomId}/messages`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         })
-        console.log(`📢 [API] Gửi tin nhắn kèm tệp vào phòng ${roomId}:`, res.data)
         return res.data
       }
       const res = await httpClient.post<ApiResponse<ChatMessageData>>(`/chat/rooms/${roomId}/messages`, payload)
-      console.log(`📢 [API] Gửi tin nhắn vào phòng ${roomId}:`, res.data)
       return res.data
     },
 
     markRead: async (roomId: number, payload?: ReadChatPayload): Promise<ApiResponse<null>> => {
       const res = await httpClient.post<ApiResponse<null>>(`/chat/rooms/${roomId}/read`, payload || {})
-      console.log(`📢 [API] Đánh dấu đã đọc phòng chat ID ${roomId}:`, res.data)
       return res.data
     },
 
     getUnreadCount: async (): Promise<ApiResponse<{ unreadCount: number }>> => {
       const res = await httpClient.get<ApiResponse<{ unreadCount: number }>>('/chat/unread-count')
-      console.log('📢 [API] Lấy số tin nhắn chat chưa đọc:', res.data)
       return res.data
     },
 
@@ -1696,37 +1675,31 @@ export const api = {
   admin: {
     listUsers: async (query?: ListAdminUsersQuery): Promise<ApiResponse<PaginatedData<AdminUserData>>> => {
       const res = await httpClient.get<ApiResponse<PaginatedData<AdminUserData>>>('/admin/users', { params: query })
-      console.log('📢 [API] Admin lấy danh sách người dùng toàn hệ thống:', res.data)
       return res.data
     },
 
     createUser: async (payload: RegisterPayload): Promise<ApiResponse<{ userId: number; systemRole: string }>> => {
       const res = await httpClient.post<ApiResponse<{ userId: number; systemRole: string }>>('/admin/users', payload)
-      console.log('📢 [API] Admin tạo người dùng mới:', res.data)
       return res.data
     },
 
     listRoles: async (): Promise<ApiResponse<SystemRoleData[]>> => {
       const res = await httpClient.get<ApiResponse<SystemRoleData[]>>('/admin/roles')
-      console.log('📢 [API] Admin lấy danh mục vai trò hệ thống:', res.data)
       return res.data
     },
 
     updateUserRole: async (userId: number, role: 'ADMIN' | 'USER'): Promise<ApiResponse<{ userId: number; systemRole: string }>> => {
       const res = await httpClient.put<ApiResponse<{ userId: number; systemRole: string }>>(`/admin/users/${userId}/role`, { role })
-      console.log(`📢 [API] Admin cập nhật vai trò người dùng ${userId}:`, res.data)
       return res.data
     },
 
     getConfig: async (): Promise<ApiResponse<SystemConfigData>> => {
       const res = await httpClient.get<ApiResponse<SystemConfigData>>('/admin/system-config')
-      console.log('📢 [API] Admin lấy cấu hình hệ thống:', res.data)
       return res.data
     },
 
-    updateConfig: async (values: Record<string, string>): Promise<ApiResponse<SystemConfigData>> => {
-      const res = await httpClient.put<ApiResponse<SystemConfigData>>('/admin/system-config', { values })
-      console.log('📢 [API] Admin cập nhật cấu hình hệ thống:', res.data)
+    updateConfig: async (values: Record<string, string>): Promise<ApiResponse<null>> => {
+      const res = await httpClient.put<ApiResponse<null>>('/admin/system-config', { values })
       return res.data
     },
 
@@ -1734,7 +1707,6 @@ export const api = {
       const res = await httpClient.get<ApiResponse<PaginatedData<ActivityLogItem>>>('/admin/activity-logs', {
         params: { page, pageSize },
       })
-      console.log('📢 [API] Admin lấy nhật ký kiểm toán hệ thống:', res.data)
       return res.data
     },
   },
@@ -1745,7 +1717,6 @@ export const api = {
       const res = await httpClient.get<ApiResponse<PermissionsData>>('/me/permissions', {
         params: { projectId },
       })
-      console.log('📢 [API] Lấy quyền hạn thực tế của người dùng:', res.data)
       return res.data
     },
   },

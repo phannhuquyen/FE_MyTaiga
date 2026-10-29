@@ -32,8 +32,11 @@ export function AttachmentPreviewModal({
   if (!isOpen || !attachment) return null
 
   const handleDownload = () => {
+    if (!attachment.url) return
     const link = document.createElement('a')
-    link.href = '#'
+    link.href = attachment.url
+    link.target = '_blank'
+    link.rel = 'noopener noreferrer'
     link.download = attachment.name
     link.click()
   }
@@ -145,6 +148,13 @@ export function AttachmentPreviewModal({
 
         {/* Document Content Viewport (S13-11) */}
         <div className="flex-1 overflow-auto bg-neutral-200/50 dark:bg-neutral-950 p-4 sm:p-8 flex justify-center">
+          {attachment.type === 'image' ? (
+            attachment.previewUrl || attachment.url ? (
+              <img src={attachment.previewUrl || attachment.url} alt={attachment.name}
+                style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}
+                className="max-w-full object-contain self-start" />
+            ) : <p role="status">Chưa có liên kết xem trước ảnh. Vui lòng tải lại tin nhắn.</p>
+          ) : (
           <div
             style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}
             className="w-full max-w-3xl bg-whiteboard text-neutral-900 p-8 sm:p-10 rounded-xl shadow-lg border border-neutral-300 space-y-6 transition-transform duration-150"
@@ -279,6 +289,7 @@ export function AttachmentPreviewModal({
               </p>
             </div>
           </div>
+          )}
         </div>
 
         {/* Footer info (S13-11) */}

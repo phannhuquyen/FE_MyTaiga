@@ -16,11 +16,12 @@ export function ActivityTimelineCard({
           <Icon name="clock" size={16} className="text-neutral-500" />
           <span>Lịch sử cập nhật dự án</span>
         </h2>
-        <span className="text-body-sm text-neutral-500 font-medium">Hôm nay</span>
+        <span className="text-body-sm text-neutral-500 font-medium">20 cập nhật gần nhất</span>
       </div>
 
       {/* Activity List */}
       <div className="space-y-3.5">
+        {!activities.length && <p className="text-neutral-500 text-body-sm">Chưa có cập nhật dự án.</p>}
         {activities.map((item) => (
           <div key={item.id} className="flex items-start gap-3 text-body-sm">
             {/* Avatar Circle */}

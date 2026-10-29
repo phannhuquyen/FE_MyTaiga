@@ -209,7 +209,7 @@ export default function ProjectsListPage() {
       </div>
 
       {/* ── Projects List Container ── */}
-      <div className="bg-whiteboard rounded-2xl border border-neutral-200 shadow-xs overflow-hidden">
+      <div className="bg-whiteboard rounded-2xl border border-neutral-200 shadow-xs">
         {/* Table Header */}
         <div className="grid grid-cols-12 gap-4 px-6 py-3.5 border-b border-neutral-100 text-label-uppercase font-semibold text-neutral-400 text-[11px] tracking-wider">
           <div className="col-span-12 md:col-span-5">Tên dự án & Phạm vi</div>

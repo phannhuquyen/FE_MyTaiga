@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { Icon, type IconName } from '@/components/ui'
 import { useAuth } from '@/features/auth'
 import { cn } from '@/lib/utils'
@@ -41,18 +41,21 @@ const ADMIN_NAV_ITEMS: AdminNavItem[] = [
 export function AdminPortalLayout() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { user, logout } = useAuth()
+  const { user, logout, isLoading, isAuthenticated } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   // Kiểm tra vai trò Admin (chống bypass URL)
   const isSystemAdmin = user?.systemRole === 'ADMIN' || user?.role === 'Quản trị viên'
 
   const handleLogout = async () => {
+    await navigate('/logged-out')
     await logout()
-    navigate('/logged-out')
   }
 
-  // Nếu đã load xong user mà không phải Admin thì chuyển về trang dự án
+  if (isLoading) return <div role="status">Đang khôi phục phiên đăng nhập...</div>
+  if (!isAuthenticated || !user) return <Navigate to="/login" replace />
+
+  // Chỉ render nội dung quản trị sau khi xác minh phiên và vai trò.
   if (user && !isSystemAdmin) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-paper-100">

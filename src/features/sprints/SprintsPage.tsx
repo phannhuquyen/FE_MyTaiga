@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useQuickCreate } from '@/hooks/useQuickCreate'
 import type { Sprint, CreateSprintPayload, UpdateSprintPayload } from './types'
 import { sprintService } from './services/sprintService'
 import { CreateSprintModal } from './components/CreateSprintModal'
@@ -25,6 +26,7 @@ export function SprintsPage() {
 
   // Modal states
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  useQuickCreate(setIsCreateOpen)
   const [editingSprint, setEditingSprint] = useState<Sprint | null>(null)
   const [closingSprint, setClosingSprint] = useState<Sprint | null>(null)
   const [deletingSprint, setDeletingSprint] = useState<Sprint | null>(null)

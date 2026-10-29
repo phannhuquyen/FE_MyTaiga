@@ -6,7 +6,7 @@ interface LockUserModalProps {
   isOpen: boolean
   onClose: () => void
   user: AdminUser | null
-  onConfirmLock: (userId: string, reason: string, auditNote?: string) => void
+  onConfirmLock: (userId: string, reason: string, auditNote?: string) => Promise<{ success: boolean; error?: string }>
 }
 
 const LOCK_REASONS = [
@@ -20,12 +20,23 @@ const LOCK_REASONS = [
 export function LockUserModal({ isOpen, onClose, user, onConfirmLock }: LockUserModalProps) {
   const [reason, setReason] = useState(LOCK_REASONS[0])
   const [auditNote, setAuditNote] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (!isOpen || !user) return null
 
-  const handleConfirm = () => {
-    onConfirmLock(user.id, reason, auditNote)
-    onClose()
+  const handleConfirm = async () => {
+    setError(null)
+    setIsSubmitting(true)
+    try {
+      const result = await onConfirmLock(user.id, reason, auditNote)
+      if (result.success) onClose()
+      else setError(result.error || 'Không thể khóa tài khoản.')
+    } catch {
+      setError('Không thể khóa tài khoản. Vui lòng thử lại.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -61,6 +72,7 @@ export function LockUserModal({ isOpen, onClose, user, onConfirmLock }: LockUser
 
         {/* Content */}
         <div className="p-6 space-y-4">
+          {error && <p role="alert" className="text-danger-600">{error}</p>}
           {/* User Card */}
           <div className="p-3.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -135,6 +147,7 @@ export function LockUserModal({ isOpen, onClose, user, onConfirmLock }: LockUser
           <button
             type="button"
             onClick={handleConfirm}
+            disabled={isSubmitting}
             className="px-4 py-2 rounded-xl text-xs font-semibold bg-rose-700 hover:bg-rose-800 text-whiteboard flex items-center gap-1.5 shadow-sm cursor-pointer"
           >
             <Icon name="lock" size={14} />

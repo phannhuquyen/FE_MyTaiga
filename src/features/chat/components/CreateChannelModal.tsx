@@ -1,31 +1,29 @@
 import { useState } from 'react'
 import { Icon } from '@/components/ui'
-import { AVAILABLE_CHAT_MEMBERS } from '../services/chatService'
-import type { CreateChannelPayload } from '../types'
+import type { CreateChannelPayload, ChatMember } from '../types'
 
 interface CreateChannelModalProps {
+  members?: ChatMember[]
   isOpen: boolean
   onClose: () => void
-  onCreateChannel: (payload: CreateChannelPayload) => void
+  onCreateChannel: (payload: CreateChannelPayload) => Promise<void>
 }
 
 export function CreateChannelModal({
   isOpen,
   onClose,
   onCreateChannel,
+  members = [],
 }: CreateChannelModalProps) {
-  const [name, setName] = useState('Core Engineering & Release Squad')
+  const [name, setName] = useState('')
   const [description, setDescription] = useState(
-    'Trao đổi kỹ thuật, đồng bộ kiến trúc và phát hành Sprint 14',
+    '',
   )
   const [searchMember, setSearchMember] = useState('')
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([
-    'mem-mq',
-    'mem-hl',
-    'mem-ta',
-    'mem-tt',
   ])
   const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (!isOpen) return null
 
@@ -41,21 +39,29 @@ export function CreateChannelModal({
     setSelectedMemberIds((prev) => prev.filter((m) => m !== id))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name.trim()) {
       setError('Tên nhóm không được để trống')
       return
     }
-    onCreateChannel({
-      name: name.trim(),
-      description: description.trim(),
-      memberIds: selectedMemberIds,
-    })
-    onClose()
+    setIsSubmitting(true)
+    setError(null)
+    try {
+      await onCreateChannel({
+        name: name.trim(),
+        description: description.trim(),
+        memberIds: selectedMemberIds,
+      })
+      onClose()
+    } catch {
+      setError('Không thể tạo nhóm. Vui lòng thử lại.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
-  const filteredMembers = AVAILABLE_CHAT_MEMBERS.filter((m) => {
+  const filteredMembers = members.filter((m) => {
     if (!searchMember.trim()) return true
     const q = searchMember.toLowerCase()
     return (
@@ -159,7 +165,7 @@ export function CreateChannelModal({
             {/* Selected Chips Box (S13-03) */}
             <div className="flex flex-wrap gap-1.5 p-2 bg-paper-50 dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-800 min-h-[42px]">
               {selectedMemberIds.map((id) => {
-                const mem = AVAILABLE_CHAT_MEMBERS.find((m) => m.id === id)
+                const mem = members.find((m) => m.id === id)
                 if (!mem) return null
                 const isOwner = id === 'mem-mq'
                 return (
@@ -244,6 +250,7 @@ export function CreateChannelModal({
               </button>
               <button
                 type="submit"
+                disabled={isSubmitting}
                 className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary-700 hover:bg-primary-800 text-whiteboard text-xs font-semibold rounded-lg shadow-xs transition-colors cursor-pointer"
               >
                 <Icon name="user-plus" size={16} />

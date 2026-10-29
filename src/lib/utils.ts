@@ -61,3 +61,9 @@ export function cn(...inputs: ClassValue[]): string {
   }
   return str
 }
+
+/** Demo identifiers must never be converted into real backend resource IDs. */
+export function parseBackendId(id: string): number {
+  const value = /^\d+$/.test(id) ? Number(id) : NaN
+  return Number.isSafeInteger(value) && value > 0 ? value : NaN
+}

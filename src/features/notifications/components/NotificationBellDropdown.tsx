@@ -11,6 +11,7 @@ interface NotificationBellDropdownProps {
 
 export function NotificationBellDropdown({ className }: NotificationBellDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [actionError, setActionError] = useState<string | null>(null)
   const [tab, setTab] = useState<'all' | 'unread'>('all')
   const [unreadCount, setUnreadCount] = useState(notificationService.getUnreadCount())
   const [notifications, setNotifications] = useState(notificationService.getNotifications())
@@ -46,17 +47,22 @@ export function NotificationBellDropdown({ className }: NotificationBellDropdown
       ? notifications.filter((n) => !n.isRead).slice(0, 6)
       : notifications.slice(0, 6)
 
-  const handleItemClick = (item: NotificationItem) => {
-    notificationService.markAsRead(item.id)
+  const handleItemClick = async (item: NotificationItem) => {
+    if (!await notificationService.markAsRead(item.id)) {
+      setActionError('Không thể đánh dấu thông báo đã đọc. Vui lòng thử lại.')
+      return
+    }
+    setActionError(null)
     setIsOpen(false)
     if (item.targetLink) {
       navigate(resolveNotificationLink(item.targetLink))
     }
   }
 
-  const handleMarkAllRead = (e: React.MouseEvent) => {
+  const handleMarkAllRead = async (e: React.MouseEvent) => {
     e.stopPropagation()
-    notificationService.markAllAsRead()
+    const ok = await notificationService.markAllAsRead()
+    setActionError(ok ? null : 'Không thể đánh dấu tất cả đã đọc. Vui lòng thử lại.')
   }
 
   return (
@@ -83,6 +89,7 @@ export function NotificationBellDropdown({ className }: NotificationBellDropdown
       {/* Dropdown Menu (S12-02) */}
       {isOpen && (
         <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-whiteboard dark:bg-neutral-900 rounded-xl shadow-2xl border border-neutral-200 dark:border-neutral-700 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          {actionError && <p role="alert" className="p-3 text-danger-600">{actionError}</p>}
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50/70 dark:bg-neutral-800/40">
             <div className="flex items-center gap-2">

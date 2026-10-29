@@ -1,0 +1,12 @@
+{
+  "email": "user5@gmail.com",
+  "userId": 6,
+  "date": "2026-10-28",
+  "createdVia": "admin API",
+  "projectName": "QA-AUDIT-1793121151062",
+  "addedVia": "project member API authenticated as user1",
+  "apiReadBack": "PASS",
+  "projectRole": "MEMBER",
+  "projectId": 3,
+  "fullName": "QA Audit User 5"
+}

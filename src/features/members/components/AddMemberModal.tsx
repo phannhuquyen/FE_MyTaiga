@@ -17,9 +17,9 @@ export function AddMemberModal({
   candidates,
   onAddMember,
 }: AddMemberModalProps) {
-  const [searchQuery, setSearchQuery] = useState('vumai@techcorp.vn')
-  const [selectedCandidateId, setSelectedCandidateId] = useState<string>('can-001')
-  const [departmentId, setDepartmentId] = useState<string>(departments[0]?.id || 'dept-fe')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCandidateId, setSelectedCandidateId] = useState<string>('')
+  const [departmentId, setDepartmentId] = useState<string>('unassigned')
   const [role, setRole] = useState<MemberRole>('member')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const deptSelectId = useId()
@@ -127,29 +127,30 @@ export function AddMemberModal({
               )}
             </div>
 
-            {/* Quick Demo Filter Buttons */}
+            {/* Directory shortcuts */}
             <div className="mt-2 flex items-center gap-2 text-xs text-neutral-500">
-              <span>Mẫu demo:</span>
+              <span>Danh bạ:</span>
               <button
                 type="button"
                 onClick={() => {
-                  setSearchQuery('vumai@techcorp.vn')
-                  setSelectedCandidateId('can-001')
+                  setSearchQuery('')
+                  setSelectedCandidateId('')
                 }}
                 className="text-primary-600 hover:underline cursor-pointer"
               >
-                Vũ Thị Mai (Hợp lệ)
+                Tất cả tài khoản
               </button>
               <span>•</span>
               <button
                 type="button"
                 onClick={() => {
-                  setSearchQuery('nam.lh@techcorp.vn')
-                  setSelectedCandidateId('can-004')
+                  const existing = candidates.find((candidate) => candidate.alreadyInProject)
+                  setSearchQuery(existing?.email || '')
+                  setSelectedCandidateId(existing?.id || '')
                 }}
                 className="text-danger-600 hover:underline cursor-pointer"
               >
-                Lê Hoàng Nam (Báo lỗi trùng)
+                Đã thuộc dự án
               </button>
             </div>
           </div>

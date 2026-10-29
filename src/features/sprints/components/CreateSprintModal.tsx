@@ -14,27 +14,17 @@ export function CreateSprintModal({
   onSubmit,
 }: CreateSprintModalProps) {
   const formId = useId()
-  const [name, setName] = useState('Sprint 15: Mở rộng SSO & API Gateway')
+  const [name, setName] = useState('')
   const [goal, setGoal] = useState(
-    'Tập trung triển khai SSO SAML 2.0 và hoàn thiện cổng API Gateway đảm bảo uptime 99.9%.',
+    '',
   )
-  const [startDate, setStartDate] = useState('25/10/2024')
-  const [endDate, setEndDate] = useState('08/11/2024')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
   const [capacity, setCapacity] = useState(25)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Overlap detection with active Sprint 14 (14/10 - 28/10) (S7-04)
-  const isOverlapping = startDate === '25/10/2024' || startDate < '29/10/2024'
-
-  // End date before start date validation (S7-05)
-  const isEndDateInvalid = endDate < startDate
-
-  const handleFixOverlap = () => {
-    setStartDate('29/10/2024')
-    setEndDate('12/11/2024')
-    setError(null)
-  }
+  const isEndDateInvalid = Boolean(startDate && endDate && endDate < startDate)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -42,18 +32,11 @@ export function CreateSprintModal({
       setError('Vui lòng nhập tên Sprint.')
       return
     }
-    if (!goal.trim()) {
-      setError('Vui lòng nhập mục tiêu Sprint (Sprint Goal).')
-      return
-    }
     if (isEndDateInvalid) {
-      setError('Ngày kết thúc phải diễn ra sau ngày bắt đầu ít nhất 1 tuần.')
+      setError('Ngày kết thúc không được trước ngày bắt đầu.')
       return
     }
-    if (isOverlapping) {
-      setError('Khoảng thời gian bị trùng lặp với Sprint 14 đang chạy.')
-      return
-    }
+    if (!startDate || !endDate) { setError('Vui lòng chọn ngày bắt đầu và kết thúc.'); return }
 
     try {
       setIsSubmitting(true)
@@ -98,7 +81,7 @@ export function CreateSprintModal({
               type="submit"
               form={formId}
               variant="primary"
-              disabled={isSubmitting || isOverlapping || isEndDateInvalid}
+              disabled={isSubmitting || !startDate || !endDate || isEndDateInvalid}
               leftIcon={<Icon name="check" size={16} />}
             >
               {isSubmitting ? 'Đang tạo...' : 'Tạo Sprint'}
@@ -158,11 +141,10 @@ export function CreateSprintModal({
             </label>
             <div className="relative">
               <input
-                type="text"
+                type="date"
+                aria-label="Ngày bắt đầu"
                 className={`w-full pl-9 pr-3 py-2 text-body-sm border rounded-md shadow-xs focus:outline-none ${
-                  isOverlapping
-                    ? 'border-red-300 bg-red-50/40 text-red-900 focus:ring-red-400'
-                    : 'border-neutral-300 bg-white focus:ring-primary-500/20 focus:border-primary-500'
+                  'border-neutral-300 bg-white focus:ring-primary-500/20 focus:border-primary-500'
                 }`}
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
@@ -181,7 +163,8 @@ export function CreateSprintModal({
             </label>
             <div className="relative">
               <input
-                type="text"
+                type="date"
+                aria-label="Ngày kết thúc"
                 className={`w-full pl-9 pr-3 py-2 text-body-sm border rounded-md shadow-xs focus:outline-none ${
                   isEndDateInvalid
                     ? 'border-red-300 bg-red-50/50 text-red-900 focus:ring-red-400'
@@ -205,35 +188,15 @@ export function CreateSprintModal({
           </div>
         </div>
 
-        {/* Date overlap warning alert box (S7-04) */}
-        {isOverlapping && (
-          <div className="p-3.5 bg-red-50 border border-red-200 rounded-lg text-red-800 space-y-2">
-            <div className="flex items-center gap-1.5 font-semibold text-red-900 text-body-sm">
-              <Icon name="alert-triangle" size={16} className="text-red-600" />
-              <span>Khoảng thời gian bị trùng lặp</span>
-            </div>
-            <p className="text-caption text-red-700 leading-relaxed">
-              Ngày bắt đầu (<strong>{startDate}</strong>) trùng với Sprint 14 đang chạy (14/10 — 28/10/2024). Vui lòng chọn ngày bắt đầu từ ngày 29/10/2024.
-            </p>
-            <button
-              type="button"
-              onClick={handleFixOverlap}
-              className="text-caption font-semibold text-primary-700 hover:text-primary-800 underline cursor-pointer bg-white px-2.5 py-1 rounded border border-neutral-200 shadow-2xs hover:bg-neutral-50 transition-colors"
-            >
-              Tự động dời sang 29/10/2024
-            </button>
-          </div>
-        )}
-
         {/* Capacity target (S7-04) */}
         <div>
           <label className="block text-caption font-semibold text-neutral-700 mb-1">
-            Chỉ tiêu Story Point (Capacity target)
+            Chỉ tiêu Story Point (BE chưa hỗ trợ lưu)
           </label>
           <div className="relative max-w-xs">
             <input
               type="number"
-              min={1}
+              disabled title="Backend chưa có trường lưu capacity" min={1}
               max={100}
               className="w-full pl-9 pr-3 py-2 text-body-sm bg-white border border-neutral-300 rounded-md shadow-xs focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
               value={capacity}

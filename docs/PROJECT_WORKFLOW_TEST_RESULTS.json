@@ -1,0 +1,71 @@
+{
+  "generatedAt": "2026-10-29T16:52:54.344Z",
+  "scope": "Executed Project So 1 FE create/update/read/comment/planning and independent user2 visibility; not an application-wide signoff",
+  "projectId": 1,
+  "unit": {
+    "total": 214,
+    "pass": 214,
+    "fail": 0
+  },
+  "mock": {
+    "total": 55,
+    "pass": 55,
+    "fail": 0
+  },
+  "live": {
+    "total": 12,
+    "pass": 12,
+    "fail": 0,
+    "cases": [
+      {
+        "title": "Project So 1: create Epic from FE and read back persisted data",
+        "status": "passed"
+      },
+      {
+        "title": "Project So 1: create Backlog from FE with a real Epic",
+        "status": "passed"
+      },
+      {
+        "title": "Project So 1: create Sprint from FE with valid dates",
+        "status": "passed"
+      },
+      {
+        "title": "Project So 1: create Kanban Task from FE and assign a real member",
+        "status": "passed"
+      },
+      {
+        "title": "Project So 1: create Bug from FE linked to the QA Task",
+        "status": "passed"
+      },
+      {
+        "title": "Project So 1: Dashboard creates Task/Story/Bug and displays database activity/detail",
+        "status": "passed"
+      },
+      {
+        "title": "Project So 1: update QA Task on FE; independent user2 sees persisted work and activity",
+        "status": "passed"
+      },
+      {
+        "title": "Project So 1: update Epic, Backlog, Sprint and Bug through FE forms",
+        "status": "passed"
+      },
+      {
+        "title": "Project So 1: Dashboard comment is saved and visible to user2",
+        "status": "passed"
+      },
+      {
+        "title": "Project So 1: Sprint planning persists the real Backlog link and user2 can read it",
+        "status": "passed"
+      },
+      {
+        "title": "Project So 1: Kanban initial column and selected deadline survive a reload",
+        "status": "passed"
+      },
+      {
+        "title": "Project So 1: assign a Bug to real user2 from FE and show the saved assignee",
+        "status": "passed"
+      }
+    ]
+  },
+  "counting": "Latest per scenario; full live run 9 passed/1 locator failure, corrected focused planning test passed; column/deadline and Bug assignment add two separate scenarios. No assertion removed or weakened."
+}

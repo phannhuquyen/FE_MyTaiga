@@ -1,21 +1,25 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { Icon } from '@/components/ui'
-import { chatService, AVAILABLE_CHAT_MEMBERS } from './services/chatService'
+import { chatService } from './services/chatService'
 import type {
   Conversation,
   ChatMessage,
   ChatAttachment,
   ChatMember,
 } from './types'
-import { CreateDirectMessageModal } from './components/CreateDirectMessageModal'
 import { CreateChannelModal } from './components/CreateChannelModal'
 import { AttachmentPreviewModal } from './components/AttachmentPreviewModal'
 import { ChatSearchDrawer } from './components/ChatSearchDrawer'
 import { cn } from '@/lib/utils'
+import { useParams } from 'react-router-dom'
+import { api } from '@/services/api'
 
 export function ChatPage() {
+  const { projectId: projectParam } = useParams()
+  const projectId = Number(projectParam)
+  const [projectMembers, setProjectMembers] = useState<ChatMember[]>([])
   const [conversations, setConversations] = useState<Conversation[]>([])
-  const [activeConvId, setActiveConvId] = useState<string>('conv-ch-core')
+  const [activeConvId, setActiveConvId] = useState<string>('')
   const [activeTab, setActiveTab] = useState<'all' | 'direct' | 'channel'>('all')
   const [convSearch, setConvSearch] = useState('')
   const [inputText, setInputText] = useState('')
@@ -24,7 +28,6 @@ export function ChatPage() {
   const [editInputText, setEditInputText] = useState('')
 
   // Modals & Drawers state
-  const [isDmModalOpen, setIsDmModalOpen] = useState(false)
   const [isChannelModalOpen, setIsChannelModalOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [previewAttachment, setPreviewAttachment] = useState<ChatAttachment | null>(null)
@@ -43,15 +46,26 @@ export function ChatPage() {
 
   // Service subscription & load from API
   useEffect(() => {
-    chatService.fetchRoomsFromApi().then(() => {
-      setConversations(chatService.getConversations())
-    })
+    let cancelled = false
+    setConversations([])
+    setActiveConvId('')
+    setInputText('')
+    setReplyTo(null)
+    chatService.fetchRoomsFromApi(projectId).then((rooms) => {
+      if (cancelled) return
+      const scoped = rooms.filter((room) => room.projectId === projectId)
+      setConversations(scoped)
+      setActiveConvId(scoped[0]?.id || '')
+    }).catch(() => { if (!cancelled) setUploadError('Không thể tải kênh tin nhắn của dự án.') })
+    api.projectMembers.list(projectId, { pageSize: 100 }).then((res) => {
+      if (!cancelled) setProjectMembers(res.data.items.map((member) => ({ id: String(member.userId), name: member.fullName, avatar: member.fullName.slice(0, 2), role: member.projectRole })))
+    }).catch(() => { if (!cancelled) setProjectMembers([]) })
     const refresh = () => {
-      setConversations(chatService.getConversations())
+      setConversations(chatService.getConversations().filter((room) => room.projectId === projectId))
     }
     const unsubscribe = chatService.subscribe(refresh)
-    return unsubscribe
-  }, [])
+    return () => { cancelled = true; unsubscribe() }
+  }, [projectId])
 
   // Load messages from API when active conversation changes
   useEffect(() => {
@@ -62,8 +76,7 @@ export function ChatPage() {
 
   const activeConversation = useMemo(() => {
     return (
-      conversations.find((c) => c.id === activeConvId) ||
-      chatService.getConversationById(activeConvId)
+      conversations.find((c) => c.id === activeConvId)
     )
   }, [activeConvId, conversations])
 
@@ -94,7 +107,6 @@ export function ChatPage() {
     })
   }, [conversations, activeTab, convSearch])
 
-  const directCount = conversations.filter((c) => c.type === 'direct').length
   const channelCount = conversations.filter((c) => c.type === 'channel').length
 
   const handleSelectConversation = (id: string) => {
@@ -131,11 +143,16 @@ export function ChatPage() {
     }
   }
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputText.trim()) return
-    chatService.sendMessage(activeConvId, inputText, undefined, replyTo || undefined)
-    setInputText('')
-    setReplyTo(null)
+    try {
+      await chatService.sendMessage(activeConvId, inputText, undefined, replyTo || undefined)
+      setInputText('')
+      setReplyTo(null)
+      setUploadError(null)
+    } catch {
+      setUploadError('Không thể gửi tin nhắn. Vui lòng thử lại.')
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -146,7 +163,7 @@ export function ChatPage() {
   }
 
   // File upload simulation with 25MB check (S13-12)
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -170,7 +187,11 @@ export function ChatPage() {
       uploadedAt: 'Vừa xong',
     }
 
-    chatService.sendMessage(activeConvId, `Đã gửi tệp đính kèm: ${file.name}`, [newAtt])
+    try {
+      await chatService.sendMessage(activeConvId, `Đã gửi tệp đính kèm: ${file.name}`, [newAtt], undefined, [file])
+    } catch {
+      setUploadError('Không thể gửi tệp đính kèm. Vui lòng thử lại.')
+    }
     e.target.value = ''
   }
 
@@ -179,11 +200,15 @@ export function ChatPage() {
     setEditInputText(msg.content)
   }
 
-  const handleSaveEdit = (messageId: string) => {
-    if (editInputText.trim()) {
-      chatService.editMessage(activeConvId, messageId, editInputText.trim())
+  const handleSaveEdit = async (messageId: string) => {
+    try {
+      if (editInputText.trim()) {
+        await chatService.editMessage(activeConvId, messageId, editInputText.trim())
+        setEditingMessageId(null)
+      }
+    } catch {
+      alert('Không thể lưu tin nhắn. Vui lòng thử lại.')
     }
-    setEditingMessageId(null)
   }
 
   const handleDeleteMessage = (messageId: string) => {
@@ -194,7 +219,7 @@ export function ChatPage() {
     chatService.addReaction(activeConvId, messageId, emoji)
   }
 
-  const filteredMentionMembers = AVAILABLE_CHAT_MEMBERS.filter((m) => {
+  const filteredMentionMembers = projectMembers.filter((m) => {
     if (m.name === 'Minh Quân') return false
     if (!mentionQuery) return true
     return m.name.toLowerCase().includes(mentionQuery.toLowerCase())
@@ -213,18 +238,18 @@ export function ChatPage() {
         <div className="p-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h2 className="text-base font-bold text-neutral-900 dark:text-neutral-100">
-              Trao đổi
+              Tin nhắn dự án
             </h2>
             <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-primary-100 dark:bg-primary-950 text-primary-700 dark:text-primary-300">
-              4 mới
+              {conversations.reduce((sum, room) => sum + room.unreadCount, 0)} mới
             </span>
           </div>
 
           <div className="flex items-center gap-1">
             <button
               type="button"
-              onClick={() => setIsDmModalOpen(true)}
-              title="Soạn tin nhắn mới"
+              onClick={() => setIsChannelModalOpen(true)}
+              title="Tạo kênh trong dự án"
               className="p-1.5 rounded-lg text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer"
             >
               <Icon name="edit" size={18} />
@@ -272,18 +297,6 @@ export function ChatPage() {
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab('direct')}
-            className={cn(
-              'pb-2 transition-colors cursor-pointer border-b-2',
-              activeTab === 'direct'
-                ? 'border-primary-600 text-primary-700 dark:text-primary-400'
-                : 'border-transparent text-neutral-500 hover:text-neutral-800',
-            )}
-          >
-            Cá nhân ({directCount})
-          </button>
-          <button
-            type="button"
             onClick={() => setActiveTab('channel')}
             className={cn(
               'pb-2 transition-colors cursor-pointer border-b-2',
@@ -292,12 +305,13 @@ export function ChatPage() {
                 : 'border-transparent text-neutral-500 hover:text-neutral-800',
             )}
           >
-            Nhóm ({channelCount})
+            Kênh dự án ({channelCount})
           </button>
         </div>
 
         {/* Conversation List */}
         <div className="flex-1 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800/60">
+          {!filteredConversations.length && <p className="p-4 text-sm text-neutral-500" role="status">{uploadError || 'Chưa có kênh tin nhắn trong dự án. Tạo kênh để bắt đầu trao đổi.'}</p>}
           {filteredConversations.map((conv) => {
             const isSelected = conv.id === activeConvId
             return (
@@ -978,22 +992,14 @@ export function ChatPage() {
       </div>
 
       {/* ── MODALS ── */}
-      {/* S13-02 Direct message modal */}
-      <CreateDirectMessageModal
-        isOpen={isDmModalOpen}
-        onClose={() => setIsDmModalOpen(false)}
-        onSelectMember={async (memberId) => {
-          const conv = await chatService.createDirectMessage(memberId)
-          setActiveConvId(conv.id)
-        }}
-      />
-
       {/* S13-03 Channel modal */}
       <CreateChannelModal
+        key={projectId}
+        members={projectMembers}
         isOpen={isChannelModalOpen}
         onClose={() => setIsChannelModalOpen(false)}
         onCreateChannel={async (payload) => {
-          const newChan = await chatService.createChannel(payload)
+          const newChan = await chatService.createChannel({ ...payload, projectId })
           setActiveConvId(newChan.id)
         }}
       />

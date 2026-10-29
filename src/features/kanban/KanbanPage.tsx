@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useParams } from 'react-router-dom'
+import { useQuickCreate } from '@/hooks/useQuickCreate'
+import { useParams, useSearchParams } from 'react-router-dom'
 import type { KanbanTask, KanbanColumnConfig, KanbanColumnId, CreateTaskPayload, WIPSettingsPayload } from './types'
 import { kanbanService } from './services/kanbanService'
 import { KanbanColumn } from './components/KanbanColumn'
@@ -12,6 +13,8 @@ import { Button, Icon } from '@/components/ui'
 export function KanbanPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const numericProjectId = projectId ? parseInt(projectId, 10) : undefined
+  const [searchParams] = useSearchParams()
+  const requestedTask = searchParams.get('id')
 
   const [columns, setColumns] = useState<KanbanColumnConfig[]>([])
   const [tasks, setTasks] = useState<KanbanTask[]>([])
@@ -26,9 +29,16 @@ export function KanbanPage() {
   // Modals & Drawers
   const [selectedTaskForDrawer, setSelectedTaskForDrawer] = useState<KanbanTask | null>(null)
   const [isQuickCreateOpen, setIsQuickCreateOpen] = useState(false)
+  useQuickCreate(setIsQuickCreateOpen)
   const [quickCreateColumnId, setQuickCreateColumnId] = useState<KanbanColumnId>('todo')
   const [isWIPModalOpen, setIsWIPModalOpen] = useState(false)
   const [taskToDelete, setTaskToDelete] = useState<KanbanTask | null>(null)
+  useEffect(() => {
+    if (!requestedTask) return
+    let cancelled = false
+    kanbanService.getTaskById(requestedTask).then(task => { if (!cancelled) setSelectedTaskForDrawer(task) })
+    return () => { cancelled = true }
+  }, [requestedTask])
 
   // Notification Toast
   const [toastMessage, setToastMessage] = useState<string | null>(null)
@@ -105,6 +115,7 @@ export function KanbanPage() {
       showToast(`Đã tạo thành công thẻ #${created.code}`)
     } catch (err: unknown) {
       showToast(err instanceof Error ? err.message : 'Lỗi khi tạo thẻ')
+      throw err
     }
   }
 
@@ -382,7 +393,11 @@ export function KanbanPage() {
                   key={column.id}
                   column={column}
                   tasks={columnTasks}
-                  onTaskClick={setSelectedTaskForDrawer}
+                  onTaskClick={async task => {
+                    const detail = await kanbanService.getTaskById(task.id)
+                    if (detail) setSelectedTaskForDrawer(detail)
+                    else showToast('Không tải được chi tiết Task từ máy chủ.')
+                  }}
                   onTaskDelete={setTaskToDelete}
                   onQuickAddTask={(colId) => {
                     setQuickCreateColumnId(colId)

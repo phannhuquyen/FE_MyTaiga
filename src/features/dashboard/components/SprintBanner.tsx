@@ -6,7 +6,7 @@ export interface SprintBannerProps {
 }
 
 export function SprintBanner({ sprint }: SprintBannerProps) {
-  if (!sprint) return null
+  if (!sprint) return <section className="bg-whiteboard rounded-lg border border-neutral-200 p-4 text-neutral-500">Chưa có Sprint đang diễn ra trong dự án.</section>
 
   return (
     <section className="bg-whiteboard rounded-lg border border-neutral-200 p-4 shadow-xs">
@@ -47,7 +47,7 @@ export function SprintBanner({ sprint }: SprintBannerProps) {
           <span className="font-semibold text-neutral-900">
             {sprint.completedPoints}/{sprint.committedPoints} SP (
             {Math.round(
-              (sprint.completedPoints / sprint.committedPoints) * 100,
+              sprint.committedPoints ? (sprint.completedPoints / sprint.committedPoints) * 100 : 0,
             )}
             %)
           </span>

@@ -17,6 +17,7 @@ export interface ChatAttachment {
   bytes: number
   type: 'pdf' | 'image' | 'code' | 'archive' | 'log'
   url?: string
+  previewUrl?: string
   uploadedBy?: string
   uploadedAt?: string
 }
@@ -33,6 +34,8 @@ export interface ChatMessage {
   content: string
   isSelf: boolean
   isRead?: boolean
+  isEdited?: boolean
+  isEditable?: boolean
   isNew?: boolean
   codeSnippet?: {
     language: string
@@ -60,6 +63,7 @@ export interface ChatMessage {
 }
 
 export interface Conversation {
+  projectId?: number | null
   id: string
   type: ConversationType
   name: string
@@ -78,6 +82,7 @@ export interface Conversation {
 }
 
 export interface CreateChannelPayload {
+  projectId?: number
   name: string
   description: string
   memberIds: string[]

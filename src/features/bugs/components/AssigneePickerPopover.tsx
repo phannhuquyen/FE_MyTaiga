@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { api } from '@/services/api'
 import { Icon } from '@/components/ui'
-import { AVAILABLE_ASSIGNEES } from '../services/bugService'
 import type { BugAssignee } from '../types'
 
 interface AssigneePickerPopoverProps {
@@ -19,8 +20,18 @@ export function AssigneePickerPopover({
   const [searchTerm, setSearchTerm] = useState('')
   const [departmentFilter, setDepartmentFilter] = useState<'All' | 'Dev' | 'QA' | 'DevOps'>('All')
   const [isUpdating, setIsUpdating] = useState(false)
+  const { projectId } = useParams()
+  const [members, setMembers] = useState<BugAssignee[]>([])
+  const [error, setError] = useState('')
+  useEffect(() => {
+    let cancelled = false
+    if (projectId) api.projectMembers.list(Number(projectId), { pageSize: 100 }).then(res => {
+      if (!cancelled) setMembers(res.data.items.map(member => ({ id: String(member.userId), name: member.fullName, email: member.email, role: member.projectRole, avatar: member.fullName.slice(0, 2), statusText: 'Chưa có dữ liệu khả dụng' })))
+    }).catch(() => { if (!cancelled) setError('Không thể tải thành viên dự án.') })
+    return () => { cancelled = true }
+  }, [projectId])
 
-  const filteredMembers = AVAILABLE_ASSIGNEES.filter((member) => {
+  const filteredMembers = members.filter((member) => {
     const matchesSearch =
       member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       member.role.toLowerCase().includes(searchTerm.toLowerCase())
@@ -34,6 +45,8 @@ export function AssigneePickerPopover({
       setIsUpdating(true)
       await onSelect(id)
       onClose()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Không thể lưu người xử lý.')
     } finally {
       setIsUpdating(false)
     }
@@ -41,6 +54,7 @@ export function AssigneePickerPopover({
 
   return (
     <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-xl z-30 overflow-hidden text-xs">
+      {error && <p role="alert" className="p-2 text-error-700">{error}</p>}
       {/* Search Bar */}
       <div className="p-2.5 border-b border-neutral-100 dark:border-neutral-700">
         <div className="relative">

@@ -1,0 +1,149 @@
+{
+  "generatedAt": "2026-10-28T11:14:02.103Z",
+  "overall": "BLOCKED",
+  "counting": "Latest result per live scenario; combines full run and focused rerun. Cloud upload runner failures are classified BLOCKED after observed HTTP 503. Historical failed attempts are retained in logs, not added to latest counts.",
+  "unit": {
+    "total": 205,
+    "pass": 205,
+    "fail": 0
+  },
+  "mock": {
+    "total": 50,
+    "pass": 50,
+    "fail": 0
+  },
+  "live": {
+    "total": 21,
+    "pass": 18,
+    "fail": 0,
+    "blocked": 3,
+    "cases": [
+      {
+        "title": "delta directory: real USER query, trim, empty, pagination, validation and admin denial",
+        "status": "passed",
+        "http503": false,
+        "result": "PASS"
+      },
+      {
+        "title": "delta Members UI: search and add real user5 in authorized QA project",
+        "status": "passed",
+        "http503": false,
+        "result": "PASS"
+      },
+      {
+        "title": "delta data: Epic color, Task enriched fields/tags/points, comment author, board and activity",
+        "status": "passed",
+        "http503": false,
+        "result": "PASS"
+      },
+      {
+        "title": "delta task image: exact PNG upload, metadata, signed preview and download",
+        "status": "failed",
+        "http503": true,
+        "result": "BLOCKED"
+      },
+      {
+        "title": "delta Chat UI: create project room, send/edit message and retain after reload",
+        "status": "passed",
+        "http503": false,
+        "result": "PASS"
+      },
+      {
+        "title": "delta Chat image and reply: backend metadata and FE history preservation",
+        "status": "failed",
+        "http503": true,
+        "result": "BLOCKED"
+      },
+      {
+        "title": "delta Chat reply without cloud: persisted reply survives FE reload",
+        "status": "passed",
+        "http503": false,
+        "result": "PASS"
+      },
+      {
+        "title": "delta notifications: populated actor/alias response is not confused with recipient",
+        "status": "passed",
+        "http503": false,
+        "result": "PASS"
+      },
+      {
+        "title": "delta Avatar UI: exact PNG on dedicated QA account, absolute CDN URL and reload",
+        "status": "failed",
+        "http503": true,
+        "result": "BLOCKED"
+      },
+      {
+        "title": "live admin: login, read-only routes, logout and protected URL",
+        "status": "passed",
+        "http503": false,
+        "result": "PASS"
+      },
+      {
+        "title": "live user1: login, read-only routes, logout and protected URL",
+        "status": "passed",
+        "http503": false,
+        "result": "PASS"
+      },
+      {
+        "title": "live user2: login, read-only routes, logout and protected URL",
+        "status": "passed",
+        "http503": false,
+        "result": "PASS"
+      },
+      {
+        "title": "QA project: update and department/member lifecycle via FE API wrappers",
+        "status": "passed",
+        "http503": false,
+        "result": "PASS"
+      },
+      {
+        "title": "QA Epic and PBI: real backlog UI creation, response mapping and priority",
+        "status": "passed",
+        "http503": false,
+        "result": "PASS"
+      },
+      {
+        "title": "QA sprint: planning, start, progress, burndown and close",
+        "status": "passed",
+        "http503": false,
+        "result": "PASS"
+      },
+      {
+        "title": "QA task: create, update, assignee, deadline, board move, subtask and WIP",
+        "status": "passed",
+        "http503": false,
+        "result": "PASS"
+      },
+      {
+        "title": "QA task: comments and authenticated attachment upload/download/delete",
+        "status": "passed",
+        "http503": false,
+        "result": "PASS"
+      },
+      {
+        "title": "QA bugs and metrics: full status workflow plus real response reads",
+        "status": "passed",
+        "http503": false,
+        "result": "PASS"
+      },
+      {
+        "title": "QA chat: project room, participants, message persistence and FE adapter",
+        "status": "passed",
+        "http503": false,
+        "result": "PASS"
+      },
+      {
+        "title": "QA disposable records: delete and project close/delete round trip",
+        "status": "passed",
+        "http503": false,
+        "result": "PASS"
+      },
+      {
+        "title": "QA new accounts: registration/admin create, lock/unlock only owned test user",
+        "status": "passed",
+        "http503": false,
+        "result": "PASS"
+      }
+    ]
+  }
+}

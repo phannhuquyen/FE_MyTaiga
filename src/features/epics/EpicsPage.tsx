@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useQuickCreate } from '@/hooks/useQuickCreate'
 import { useSearchParams } from 'react-router-dom'
 import { Button, Icon, Badge, ProgressBar } from '@/components/ui'
 import { epicService } from './services/epicService'
@@ -20,6 +21,7 @@ export default function EpicsPage() {
 
   // Modals
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  useQuickCreate(setIsCreateOpen)
   const [editingEpic, setEditingEpic] = useState<Epic | null>(null)
   const [deletingEpic, setDeletingEpic] = useState<Epic | null>(null)
 

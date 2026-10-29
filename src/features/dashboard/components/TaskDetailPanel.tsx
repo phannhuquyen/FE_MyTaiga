@@ -6,7 +6,7 @@ import type { TaskItem } from '../types'
 export interface TaskDetailPanelProps {
   task: TaskItem | null
   onToggleDoD: (dodId: string) => void
-  onAddComment: (content: string) => void
+  onAddComment: (content: string) => Promise<void>
   onClose?: () => void
 }
 
@@ -17,6 +17,8 @@ export function TaskDetailPanel({
   onClose,
 }: TaskDetailPanelProps) {
   const [commentInput, setCommentInput] = useState('')
+  const [commentError, setCommentError] = useState('')
+  const [pending, setPending] = useState(false)
 
   if (!task) {
     return (
@@ -29,11 +31,13 @@ export function TaskDetailPanel({
   const completedDoDCount = task.dod.filter((d) => d.completed).length
   const totalDoDCount = task.dod.length
 
-  const handleSubmitComment = (e: React.FormEvent) => {
+  const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!commentInput.trim()) return
-    onAddComment(commentInput.trim())
-    setCommentInput('')
+    setPending(true); setCommentError('')
+    try { await onAddComment(commentInput.trim()); setCommentInput('') }
+    catch (err) { setCommentError(err instanceof Error ? err.message : 'Không thể lưu bình luận.') }
+    finally { setPending(false) }
   }
 
   return (
@@ -50,13 +54,13 @@ export function TaskDetailPanel({
         </div>
 
         <div className="flex items-center gap-1.5 text-neutral-400">
-          <button
-            type="button"
+          <a
+            href={task.href}
             className="p-1 hover:text-neutral-700 hover:bg-neutral-100 rounded transition-colors cursor-pointer"
             title="Mở tab mới"
           >
             <Icon name="external-link" size={16} />
-          </button>
+          </a>
           {onClose && (
             <button
               type="button"
@@ -86,9 +90,9 @@ export function TaskDetailPanel({
           <span>
             Ước tính:{' '}
             <strong className="text-neutral-800">
-              {task.storyPoints || 3} SP
+              {task.storyPoints ?? 'Chưa ước lượng'}{task.storyPoints != null ? ' SP' : ''}
             </strong>{' '}
-            (Khoảng {task.estimatedHours || 6}h)
+            ({task.estimatedHours != null ? `${task.estimatedHours}h` : 'Chưa có dữ liệu giờ ước lượng'})
           </span>
         </div>
       </div>
@@ -131,6 +135,7 @@ export function TaskDetailPanel({
       </div>
 
       {/* TIÊU CHÍ HOÀN THÀNH (DOD) */}
+      <p className="text-body-sm text-neutral-700 whitespace-pre-wrap">{task.description || 'Chưa có mô tả.'}</p>
       <div>
         <div className="flex items-center justify-between mb-2.5">
           <span className="text-label-uppercase font-semibold text-neutral-500 tracking-wider">
@@ -142,6 +147,7 @@ export function TaskDetailPanel({
         </div>
 
         <div className="space-y-2">
+          {!task.dod.length && <p className="text-xs text-neutral-500">Backend chưa cung cấp tiêu chí DoD cho công việc này.</p>}
           {task.dod.map((item) => (
             <label
               key={item.id}
@@ -204,9 +210,13 @@ export function TaskDetailPanel({
         </div>
 
         {/* Quick Reply Form */}
+        {!task.commentTaskId && <p className="text-xs text-neutral-500">Chưa có API bình luận cho Story.</p>}
+        {task.type === 'Bug' && <p className="text-xs text-neutral-500">Trao đổi được lưu trên Task liên quan.</p>}
+        {commentError && <p role="alert" className="text-error-700">{commentError}</p>}
         <form onSubmit={handleSubmitComment} className="flex items-center gap-2 mt-1">
           <input
             type="text"
+            disabled={pending || !task.commentTaskId}
             value={commentInput}
             onChange={(e) => setCommentInput(e.target.value)}
             placeholder="Nhập phản hồi nhanh..."
@@ -214,7 +224,7 @@ export function TaskDetailPanel({
           />
           <button
             type="submit"
-            disabled={!commentInput.trim()}
+            disabled={pending || !task.commentTaskId || !commentInput.trim()}
             className="p-1.5 bg-primary-500 hover:bg-primary-600 disabled:opacity-40 text-whiteboard rounded transition-colors cursor-pointer shrink-0"
             title="Gửi phản hồi"
           >

@@ -39,10 +39,6 @@ function EditSprintForm({
       setError('Vui lòng nhập tên Sprint.')
       return
     }
-    if (!goal.trim()) {
-      setError('Vui lòng nhập mục tiêu Sprint.')
-      return
-    }
 
     try {
       setIsSubmitting(true)

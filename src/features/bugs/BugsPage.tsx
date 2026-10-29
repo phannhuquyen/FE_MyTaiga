@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useQuickCreate } from '@/hooks/useQuickCreate'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { Icon } from '@/components/ui'
 import type { BugItem, BugSeverity, BugStatus, CreateBugPayload } from './types'
@@ -33,6 +34,7 @@ export default function BugsPage() {
   // Selected bug for detail view
   const [selectedBug, setSelectedBug] = useState<BugItem | null>(null)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  useQuickCreate(setIsCreateModalOpen)
   const [isLoading, setIsLoading] = useState(false)
 
   // Fetch bugs

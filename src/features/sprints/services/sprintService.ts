@@ -83,7 +83,7 @@ export const sprintService = {
     try {
       const beStatus =
         filters?.status && filters.status !== 'all'
-          ? (filters.status.toUpperCase() as 'PLANNED' | 'ACTIVE' | 'CLOSED')
+          ? (filters.status === 'draft' ? 'PLANNED' : filters.status.toUpperCase() as 'PLANNED' | 'ACTIVE' | 'CLOSED')
           : undefined
 
       const res = await api.sprints.list({
@@ -102,7 +102,7 @@ export const sprintService = {
             const prog = await api.sprints.progress(parseInt(sprint.id, 10))
             sprint.totalSP = prog.data.totalStoryPoints
             sprint.completedSP = prog.data.completedStoryPoints
-            sprint.remainingItemsCount = prog.data.remainingStoryPoints
+            sprint.remainingItemsCount = Math.max(0, prog.data.totalPbis - prog.data.completedPbis)
             sprint.totalItemsCount = prog.data.totalPbis
             sprint.completedItemsCount = prog.data.completedPbis
             sprint.progressPercent = Math.round(prog.data.progressPercent)
@@ -190,7 +190,8 @@ export const sprintService = {
     }
 
     const current = await this.getSprintById(id)
-    const projectId = projectService.getActiveProjectId() || 1
+    const projectId = projectService.getActiveProjectId()
+    if (!projectId || !current) throw new Error('Không xác định được Sprint/dự án. Vui lòng tải lại.')
 
     const requestBody: SprintRequest = {
       projectId,

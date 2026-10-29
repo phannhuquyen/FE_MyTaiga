@@ -72,7 +72,7 @@ function mapBeEpicToFe(data: EpicData): Epic {
     description: data.description || '',
     status: statusToFe(data.status),
     priority: numberToPriority(data.priority),
-    color: getColor(data.epicId),
+    color: data.color || getColor(data.epicId),
     targetSprint: 'Sprint hiện tại',
     sprintRange: 'Sprint 1 - Sprint 3',
     ownerName: 'Manager dự án',
@@ -255,6 +255,7 @@ export const epicService = {
 
     const requestBody: EpicRequest = {
       title: payload.name.trim(),
+      color: payload.color,
       description: payload.description?.trim() || null,
       priority: priorityToNumber(payload.priority),
       status: 'OPEN',
@@ -275,6 +276,7 @@ export const epicService = {
     const current = await this.getEpicById(id)
     const requestBody: EpicRequest = {
       title: (payload.name ?? current?.name ?? 'Epic').trim(),
+      color: payload.color,
       description: payload.description ?? current?.description ?? null,
       priority: priorityToNumber(payload.priority ?? current?.priority),
       status: statusToBe(payload.status ?? current?.status),

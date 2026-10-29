@@ -31,6 +31,7 @@ export function CreatePBIModal({
   const [itemType, setItemType] = useState<PBIItemType>('feature')
   const [sprintId, setSprintId] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const [showValidationDemo, setShowValidationDemo] = useState(false)
   const [errors, setErrors] = useState<{ title?: string; storyPoints?: string }>({})
 
@@ -54,6 +55,7 @@ export function CreatePBIModal({
 
     try {
       setIsSubmitting(true)
+      setSubmitError('')
       await onSubmit({
         title,
         description,
@@ -64,8 +66,8 @@ export function CreatePBIModal({
         sprintId: sprintId || undefined,
       })
       onClose()
-    } catch {
-      // error handled by caller
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Không thể lưu Backlog. Vui lòng thử lại.')
     } finally {
       setIsSubmitting(false)
     }
@@ -98,6 +100,8 @@ export function CreatePBIModal({
         aria-modal="true"
         aria-labelledby="create-pbi-title"
       >
+        {submitError && <p role="alert" className="p-4 text-error-700">{submitError}</p>}
+        {!epics.length && <p className="p-4 text-neutral-600">Dự án chưa có Epic. Vui lòng tạo Epic trước khi tạo Backlog.</p>}
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
           <div className="flex items-center gap-2.5">

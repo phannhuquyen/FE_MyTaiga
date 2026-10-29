@@ -1,0 +1,1236 @@
+{
+  "generatedAt": "2026-10-28T10:30:53.297Z",
+  "scope": "Live authenticated read-only; credentials and response bodies excluded",
+  "accounts": [
+    {
+      "account": "admin",
+      "systemRole": "ADMIN",
+      "projectCount": 0,
+      "projectRoles": []
+    },
+    {
+      "account": "user1",
+      "systemRole": "USER",
+      "projectCount": 3,
+      "projectRoles": [
+        "MANAGER"
+      ]
+    },
+    {
+      "account": "user2",
+      "systemRole": "USER",
+      "projectCount": 1,
+      "projectRoles": [
+        "MEMBER"
+      ]
+    }
+  ],
+  "results": [
+    {
+      "account": "admin",
+      "name": "auth.login",
+      "status": 200,
+      "result": "PASS"
+    },
+    {
+      "account": "admin",
+      "name": "users.search",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "admin",
+      "name": "users.getMe",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "admin",
+      "name": "users.getAvatarBlob",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "Blob"
+    },
+    {
+      "account": "admin",
+      "name": "projects.list",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "admin",
+      "name": "projects.get",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<ProjectData>"
+    },
+    {
+      "account": "admin",
+      "name": "projectMembers.list",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<PaginatedData<ProjectMemberData>>"
+    },
+    {
+      "account": "admin",
+      "name": "projectDepartments.list",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<PaginatedData<DepartmentData>>"
+    },
+    {
+      "account": "admin",
+      "name": "epics.list",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<PaginatedData<EpicData>>"
+    },
+    {
+      "account": "admin",
+      "name": "epics.get",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<EpicData>"
+    },
+    {
+      "account": "admin",
+      "name": "epics.progress",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<EpicProgressData>"
+    },
+    {
+      "account": "admin",
+      "name": "productBacklog.list",
+      "result": "BLOCKED",
+      "reason": "No project"
+    },
+    {
+      "account": "admin",
+      "name": "productBacklog.get",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<ProductBacklogItemData>"
+    },
+    {
+      "account": "admin",
+      "name": "sprints.list",
+      "result": "BLOCKED",
+      "reason": "No project"
+    },
+    {
+      "account": "admin",
+      "name": "sprints.get",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<SprintData>"
+    },
+    {
+      "account": "admin",
+      "name": "sprints.getBacklogItems",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<SprintProgressData>"
+    },
+    {
+      "account": "admin",
+      "name": "sprints.progress",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<SprintProgressData>"
+    },
+    {
+      "account": "admin",
+      "name": "sprints.burndown",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<SprintBurndownData>"
+    },
+    {
+      "account": "admin",
+      "name": "tasks.list",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<PaginatedData<TaskData>>"
+    },
+    {
+      "account": "admin",
+      "name": "tasks.get",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<TaskDetailData>"
+    },
+    {
+      "account": "admin",
+      "name": "tasks.getOverdue",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<PaginatedData<TaskData>>"
+    },
+    {
+      "account": "admin",
+      "name": "tasks.getDeadlineAlerts",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<DeadlineAlertsData>"
+    },
+    {
+      "account": "admin",
+      "name": "board.get",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<BoardData>"
+    },
+    {
+      "account": "admin",
+      "name": "wip.get",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<WipStatusData>"
+    },
+    {
+      "account": "admin",
+      "name": "wip.getAlerts",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<WipStatusData>"
+    },
+    {
+      "account": "admin",
+      "name": "flowMetrics.wip",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<FlowWipData>"
+    },
+    {
+      "account": "admin",
+      "name": "flowMetrics.throughput",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<ThroughputData>"
+    },
+    {
+      "account": "admin",
+      "name": "flowMetrics.throughputSprints",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<SprintsThroughputData>"
+    },
+    {
+      "account": "admin",
+      "name": "flowMetrics.cycleTime",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<PaginatedData<CycleTimeItem>>"
+    },
+    {
+      "account": "admin",
+      "name": "flowMetrics.cycleTimeAverage",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<CycleTimeAverageData>"
+    },
+    {
+      "account": "admin",
+      "name": "flowMetrics.workItemAge",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<WorkItemAgeData>"
+    },
+    {
+      "account": "admin",
+      "name": "bugs.list",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<PaginatedData<BugData>>"
+    },
+    {
+      "account": "admin",
+      "name": "bugs.get",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<BugDetailData>"
+    },
+    {
+      "account": "admin",
+      "name": "comments.listByTask",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<PaginatedData<CommentData>>"
+    },
+    {
+      "account": "admin",
+      "name": "comments.get",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<CommentData>"
+    },
+    {
+      "account": "admin",
+      "name": "attachments.listByTask",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<PaginatedData<AttachmentData>>"
+    },
+    {
+      "account": "admin",
+      "name": "attachments.get",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<AttachmentData>"
+    },
+    {
+      "account": "admin",
+      "name": "attachments.downloadBlob",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "Blob"
+    },
+    {
+      "account": "admin",
+      "name": "attachments.previewBlob",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "Blob"
+    },
+    {
+      "account": "admin",
+      "name": "notifications.list",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "admin",
+      "name": "notifications.getUnreadCount",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "admin",
+      "name": "activityLogs.listByProject",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<PaginatedData<ActivityLogItem>>"
+    },
+    {
+      "account": "admin",
+      "name": "chat.listRooms",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "admin",
+      "name": "chat.listParticipants",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<ChatParticipantData[]>"
+    },
+    {
+      "account": "admin",
+      "name": "chat.listMessages",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "ApiResponse<ChatMessagesData>"
+    },
+    {
+      "account": "admin",
+      "name": "chat.getUnreadCount",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "admin",
+      "name": "chat.downloadAttachmentBlob",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "Blob"
+    },
+    {
+      "account": "admin",
+      "name": "chat.previewAttachmentBlob",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "Blob"
+    },
+    {
+      "account": "admin",
+      "name": "admin.listUsers",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "admin",
+      "name": "admin.listRoles",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "admin",
+      "name": "admin.getConfig",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "admin",
+      "name": "admin.activityLogs",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "admin",
+      "name": "permissions.getMePermissions",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "auth.login",
+      "status": 200,
+      "result": "PASS"
+    },
+    {
+      "account": "user1",
+      "name": "users.search",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "users.getMe",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "users.getAvatarBlob",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "Blob"
+    },
+    {
+      "account": "user1",
+      "name": "projects.list",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "projects.get",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "projectMembers.list",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "projectDepartments.list",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "epics.list",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "epics.get",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "epics.progress",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "productBacklog.list",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "productBacklog.get",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "sprints.list",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "sprints.get",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "sprints.getBacklogItems",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "sprints.progress",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "sprints.burndown",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "tasks.list",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "tasks.get",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "tasks.getOverdue",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "tasks.getDeadlineAlerts",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "board.get",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "wip.get",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "wip.getAlerts",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "flowMetrics.wip",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "flowMetrics.throughput",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "flowMetrics.throughputSprints",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "flowMetrics.cycleTime",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "flowMetrics.cycleTimeAverage",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "flowMetrics.workItemAge",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "bugs.list",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "bugs.get",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "comments.listByTask",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "comments.get",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "attachments.listByTask",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "attachments.get",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "attachments.downloadBlob",
+      "status": 200,
+      "result": "PASS",
+      "scope": "authenticated binary read",
+      "byteLength": 22
+    },
+    {
+      "account": "user1",
+      "name": "attachments.previewBlob",
+      "status": 200,
+      "result": "PASS",
+      "scope": "authenticated binary read",
+      "byteLength": 22
+    },
+    {
+      "account": "user1",
+      "name": "notifications.list",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "notifications.getUnreadCount",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "activityLogs.listByProject",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "chat.listRooms",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "chat.listParticipants",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "chat.listMessages",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "chat.getUnreadCount",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user1",
+      "name": "chat.downloadAttachmentBlob",
+      "status": 200,
+      "result": "PASS",
+      "scope": "authenticated binary read",
+      "byteLength": 18
+    },
+    {
+      "account": "user1",
+      "name": "chat.previewAttachmentBlob",
+      "status": 200,
+      "result": "PASS",
+      "scope": "authenticated binary read",
+      "byteLength": 18
+    },
+    {
+      "account": "user1",
+      "name": "admin.listUsers",
+      "status": 403,
+      "result": "PASS",
+      "scope": "non-admin denial"
+    },
+    {
+      "account": "user1",
+      "name": "admin.listRoles",
+      "status": 403,
+      "result": "PASS",
+      "scope": "non-admin denial"
+    },
+    {
+      "account": "user1",
+      "name": "admin.getConfig",
+      "status": 403,
+      "result": "PASS",
+      "scope": "non-admin denial"
+    },
+    {
+      "account": "user1",
+      "name": "admin.activityLogs",
+      "status": 403,
+      "result": "PASS",
+      "scope": "non-admin denial"
+    },
+    {
+      "account": "user1",
+      "name": "permissions.getMePermissions",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "auth.login",
+      "status": 200,
+      "result": "PASS"
+    },
+    {
+      "account": "user2",
+      "name": "users.search",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "users.getMe",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "users.getAvatarBlob",
+      "result": "BLOCKED",
+      "reason": "No available scoped test record",
+      "fields": "Blob"
+    },
+    {
+      "account": "user2",
+      "name": "projects.list",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "projects.get",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "projectMembers.list",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "projectDepartments.list",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "epics.list",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "epics.get",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "epics.progress",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "productBacklog.list",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "productBacklog.get",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "sprints.list",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "sprints.get",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "sprints.getBacklogItems",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "sprints.progress",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "sprints.burndown",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "tasks.list",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "tasks.get",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "tasks.getOverdue",
+      "status": 403,
+      "result": "PASS",
+      "scope": "MEMBER denied manager-only read; verified controller requirement"
+    },
+    {
+      "account": "user2",
+      "name": "tasks.getDeadlineAlerts",
+      "status": 403,
+      "result": "PASS",
+      "scope": "MEMBER denied manager-only read; verified controller requirement"
+    },
+    {
+      "account": "user2",
+      "name": "board.get",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "wip.get",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "wip.getAlerts",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "flowMetrics.wip",
+      "status": 403,
+      "result": "PASS",
+      "scope": "MEMBER denied manager-only read; verified controller requirement"
+    },
+    {
+      "account": "user2",
+      "name": "flowMetrics.throughput",
+      "status": 403,
+      "result": "PASS",
+      "scope": "MEMBER denied manager-only read; verified controller requirement"
+    },
+    {
+      "account": "user2",
+      "name": "flowMetrics.throughputSprints",
+      "status": 403,
+      "result": "PASS",
+      "scope": "MEMBER denied manager-only read; verified controller requirement"
+    },
+    {
+      "account": "user2",
+      "name": "flowMetrics.cycleTime",
+      "status": 403,
+      "result": "PASS",
+      "scope": "MEMBER denied manager-only read; verified controller requirement"
+    },
+    {
+      "account": "user2",
+      "name": "flowMetrics.cycleTimeAverage",
+      "status": 403,
+      "result": "PASS",
+      "scope": "MEMBER denied manager-only read; verified controller requirement"
+    },
+    {
+      "account": "user2",
+      "name": "flowMetrics.workItemAge",
+      "status": 403,
+      "result": "PASS",
+      "scope": "MEMBER denied manager-only read; verified controller requirement"
+    },
+    {
+      "account": "user2",
+      "name": "bugs.list",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "bugs.get",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "comments.listByTask",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "comments.get",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "attachments.listByTask",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "attachments.get",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "attachments.downloadBlob",
+      "status": 200,
+      "result": "PASS",
+      "scope": "authenticated binary read",
+      "byteLength": 22
+    },
+    {
+      "account": "user2",
+      "name": "attachments.previewBlob",
+      "status": 200,
+      "result": "PASS",
+      "scope": "authenticated binary read",
+      "byteLength": 22
+    },
+    {
+      "account": "user2",
+      "name": "notifications.list",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "notifications.getUnreadCount",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "activityLogs.listByProject",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "chat.listRooms",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "chat.listParticipants",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "chat.listMessages",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "chat.getUnreadCount",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    },
+    {
+      "account": "user2",
+      "name": "chat.downloadAttachmentBlob",
+      "status": 200,
+      "result": "PASS",
+      "scope": "authenticated binary read",
+      "byteLength": 18
+    },
+    {
+      "account": "user2",
+      "name": "chat.previewAttachmentBlob",
+      "status": 200,
+      "result": "PASS",
+      "scope": "authenticated binary read",
+      "byteLength": 18
+    },
+    {
+      "account": "user2",
+      "name": "admin.listUsers",
+      "status": 403,
+      "result": "PASS",
+      "scope": "non-admin denial"
+    },
+    {
+      "account": "user2",
+      "name": "admin.listRoles",
+      "status": 403,
+      "result": "PASS",
+      "scope": "non-admin denial"
+    },
+    {
+      "account": "user2",
+      "name": "admin.getConfig",
+      "status": 403,
+      "result": "PASS",
+      "scope": "non-admin denial"
+    },
+    {
+      "account": "user2",
+      "name": "admin.activityLogs",
+      "status": 403,
+      "result": "PASS",
+      "scope": "non-admin denial"
+    },
+    {
+      "account": "user2",
+      "name": "permissions.getMePermissions",
+      "status": 200,
+      "result": "PASS",
+      "scope": "read-only response shape, not UI workflow",
+      "errors": []
+    }
+  ]
+}

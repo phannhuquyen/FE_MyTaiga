@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { useQuickCreate } from '@/hooks/useQuickCreate'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Icon } from '@/components/ui'
 import { backlogService } from './services/backlogService'
 import { CreatePBIModal } from './components/CreatePBIModal'
@@ -18,6 +19,8 @@ import type {
 const ITEMS_PER_PAGE = 7
 
 export default function BacklogPage() {
+  const [searchParams] = useSearchParams()
+  const requestedPbi = searchParams.get('id')
   const [pbis, setPbis] = useState<PBI[]>([])
   const [epics, setEpics] = useState<EpicSummary[]>([])
   const [sprints, setSprints] = useState<SprintSummary[]>([])
@@ -36,7 +39,14 @@ export default function BacklogPage() {
 
   // Modals & Drawers
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  useQuickCreate(setIsCreateOpen)
   const [selectedPbiForDrawer, setSelectedPbiForDrawer] = useState<PBI | null>(null)
+  useEffect(() => {
+    if (!requestedPbi) return
+    let cancelled = false
+    backlogService.getPBIById(requestedPbi).then(item => { if (!cancelled && item) setSelectedPbiForDrawer(item) })
+    return () => { cancelled = true }
+  }, [requestedPbi])
   const [pbiToDelete, setPbiToDelete] = useState<PBI | null>(null)
   const [isLinkEpicOpen, setIsLinkEpicOpen] = useState(false)
 

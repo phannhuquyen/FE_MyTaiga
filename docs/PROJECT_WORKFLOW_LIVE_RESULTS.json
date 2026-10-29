@@ -1,0 +1,177 @@
+{
+  "projectId": 1,
+  "prefix": "QA-FE-1793291834145",
+  "created": {
+    "epicId": 29,
+    "pbiId": 15,
+    "sprintId": 23,
+    "taskId": 38,
+    "bugId": 23,
+    "dashboardTaskId": 39,
+    "dashboardStoryId": 16,
+    "dashboardBugId": 24,
+    "columnTaskId": 40
+  },
+  "scenarios": [
+    {
+      "name": "Project So 1: create Epic from FE and read back persisted data",
+      "status": "passed",
+      "at": "2026-10-29T16:25:00.322Z"
+    },
+    {
+      "name": "Project So 1: create Backlog from FE with a real Epic",
+      "status": "passed",
+      "at": "2026-10-29T16:25:01.715Z"
+    },
+    {
+      "name": "Project So 1: create Sprint from FE with valid dates",
+      "status": "passed",
+      "at": "2026-10-29T16:25:03.110Z"
+    },
+    {
+      "name": "Project So 1: create Kanban Task from FE and assign a real member",
+      "status": "passed",
+      "at": "2026-10-29T16:25:05.599Z"
+    },
+    {
+      "name": "Project So 1: create Bug from FE linked to the QA Task",
+      "status": "passed",
+      "at": "2026-10-29T16:25:07.140Z"
+    },
+    {
+      "name": "Project So 1: Dashboard creates Task/Story/Bug and displays database activity/detail",
+      "status": "passed",
+      "at": "2026-10-29T16:25:14.946Z"
+    },
+    {
+      "name": "Project So 1: update QA Task on FE; independent user2 sees persisted work and activity",
+      "status": "passed",
+      "at": "2026-10-29T16:25:20.032Z"
+    },
+    {
+      "name": "Project So 1: update Epic, Backlog, Sprint and Bug through FE forms",
+      "status": "passed",
+      "at": "2026-10-29T16:27:58.067Z"
+    },
+    {
+      "name": "Project So 1: Dashboard comment is saved and visible to user2",
+      "status": "passed",
+      "at": "2026-10-29T16:28:03.601Z"
+    },
+    {
+      "name": "Project So 1: create Epic from FE and read back persisted data",
+      "status": "passed",
+      "at": "2026-10-29T16:37:22.566Z"
+    },
+    {
+      "name": "Project So 1: create Backlog from FE with a real Epic",
+      "status": "passed",
+      "at": "2026-10-29T16:37:23.871Z"
+    },
+    {
+      "name": "Project So 1: create Sprint from FE with valid dates",
+      "status": "failed",
+      "at": "2026-10-29T16:37:36.427Z"
+    },
+    {
+      "name": "Project So 1: create Kanban Task from FE and assign a real member",
+      "status": "failed",
+      "at": "2026-10-29T16:37:55.568Z"
+    },
+    {
+      "name": "Project So 1: create Bug from FE linked to the QA Task",
+      "status": "failed",
+      "at": "2026-10-29T16:37:58.860Z"
+    },
+    {
+      "name": "Project So 1: Dashboard creates Task/Story/Bug and displays database activity/detail",
+      "status": "failed",
+      "at": "2026-10-29T16:38:02.082Z"
+    },
+    {
+      "name": "Project So 1: update QA Task on FE; independent user2 sees persisted work and activity",
+      "status": "failed",
+      "at": "2026-10-29T16:38:05.060Z"
+    },
+    {
+      "name": "Project So 1: update Epic, Backlog, Sprint and Bug through FE forms",
+      "status": "failed",
+      "at": "2026-10-29T16:38:08.101Z"
+    },
+    {
+      "name": "Project So 1: Dashboard comment is saved and visible to user2",
+      "status": "failed",
+      "at": "2026-10-29T16:38:11.165Z"
+    },
+    {
+      "name": "Project So 1: Sprint planning persists the real Backlog link and user2 can read it",
+      "status": "failed",
+      "at": "2026-10-29T16:38:14.168Z"
+    },
+    {
+      "name": "Project So 1: create Epic from FE and read back persisted data",
+      "status": "passed",
+      "at": "2026-10-29T16:39:57.536Z"
+    },
+    {
+      "name": "Project So 1: create Backlog from FE with a real Epic",
+      "status": "passed",
+      "at": "2026-10-29T16:39:58.785Z"
+    },
+    {
+      "name": "Project So 1: create Sprint from FE with valid dates",
+      "status": "passed",
+      "at": "2026-10-29T16:40:00.238Z"
+    },
+    {
+      "name": "Project So 1: create Kanban Task from FE and assign a real member",
+      "status": "passed",
+      "at": "2026-10-29T16:40:01.777Z"
+    },
+    {
+      "name": "Project So 1: create Bug from FE linked to the QA Task",
+      "status": "passed",
+      "at": "2026-10-29T16:40:03.034Z"
+    },
+    {
+      "name": "Project So 1: Dashboard creates Task/Story/Bug and displays database activity/detail",
+      "status": "passed",
+      "at": "2026-10-29T16:40:07.667Z"
+    },
+    {
+      "name": "Project So 1: update QA Task on FE; independent user2 sees persisted work and activity",
+      "status": "passed",
+      "at": "2026-10-29T16:40:13.463Z"
+    },
+    {
+      "name": "Project So 1: update Epic, Backlog, Sprint and Bug through FE forms",
+      "status": "passed",
+      "at": "2026-10-29T16:40:20.481Z"
+    },
+    {
+      "name": "Project So 1: Dashboard comment is saved and visible to user2",
+      "status": "passed",
+      "at": "2026-10-29T16:40:27.080Z"
+    },
+    {
+      "name": "Project So 1: Sprint planning persists the real Backlog link and user2 can read it",
+      "status": "failed",
+      "at": "2026-10-29T16:40:40.214Z"
+    },
+    {
+      "name": "Project So 1: Sprint planning persists the real Backlog link and user2 can read it",
+      "status": "passed",
+      "at": "2026-10-29T16:41:48.090Z"
+    },
+    {
+      "name": "Project So 1: Kanban initial column and selected deadline survive a reload",
+      "status": "passed",
+      "at": "2026-10-29T16:44:02.143Z"
+    },
+    {
+      "name": "Project So 1: assign a Bug to real user2 from FE and show the saved assignee",
+      "status": "passed",
+      "at": "2026-10-29T16:49:28.459Z"
+    }
+  ]
+}

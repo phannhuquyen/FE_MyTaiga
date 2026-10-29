@@ -183,25 +183,25 @@ function mapBugDataToBugItem(b: BugData): BugItem {
     title: b.title,
     description: b.description,
     stepsToReproduce: '',
-    environment: b.environment || 'Production (K8s)',
+    environment: b.environment || 'Chưa có thông tin môi trường',
     severity: mapSeverityFromBe(b.severity),
     priority: mapPriorityFromBe(b.priority),
     status: mapStatusFromBe(b.status),
     relatedTaskId: String(b.taskId),
-    relatedTaskCode: `#TASK-${b.taskId}`,
-    relatedTaskTitle: `Task liên kết #${b.taskId}`,
+    relatedTaskCode: b.taskCode || `#TASK-${b.taskId}`,
+    relatedTaskTitle: b.taskTitle || `Task liên kết #${b.taskId}`,
     assignee: b.assigneeId
       ? {
           id: String(b.assigneeId),
-          name: `Kỹ sư #${b.assigneeId}`,
-          email: `engineer.${b.assigneeId}@mytaiga.io`,
-          role: 'Phụ trách sửa',
-          avatar: `U${b.assigneeId}`,
+          name: b.assigneeName || `Thành viên #${b.assigneeId}`,
+          email: '',
+          role: b.assigneeRole || 'Chưa có thông tin vai trò',
+          avatar: b.assigneeAvatarCode || '?',
         }
       : undefined,
     reporter: {
       id: String(b.reporterId),
-      name: `User #${b.reporterId}`,
+      name: b.reporterName || `User #${b.reporterId}`,
       role: 'Người báo cáo',
     },
     discoveredAt: b.createdAt,
@@ -300,7 +300,7 @@ class BugService {
           item.relatedTaskCode = `#TASK-${res.data.task.taskId}`
         }
         if (res.data.taskComments) {
-          item.comments = res.data.taskComments.map((c) => ({
+          item.comments = res.data.taskComments.items.map((c) => ({
             id: String(c.commentId),
             authorName: `User #${c.userId}`,
             authorRole: 'Thành viên',
@@ -309,7 +309,7 @@ class BugService {
           }))
         }
         if (res.data.taskAttachments) {
-          item.attachments = res.data.taskAttachments.map((a) => ({
+          item.attachments = res.data.taskAttachments.items.map((a) => ({
             id: String(a.attachmentId),
             name: a.fileName,
             size: `${(a.fileSize / 1024).toFixed(1)} KB`,
@@ -386,25 +386,25 @@ class BugService {
   }
 
   public async assignBug(id: string, assigneeId?: string): Promise<BugItem> {
-    const numericId = parseInt(id.replace(/\D/g, ''), 10)
-    const numericAssigneeId = assigneeId ? parseInt(assigneeId.replace(/\D/g, ''), 10) : null
-
-    if (numericId > 0) {
-      try {
-        await api.bugs.assign(numericId, { assigneeId: numericAssigneeId })
-      } catch (err: unknown) {
-        const errorObj = err as { response?: { data?: { message?: string } } }
-        throw new Error(errorObj.response?.data?.message || 'Không thể giao Bug')
-      }
+    const numericId = /^\d+$/.test(id) ? Number(id) : NaN
+    const numericAssigneeId = assigneeId ? (/^\d+$/.test(assigneeId) ? Number(assigneeId) : NaN) : null
+    if (!Number.isSafeInteger(numericId) || numericId <= 0 || (numericAssigneeId !== null && (!Number.isSafeInteger(numericAssigneeId) || numericAssigneeId <= 0))) {
+      throw new Error('Vui lòng chọn Bug và thành viên có ID thật.')
     }
-
-    const bug = this.bugs.find((b) => b.id === id)
-    if (!bug) throw new Error('Không tìm thấy lỗi')
-    return { ...bug }
+    try {
+      const saved = await api.bugs.assign(numericId, { assigneeId: numericAssigneeId })
+      const updated = mapBugDataToBugItem(saved.data)
+      this.bugs = this.bugs.map(bug => bug.id === id ? updated : bug)
+      return updated
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Không thể giao Bug')
+    }
   }
 
   public async createBug(payload: CreateBugPayload): Promise<BugItem> {
-    const numericTaskId = payload.relatedTaskId ? parseInt(payload.relatedTaskId.replace(/\D/g, ''), 10) : 1
+    const numericTaskId = payload.relatedTaskId && /^\d+$/.test(payload.relatedTaskId) ? Number(payload.relatedTaskId) : NaN
+    if (!Number.isSafeInteger(numericTaskId) || numericTaskId <= 0) throw new Error('Vui lòng chọn Task thật trong dự án cho Bug.')
 
     const combinedDescription = [
       payload.description,

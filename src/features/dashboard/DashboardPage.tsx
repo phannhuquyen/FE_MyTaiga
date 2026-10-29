@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ActivityTimelineCard } from './components/ActivityTimelineCard'
 import { CreateTaskModal } from './components/CreateTaskModal'
 import { MyTasksCard } from './components/MyTasksCard'
@@ -8,6 +9,7 @@ import { TaskDetailPanel } from './components/TaskDetailPanel'
 import { useDashboard } from './hooks/useDashboard'
 
 export default function DashboardPage() {
+  const navigate = useNavigate()
   const {
     project,
     sprint,
@@ -18,6 +20,7 @@ export default function DashboardPage() {
     selectedTaskId,
     setSelectedTaskId,
     searchTerm,
+    setSearchTerm,
     isLoading,
     isCreateModalOpen,
     setIsCreateModalOpen,
@@ -26,6 +29,9 @@ export default function DashboardPage() {
     handleToggleDoD,
     handleAddComment,
     handleCreateTask,
+    error,
+    refresh,
+    options,
   } = useDashboard()
 
   // Listen to header quick-create button
@@ -54,8 +60,13 @@ export default function DashboardPage() {
     )
   }
 
+  if (!project) return <div role="alert" className="p-6">{error}<button onClick={() => { void refresh() }}>Thử lại</button></div>
+
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-5">
+      {error && <p role="alert" className="text-error-700">{error}</p>}
+      <button type="button" onClick={() => { void refresh() }} className="text-primary-700">Làm mới dữ liệu dự án</button>
+      <input aria-label="Tìm công việc dự án" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Tìm Task, Story, Bug trong dự án..." className="border border-neutral-200 rounded px-3 py-2 ml-3" />
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-5 right-5 z-50 bg-neutral-900 text-whiteboard px-4 py-2.5 rounded shadow-lg flex items-center gap-2 text-body-sm transition-all animate-bounce">
@@ -75,8 +86,7 @@ export default function DashboardPage() {
       <ProjectHeader
         project={project}
         onConfigureWorkflow={() => {
-          setToastMessage('Đang mở màn hình Cấu hình luồng...')
-          setTimeout(() => setToastMessage(null), 3000)
+          navigate(`/projects/${project.id}/kanban`)
         }}
         onAddTask={() => setIsCreateModalOpen(true)}
       />
@@ -115,6 +125,7 @@ export default function DashboardPage() {
         onClose={() => setIsCreateModalOpen(false)}
         onCreateTask={handleCreateTask}
         currentTaskCount={allTasksCount}
+        options={options}
       />
     </div>
   )

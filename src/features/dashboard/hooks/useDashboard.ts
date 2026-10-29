@@ -1,104 +1,62 @@
-import { useState } from 'react'
-import {
-  mockActivities,
-  mockProject,
-  mockSprint,
-  mockTasks,
-} from '../mocks/dashboard.mock'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { useParams } from 'react-router-dom'
 import { dashboardService } from '../services/dashboardService'
-import type {
-  ActivityItem,
-  ProjectInfo,
-  SprintInfo,
-  TaskItem,
-} from '../types'
+import type { CreateDashboardWork, TaskItem } from '../types'
 
+type DashboardData = Awaited<ReturnType<typeof dashboardService.load>>
 export function useDashboard() {
-  const [project] = useState<ProjectInfo>(mockProject)
-  const [sprint] = useState<SprintInfo>(mockSprint)
-  const [tasks, setTasks] = useState<TaskItem[]>(mockTasks)
-  const [activities] = useState<ActivityItem[]>(mockActivities)
-  const [selectedTaskId, setSelectedTaskId] = useState<string>('task-104')
+  const { projectId: rawId } = useParams()
+  const projectId = Number(rawId)
+  const [data, setData] = useState<DashboardData | null>(null)
+  const [selectedTaskId, setSelectedTaskId] = useState('')
+  const [detail, setDetail] = useState<TaskItem | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [isLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
-
-  // Selected task computed from tasks state
-  const selectedTask =
-    tasks.find((t) => t.id === selectedTaskId) || tasks[0] || null
-
-  // Filtered tasks based on search
-  const filteredTasks = tasks.filter((t) => {
-    if (!searchTerm.trim()) return true
-    const term = searchTerm.toLowerCase()
-    return (
-      t.title.toLowerCase().includes(term) ||
-      t.code.toLowerCase().includes(term) ||
-      t.type.toLowerCase().includes(term) ||
-      t.status.toLowerCase().includes(term)
-    )
-  })
-
-  // Action: Toggle DoD item
-  const handleToggleDoD = async (dodId: string) => {
-    if (!selectedTask) return
-    const updated = await dashboardService.toggleDoD(selectedTask.id, dodId)
-    if (updated) {
-      setTasks((prev) =>
-        prev.map((t) => (t.id === updated.id ? updated : t)),
-      )
-    }
-  }
-
-  // Action: Add quick comment
-  const handleAddComment = async (content: string) => {
-    if (!selectedTask || !content.trim()) return
-    const newComment = await dashboardService.addComment(
-      selectedTask.id,
-      content,
-    )
-    if (newComment) {
-      setTasks((prev) =>
-        prev.map((t) =>
-          t.id === selectedTask.id
-            ? { ...t, comments: [...t.comments, newComment] }
-            : t,
-        ),
-      )
-    }
-  }
-
-  // Action: Create quick task
-  const handleCreateTask = async (
-    taskData: Omit<TaskItem, 'id' | 'dod' | 'comments'>,
-  ) => {
-    const created = await dashboardService.createTask(taskData)
-    setTasks((prev) => [created, ...prev])
+  const version = useRef(0)
+  const refresh = useCallback(async () => {
+    const current = ++version.current
+    try {
+      const result = await dashboardService.load(projectId)
+      if (current !== version.current) return
+      setData(result)
+      setSelectedTaskId(previous => result.tasks.some(task => task.id === previous) ? previous : result.tasks[0]?.id || '')
+      setError(null)
+    } catch {
+      if (current === version.current) setError('Không thể tải dữ liệu dự án từ máy chủ. Vui lòng thử lại.')
+    } finally { if (current === version.current) setIsLoading(false) }
+  }, [projectId])
+  useEffect(() => {
+    void refresh()
+    const onFocus = () => { void refresh() }
+    window.addEventListener('focus', onFocus)
+    return () => { version.current++; window.removeEventListener('focus', onFocus) }
+  }, [refresh])
+  const task = data?.tasks.find(item => item.id === selectedTaskId) || null
+  useEffect(() => {
+    let cancelled = false
+    if (task) dashboardService.getDetail(task, projectId).then(result => {
+      if (!cancelled) setDetail(result)
+    }).catch(() => { if (!cancelled) { setDetail(null); setError('Không thể tải chi tiết công việc. Vui lòng thử lại.') } })
+    return () => { cancelled = true }
+  }, [task, projectId])
+  const selectedTask = detail?.id === task?.id ? detail : task
+  const handleCreateTask = async (input: CreateDashboardWork) => {
+    const created = await dashboardService.createTask(projectId, input)
+    await refresh()
     setSelectedTaskId(created.id)
     setIsCreateModalOpen(false)
-    setToastMessage(`Đã tạo thành công công việc ${created.code}!`)
-    setTimeout(() => setToastMessage(null), 3000)
+    setToastMessage(`Đã lưu ${created.code}. Xem tại ${created.type === 'Task' ? 'Bảng Kanban' : created.type === 'Story' ? 'Backlog' : 'Bugs'} và Tổng quan.`)
   }
-
-  return {
-    project,
-    sprint,
-    tasks: filteredTasks,
-    allTasksCount: tasks.length,
-    selectedTask,
-    activities,
-    selectedTaskId,
-    setSelectedTaskId,
-    searchTerm,
-    setSearchTerm,
-    isLoading,
-    isCreateModalOpen,
-    setIsCreateModalOpen,
-    toastMessage,
-    setToastMessage,
-    handleToggleDoD,
-    handleAddComment,
-    handleCreateTask,
+  const handleAddComment = async (content: string) => {
+    if (!selectedTask?.commentTaskId) throw new Error('Chưa có API bình luận cho Story. Vui lòng dùng chi tiết Backlog.')
+    await dashboardService.addComment(selectedTask.commentTaskId, content)
+    setDetail(await dashboardService.getDetail(selectedTask, projectId))
+    await refresh()
   }
+  const handleToggleDoD = async () => { setError('Backend chưa cung cấp API Definition of Done.') }
+  const term = searchTerm.trim().toLowerCase()
+  return { project: data?.project, sprint: data?.sprint || null, tasks: (data?.tasks || []).filter(item => !term || `${item.title} ${item.code} ${item.type} ${item.status}`.toLowerCase().includes(term)), allTasksCount: data?.tasks.length || 0, activities: data?.activities || [], options: data?.options || { epics: [], tasks: [], members: [] }, selectedTask, selectedTaskId, setSelectedTaskId, searchTerm, setSearchTerm, isLoading, error, refresh, isCreateModalOpen, setIsCreateModalOpen, toastMessage, setToastMessage, handleToggleDoD, handleAddComment, handleCreateTask }
 }

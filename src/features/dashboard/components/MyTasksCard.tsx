@@ -54,7 +54,7 @@ export function MyTasksCard({
       <div className="flex items-center justify-between p-4 border-b border-neutral-100">
         <div className="flex items-center gap-2.5">
           <h2 className="text-headline-sm font-semibold text-neutral-900">
-            Việc của tôi
+              Danh sách tóm tắt công việc dự án
           </h2>
           <Badge variant="neutral">
             {allTasksCount} việc cần làm

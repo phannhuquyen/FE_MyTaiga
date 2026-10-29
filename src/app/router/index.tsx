@@ -126,10 +126,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'chat',
-        lazy: async () => {
-          const Component = (await import('@/features/chat/ChatPage')).default
-          return { Component }
-        },
+        element: <Navigate to="/projects" replace />,
       },
       {
         path: 'notifications',
@@ -166,6 +163,13 @@ export const router = createBrowserRouter([
         },
         children: [
           // /projects/:projectId → redirect to dashboard
+          {
+            path: 'chat',
+            lazy: async () => {
+              const Component = (await import('@/features/chat/ChatPage')).default
+              return { Component }
+            },
+          },
           {
             index: true,
             element: <Navigate to="dashboard" replace />,

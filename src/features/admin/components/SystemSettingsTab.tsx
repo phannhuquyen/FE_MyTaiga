@@ -6,6 +6,8 @@ import type { SystemSettings } from '../types'
 export function SystemSettingsTab() {
   const [settings, setSettings] = useState<SystemSettings>(() => adminService.getSettings())
   const [isSaved, setIsSaved] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const [showAuditModal, setShowAuditModal] = useState(false)
 
   const handleChange = <K extends keyof SystemSettings>(field: K, value: SystemSettings[K]) => {
@@ -13,10 +15,23 @@ export function SystemSettingsTab() {
     setIsSaved(false)
   }
 
-  const handleSave = () => {
-    adminService.saveSettings(settings)
-    setIsSaved(true)
-    setTimeout(() => setIsSaved(false), 3000)
+  const handleSave = async () => {
+    setIsSaving(true)
+    setIsSaved(false)
+    setSaveError(null)
+    try {
+      const result = await adminService.saveSettings(settings)
+      if (!result.success) {
+        setSaveError(result.error || 'Không thể lưu cấu hình hệ thống.')
+        return
+      }
+      setIsSaved(true)
+      setTimeout(() => setIsSaved(false), 3000)
+    } catch {
+      setSaveError('Không thể lưu cấu hình hệ thống. Vui lòng thử lại.')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleReset = () => {
@@ -334,6 +349,7 @@ export function SystemSettingsTab() {
           <span>
             Thay đổi có hiệu lực ngay lập tức với toàn bộ thành viên trong phiên tới.
           </span>
+          {saveError && <span role="alert" className="text-danger-600">{saveError}</span>}
           {isSaved && (
             <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 ml-2 animate-in fade-in">
               Đã lưu thành công!
@@ -352,6 +368,7 @@ export function SystemSettingsTab() {
           <button
             type="button"
             onClick={handleSave}
+            disabled={isSaving}
             className="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-whiteboard flex items-center gap-1.5 shadow-sm cursor-pointer"
           >
             <Icon name="check" size={14} />

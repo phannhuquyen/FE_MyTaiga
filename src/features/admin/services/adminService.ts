@@ -226,7 +226,7 @@ class AdminService {
   async loadConfig(): Promise<void> {
     try {
       const res = await api.admin.getConfig()
-      const values = res.data.values || {}
+      const values = Object.fromEntries(res.data.map(row => [row.configKey, row.configValue]))
       if (values.MAX_FILE_SIZE_MB) {
         this.settings.maxFileSizeMb = parseInt(values.MAX_FILE_SIZE_MB, 10) || 25
       }

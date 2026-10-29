@@ -1,0 +1,4 @@
+interface:
+  display_name: "FE API Integration Audit"
+  short_description: "Audit and repair frontend API integrations"
+  default_prompt: "Use $fe-api-integration-audit to audit this frontend, verify its API integrations, fix confirmed frontend defects, and report evidence."

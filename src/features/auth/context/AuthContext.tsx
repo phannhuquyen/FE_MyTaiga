@@ -126,6 +126,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLocked: false,
       }))
     } catch (err: unknown) {
+      // A login is complete only after profile verification succeeds.
+      authStorage.clearAll()
       const errorObj = err as {
         response?: { status?: number; data?: { message?: string } }
         message?: string
@@ -134,11 +136,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const status = errorObj.response?.status
       const beMessage = errorObj.response?.data?.message
 
-      if (status === 400 && beMessage?.toLowerCase().includes('khóa')) {
+      if ((status === 400 || status === 403) && beMessage?.toLowerCase().includes('khóa')) {
         setState((prev) => ({
           ...prev,
           isLoading: false,
           isLocked: true,
+          isAuthenticated: false,
+          user: null,
+          token: null,
           error: 'Tài khoản đã bị khóa.',
         }))
         const lockedErr = new Error('ACCOUNT_LOCKED') as Error & { code: string }
@@ -155,6 +160,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const remaining = state.attemptsLeft - 1
       setState((prev) => ({
         ...prev,
+        isAuthenticated: false,
+        user: null,
+        token: null,
         isLoading: false,
         attemptsLeft: remaining,
         error: beMessage || fallbackMsg,

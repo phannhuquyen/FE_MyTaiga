@@ -29,6 +29,10 @@ export interface TaskComment {
 }
 
 export interface TaskItem {
+  entityId?: number
+  href?: string
+  description?: string
+  commentTaskId?: number
   id: string
   code: string // e.g., 'SB-104'
   title: string
@@ -57,6 +61,23 @@ export interface ActivityItem {
   targetTitle?: string
   targetState?: string
   timeAgo: string
+}
+
+export interface CreateDashboardWork {
+  title: string
+  type: TaskType
+  priority: TaskPriority
+  storyPoints?: number
+  deadline?: string
+  epicId?: number
+  taskId?: number
+  assigneeId?: number
+}
+
+export interface DashboardOptions {
+  epics: { id: number; title: string }[]
+  tasks: { id: number; title: string }[]
+  members: { id: number; name: string }[]
 }
 
 export interface SprintInfo {

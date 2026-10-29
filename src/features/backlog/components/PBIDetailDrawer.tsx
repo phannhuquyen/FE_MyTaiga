@@ -34,7 +34,7 @@ export function PBIDetailDrawer({
   const [isEditingDescription, setIsEditingDescription] = useState(false)
   const [descriptionValue, setDescriptionValue] = useState('')
   const [newComment, setNewComment] = useState('')
-  const [isSubmittingComment, setIsSubmittingComment] = useState(false)
+  const [, setIsSubmittingComment] = useState(false)
 
   if (!isOpen || !pbi) return null
 
@@ -251,6 +251,7 @@ export function PBIDetailDrawer({
                   </span>
                 ) : (
                   <select
+                    aria-label="Sprint của Backlog"
                     value={pbi.sprintId || ''}
                     onChange={(e) => handleSprintChange(e.target.value)}
                     className="w-full text-sm font-semibold text-neutral-800 bg-whiteboard border border-neutral-300 rounded-md px-2.5 py-1.5 focus:border-primary-500 cursor-pointer"
@@ -272,10 +273,10 @@ export function PBIDetailDrawer({
                 </label>
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-full bg-primary-600 text-whiteboard text-[10px] font-bold flex items-center justify-center">
-                    {pbi.reporterAvatar || 'MQ'}
+                    {pbi.reporterAvatar || '—'}
                   </div>
                   <span className="text-sm font-medium text-neutral-800">
-                    {pbi.reporterName || 'Nguyễn Minh Quân'}
+                    {pbi.reporterName || 'Chưa có dữ liệu người tạo'}
                   </span>
                 </div>
               </div>
@@ -425,7 +426,7 @@ export function PBIDetailDrawer({
                     <input
                       type="checkbox"
                       checked={ac.isMet}
-                      disabled={isReadOnly}
+                      disabled
                       onChange={() => handleToggleCriteria(ac.id)}
                       className="mt-0.5 h-4 w-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500 cursor-pointer"
                     />
@@ -471,13 +472,14 @@ export function PBIDetailDrawer({
                   rows={2}
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Gửi bình luận hoặc câu hỏi kỹ thuật về PBI này..."
+                  placeholder="Backend chưa cung cấp API bình luận cho PBI"
+                  disabled
                   className="w-full p-2.5 rounded-lg border border-neutral-300 text-xs focus:outline-hidden focus:border-primary-500 bg-paper-50 focus:bg-whiteboard resize-none"
                 />
                 <div className="flex justify-end">
                   <button
                     type="submit"
-                    disabled={isSubmittingComment || !newComment.trim()}
+                    disabled
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-whiteboard text-xs rounded-md font-semibold cursor-pointer disabled:opacity-50"
                   >
                     <Icon name="send" size={12} />

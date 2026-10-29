@@ -98,11 +98,11 @@ class MetricService {
       try {
         const numSprintId = sprintId ? parseInt(sprintId.replace(/\D/g, ''), 10) || undefined : undefined
         const [wipRes, tpRes, avgCtRes, ctRes, ageRes] = await Promise.all([
-          api.flowMetrics.wip(projectId, numSprintId).catch(() => null),
-          api.flowMetrics.throughput(projectId, { sprintId: numSprintId }).catch(() => null),
-          api.flowMetrics.cycleTimeAverage(projectId, numSprintId).catch(() => null),
-          api.flowMetrics.cycleTime(projectId, { sprintId: numSprintId }).catch(() => null),
-          api.flowMetrics.workItemAge(projectId, { sprintId: numSprintId, minAgeDays: 0 }).catch(() => null),
+          api.flowMetrics.wip(projectId, numSprintId),
+          api.flowMetrics.throughput(projectId, { sprintId: numSprintId }),
+          api.flowMetrics.cycleTimeAverage(projectId, numSprintId),
+          api.flowMetrics.cycleTime(projectId, { sprintId: numSprintId }),
+          api.flowMetrics.workItemAge(projectId, { sprintId: numSprintId, minAgeDays: 0 }),
         ])
 
         const resData: FlowMetricsData = {
@@ -185,7 +185,8 @@ class MetricService {
 
         return resData
       } catch (err) {
-        console.warn('⚠️ [MetricService] Lỗi lấy flow metrics từ API:', err)
+        const status = (err as { response?: { status?: number } }).response?.status
+        throw new Error(status === 403 ? 'Bạn không có quyền xem Flow Metrics của dự án này.' : 'Không thể tải Flow Metrics. Vui lòng thử lại.')
       }
     }
 

@@ -1,0 +1,339 @@
+{
+  "scope": "User-approved isolated QA records; retained for inspection",
+  "projectId": 3,
+  "created": {
+    "projectName": "QA-AUDIT-1793121151062",
+    "departmentId": 11,
+    "epicId": 21,
+    "pbiId": 10,
+    "sprintId": 17,
+    "taskId": 31,
+    "subtaskId": 32,
+    "commentId": 21,
+    "attachmentId": 18,
+    "bugId": 17,
+    "roomId": 2,
+    "registerTestEmail": "user3@gmail.com",
+    "registerTestUserId": 4,
+    "adminTestEmail": "user4@gmail.com",
+    "adminTestUserId": 5
+  },
+  "evidence": [
+    {
+      "operation": "projects.get",
+      "result": "PASS"
+    },
+    {
+      "operation": "projects.update",
+      "result": "PASS"
+    },
+    {
+      "operation": "projectMembers.list",
+      "result": "PASS"
+    },
+    {
+      "operation": "projectDepartments.create",
+      "result": "PASS"
+    },
+    {
+      "operation": "projectDepartments.update",
+      "result": "PASS"
+    },
+    {
+      "operation": "projectDepartments.assignMember",
+      "result": "PASS"
+    },
+    {
+      "operation": "projectMembers.list",
+      "result": "PASS"
+    },
+    {
+      "operation": "projectDepartments.assignMember",
+      "result": "PASS"
+    },
+    {
+      "operation": "projectDepartments.delete",
+      "result": "PASS"
+    },
+    {
+      "operation": "epics.create",
+      "result": "PASS"
+    },
+    {
+      "operation": "productBacklog.create",
+      "result": "PASS",
+      "status": 201
+    },
+    {
+      "operation": "productBacklog.list",
+      "result": "PASS"
+    },
+    {
+      "operation": "productBacklog.update",
+      "result": "PASS"
+    },
+    {
+      "operation": "productBacklog.changePriority",
+      "result": "PASS"
+    },
+    {
+      "operation": "productBacklog.reorder",
+      "result": "PASS"
+    },
+    {
+      "operation": "productBacklog.get",
+      "result": "PASS"
+    },
+    {
+      "operation": "sprints.create",
+      "result": "PASS"
+    },
+    {
+      "operation": "sprints.addBacklogItems",
+      "result": "PASS"
+    },
+    {
+      "operation": "sprints.start",
+      "result": "PASS"
+    },
+    {
+      "operation": "sprints.progress",
+      "result": "PASS"
+    },
+    {
+      "operation": "sprints.burndown",
+      "result": "PASS"
+    },
+    {
+      "operation": "sprints.close",
+      "result": "PASS"
+    },
+    {
+      "operation": "sprints.get",
+      "result": "PASS"
+    },
+    {
+      "operation": "tasks.create",
+      "result": "PASS"
+    },
+    {
+      "operation": "tasks.update",
+      "result": "PASS"
+    },
+    {
+      "operation": "tasks.setDeadline",
+      "result": "PASS"
+    },
+    {
+      "operation": "tasks.changePriority",
+      "result": "PASS"
+    },
+    {
+      "operation": "board.move",
+      "result": "PASS"
+    },
+    {
+      "operation": "tasks.updateProgress",
+      "result": "PASS"
+    },
+    {
+      "operation": "tasks.createSubtask",
+      "result": "PASS"
+    },
+    {
+      "operation": "tasks.get",
+      "result": "PASS"
+    },
+    {
+      "operation": "board.get",
+      "result": "PASS"
+    },
+    {
+      "operation": "wip.setLimit",
+      "result": "PASS"
+    },
+    {
+      "operation": "wip.getAlerts",
+      "result": "PASS"
+    },
+    {
+      "operation": "wip.removeLimit",
+      "result": "PASS"
+    },
+    {
+      "operation": "comments.createForTask",
+      "result": "PASS"
+    },
+    {
+      "operation": "comments.update",
+      "result": "PASS"
+    },
+    {
+      "operation": "comments.get",
+      "result": "PASS"
+    },
+    {
+      "operation": "attachments.uploadForTask",
+      "result": "PASS",
+      "status": 201
+    },
+    {
+      "operation": "attachments.downloadBlob",
+      "result": "PASS",
+      "status": 200
+    },
+    {
+      "operation": "attachments.delete",
+      "result": "PASS"
+    },
+    {
+      "operation": "comments.delete",
+      "result": "PASS"
+    },
+    {
+      "operation": "comments.createForTask",
+      "result": "PASS"
+    },
+    {
+      "operation": "bugs.create",
+      "result": "PASS"
+    },
+    {
+      "operation": "bugs.assign",
+      "result": "PASS"
+    },
+    {
+      "operation": "bugs.changeStatus",
+      "result": "PASS"
+    },
+    {
+      "operation": "bugs.changeStatus",
+      "result": "PASS"
+    },
+    {
+      "operation": "bugs.close",
+      "result": "PASS"
+    },
+    {
+      "operation": "bugs.get",
+      "result": "PASS"
+    },
+    {
+      "operation": "flowMetrics.wip",
+      "result": "PASS"
+    },
+    {
+      "operation": "flowMetrics.workItemAge",
+      "result": "PASS"
+    },
+    {
+      "operation": "activityLogs.listByProject",
+      "result": "PASS"
+    },
+    {
+      "operation": "chat.sendMessage",
+      "result": "PASS"
+    },
+    {
+      "operation": "chat.listParticipants",
+      "result": "PASS"
+    },
+    {
+      "operation": "chat.markRead",
+      "result": "PASS"
+    },
+    {
+      "operation": "chat.removeParticipant",
+      "result": "PASS"
+    },
+    {
+      "operation": "chat.addParticipants",
+      "result": "PASS"
+    },
+    {
+      "operation": "chat.sendMessage (file)",
+      "result": "PASS",
+      "status": 201
+    },
+    {
+      "operation": "chat.downloadAttachmentBlob",
+      "result": "PASS",
+      "status": 200
+    },
+    {
+      "operation": "chat.previewAttachmentBlob",
+      "result": "PASS",
+      "status": 200
+    },
+    {
+      "operation": "epics.create",
+      "result": "PASS"
+    },
+    {
+      "operation": "epics.delete",
+      "result": "PASS"
+    },
+    {
+      "operation": "sprints.create",
+      "result": "PASS"
+    },
+    {
+      "operation": "sprints.delete",
+      "result": "PASS"
+    },
+    {
+      "operation": "tasks.create",
+      "result": "PASS"
+    },
+    {
+      "operation": "bugs.create",
+      "result": "PASS"
+    },
+    {
+      "operation": "bugs.delete",
+      "result": "PASS"
+    },
+    {
+      "operation": "tasks.delete",
+      "result": "PASS"
+    },
+    {
+      "operation": "projects.create",
+      "result": "PASS"
+    },
+    {
+      "operation": "projects.close",
+      "result": "PASS"
+    },
+    {
+      "operation": "projects.get",
+      "result": "PASS"
+    },
+    {
+      "operation": "projects.delete",
+      "result": "PASS"
+    },
+    {
+      "operation": "projects.get",
+      "result": "PASS"
+    },
+    {
+      "operation": "adminUsers.lockUser",
+      "result": "PASS"
+    },
+    {
+      "operation": "adminUsers.unlockUser",
+      "result": "PASS",
+      "status": 200
+    },
+    {
+      "operation": "adminUsers.lockUser",
+      "result": "PASS"
+    },
+    {
+      "operation": "adminUsers.unlockUser",
+      "result": "PASS",
+      "status": 200
+    }
+  ]
+}

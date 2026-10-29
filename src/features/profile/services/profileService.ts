@@ -18,7 +18,7 @@ function mapMeDataToProfile(data: UserProfileData): UserProfile {
       ? `${nameParts[nameParts.length - 2][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase()
       : data.fullName.slice(0, 2).toUpperCase()
 
-  const avatarUrl = data.avatar ? `${API_ROOT}${data.avatar}` : undefined
+  const avatarUrl = data.avatar ? (/^https?:\/\//i.test(data.avatar) ? data.avatar : `${API_ROOT}${data.avatar}`) : undefined
 
   return {
     id: String(data.userId),
@@ -131,9 +131,10 @@ class ProfileService {
       }
     }
 
-    if (fileToUpload) {
-      await api.users.uploadAvatar(fileToUpload)
+    if (!fileToUpload) {
+      throw new Error('Chưa có tệp ảnh để lưu. Vui lòng tải ảnh từ máy; ảnh mẫu demo chưa được hỗ trợ lưu qua API.')
     }
+    await api.users.uploadAvatar(fileToUpload)
 
     return this.getProfile()
   }

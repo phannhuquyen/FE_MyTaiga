@@ -1,4 +1,6 @@
-import { useState, useId } from 'react'
+import { useState, useId, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
+import { api } from '@/services/api'
 import type { KanbanColumnId, KanbanPriority, CreateTaskPayload } from '../types'
 import { Modal, Button, Icon } from '@/components/ui'
 
@@ -9,14 +11,6 @@ export interface QuickCreateTaskModalProps {
   onCreate: (payload: CreateTaskPayload) => Promise<void>
 }
 
-const MEMBERS_OPTIONS = [
-  { name: 'Minh Quân (Tech Lead)', role: 'Tech Lead', avatar: 'MQ', isYou: true },
-  { name: 'Tuấn Anh (Backend)', role: 'Backend Engineer', avatar: 'TA', isYou: false },
-  { name: 'Hoàng Linh (Frontend)', role: 'Frontend Dev', avatar: 'HL', isYou: false },
-  { name: 'Minh Hải (DevOps)', role: 'DevOps Lead', avatar: 'MH', isYou: false },
-  { name: 'Đỗ Thảo (QA Lead)', role: 'QA Lead', avatar: 'ĐT', isYou: false },
-]
-
 export function QuickCreateTaskModal({
   isOpen,
   onClose,
@@ -24,14 +18,25 @@ export function QuickCreateTaskModal({
   onCreate,
 }: QuickCreateTaskModalProps) {
   const formId = useId()
+  const { projectId } = useParams()
+  const [members, setMembers] = useState<{ userId: number; fullName: string }[]>([])
   const [title, setTitle] = useState('')
   const [columnId, setColumnId] = useState<KanbanColumnId>(defaultColumnId)
-  const [assigneeName, setAssigneeName] = useState('Minh Quân')
+  const [assigneeId, setAssigneeId] = useState('')
   const [priority, setPriority] = useState<KanbanPriority>('high')
-  const [deadline, setDeadline] = useState('28/10/2024')
+  const [deadline, setDeadline] = useState('')
   const [storyPoints, setStoryPoints] = useState(3)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  useEffect(() => {
+    if (!isOpen) return
+    setColumnId(defaultColumnId)
+    let cancelled = false
+    if (projectId) api.projectMembers.list(Number(projectId), { pageSize: 100 }).then(res => {
+      if (!cancelled) setMembers(res.data.items)
+    }).catch(() => { if (!cancelled) setError('Không thể tải thành viên dự án.') })
+    return () => { cancelled = true }
+  }, [isOpen, projectId, defaultColumnId])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,7 +51,7 @@ export function QuickCreateTaskModal({
       await onCreate({
         title: title.trim(),
         columnId,
-        assigneeName,
+        assigneeId: Number(assigneeId) || undefined,
         priority,
         deadline,
         storyPoints,
@@ -70,7 +75,7 @@ export function QuickCreateTaskModal({
       <form id={formId} onSubmit={handleSubmit} className="space-y-4">
         {/* Subtitle / sprint indicator (S9-01) */}
         <div className="text-xs text-neutral-500 -mt-2">
-          Sprint 14: Tối ưu luồng
+          Công việc được lưu vào dự án hiện tại.
         </div>
 
         {error && (
@@ -112,13 +117,15 @@ export function QuickCreateTaskModal({
           </label>
           <div className="relative">
             <select
-              value={assigneeName}
-              onChange={(e) => setAssigneeName(e.target.value)}
+              aria-label="Người thực hiện"
+              value={assigneeId}
+              onChange={(e) => setAssigneeId(e.target.value)}
               className="w-full text-xs py-2 px-3 border border-neutral-300 rounded bg-white text-neutral-800 focus:outline-none focus:ring-1 focus:ring-primary-500 appearance-none pr-8 cursor-pointer"
             >
-              {MEMBERS_OPTIONS.map((m) => (
-                <option key={m.name} value={m.name.split(' (')[0]}>
-                  {m.name} {m.isYou ? '• Bạn' : ''}
+              <option value="">Chưa giao</option>
+              {members.map((m) => (
+                <option key={m.userId} value={m.userId}>
+                  {m.fullName}
                 </option>
               ))}
             </select>
@@ -170,14 +177,15 @@ export function QuickCreateTaskModal({
             </label>
             <div className="relative">
               <input
-                type="text"
+                type="date"
+                aria-label="Hạn chót"
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
                 placeholder="28/10/2024"
                 className="w-full text-xs py-2 px-3 border border-neutral-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500 text-neutral-800"
               />
             </div>
-            <p className="text-[11px] text-neutral-400">Thuộc phạm vi Sprint 14</p>
+            <p className="text-[11px] text-neutral-400">Để trống nếu chưa có hạn.</p>
           </div>
 
           <div className="space-y-1">

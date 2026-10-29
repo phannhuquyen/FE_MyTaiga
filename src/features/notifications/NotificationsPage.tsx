@@ -14,6 +14,7 @@ export function NotificationsPage() {
   const [projectFilter, setProjectFilter] = useState('all')
   const [timeRange, setTimeRange] = useState<'7d' | '14d' | '30d' | 'all'>('7d')
   const [currentPage, setCurrentPage] = useState(1)
+  const [actionError, setActionError] = useState<string | null>(null)
   const pageSize = 6
 
   // Live state from service
@@ -34,12 +35,10 @@ export function NotificationsPage() {
   ).length
 
   // Filtered list
-  const filteredNotifications = useMemo(() => {
-    return notificationService.getNotifications({
+  const filteredNotifications = notificationService.getNotifications({
       category: activeTab,
       search,
     })
-  }, [activeTab, search])
 
   // Pagination
   const totalItems = filteredNotifications.length
@@ -49,13 +48,15 @@ export function NotificationsPage() {
     return filteredNotifications.slice(start, start + pageSize)
   }, [filteredNotifications, currentPage, pageSize])
 
-  const handleToggleRead = (id: string, e?: React.MouseEvent) => {
+  const handleToggleRead = async (id: string, e?: React.MouseEvent) => {
     e?.stopPropagation()
-    notificationService.toggleRead(id)
+    const result = await notificationService.toggleRead(id)
+    setActionError(result === false ? 'Không thể cập nhật trạng thái thông báo. Vui lòng thử lại.' : null)
   }
 
-  const handleMarkAllRead = () => {
-    notificationService.markAllAsRead()
+  const handleMarkAllRead = async () => {
+    const ok = await notificationService.markAllAsRead()
+    setActionError(ok ? null : 'Không thể đánh dấu tất cả đã đọc. Vui lòng thử lại.')
   }
 
   const handleResetDemo = () => {
@@ -89,6 +90,7 @@ export function NotificationsPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 animate-in fade-in duration-200">
+      {actionError && <p role="alert" className="text-danger-600">{actionError}</p>}
       {/* Breadcrumb & Header (S12-01) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

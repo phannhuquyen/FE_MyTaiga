@@ -537,7 +537,7 @@ export function UserManagementTab({ onNavigateToPermissions }: UserManagementTab
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
         onCreateUser={(payload) => {
-          adminService.createUser(payload)
+          return adminService.createUser(payload)
         }}
       />
 
@@ -546,7 +546,7 @@ export function UserManagementTab({ onNavigateToPermissions }: UserManagementTab
         onClose={() => setTargetLockUser(null)}
         user={targetLockUser}
         onConfirmLock={(userId, reason, auditNote) => {
-          adminService.lockUser(userId, reason, auditNote)
+          return adminService.lockUser(userId, reason, auditNote)
         }}
       />
 
@@ -555,7 +555,7 @@ export function UserManagementTab({ onNavigateToPermissions }: UserManagementTab
         onClose={() => setTargetUnlockUser(null)}
         user={targetUnlockUser}
         onConfirmUnlock={(userId) => {
-          adminService.unlockUser(userId)
+          return adminService.unlockUser(userId)
         }}
       />
 

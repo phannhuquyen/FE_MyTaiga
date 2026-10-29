@@ -58,7 +58,7 @@ export function ProjectHeader({
       <div className="mt-4 pt-4 border-t border-neutral-100">
         <div className="flex justify-between items-center mb-1.5 text-body-sm">
           <span className="text-neutral-600 font-medium">
-            Tiến độ tổng thể dự án
+            Tỷ lệ hoàn tất Task, Story và Bug đang thống kê
           </span>
           <span className="text-neutral-800 font-semibold">
             {project.progressPercentage}% hoàn thành ({project.completedTasks}/{project.totalTasks} công việc)
