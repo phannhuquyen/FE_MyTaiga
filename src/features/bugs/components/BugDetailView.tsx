@@ -5,6 +5,7 @@ import { bugService } from '../services/bugService'
 import { AssigneePickerPopover } from './AssigneePickerPopover'
 import { CloseBugModal } from './CloseBugModal'
 import { DeleteBugModal } from './DeleteBugModal'
+import { ProfileToast } from '@/features/profile/components/ProfileToast'
 
 interface BugDetailViewProps {
   bug: BugItem
@@ -26,51 +27,36 @@ export function BugDetailView({
 
   // Status transition state
   const [selectedStatus, setSelectedStatus] = useState<BugStatus>(bug.status)
-  const [invalidTransitionError, setInvalidTransitionError] = useState<{
-    message: string
-    explanation: string
-    suggestedStatus?: BugStatus
-  } | null>(null)
+  const [statusError, setStatusError] = useState<string | null>(null)
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
 
   // Comment input
   const [newComment, setNewComment] = useState('')
   const [isSendingComment, setIsSendingComment] = useState(false)
 
   const handleStepTransition = async (targetStatus: BugStatus) => {
-    const validation = bugService.validateStatusTransition(bug.status, targetStatus)
-    if (!validation.allowed) {
-      setInvalidTransitionError({
-        message: validation.errorMessage || 'Chuyển trạng thái không hợp lệ',
-        explanation:
-          validation.explanation ||
-          'Không thể chuyển trạng thái do vi phạm quy tắc kiểm soát chất lượng ScrumBan.',
-        suggestedStatus: validation.suggestedStatus,
-      })
-      return
-    }
-
-    // If target is closed, open close modal
-    if (targetStatus === 'closed') {
-      setIsCloseModalOpen(true)
-      return
-    }
-
+    if (isUpdatingStatus || targetStatus === bug.status) return
+    setIsUpdatingStatus(true)
+    setStatusError(null)
     try {
-      const updated = await bugService.updateBugStatus(bug.id, targetStatus)
+      const saved = await bugService.updateBugStatus(bug.id, targetStatus)
+      // A status response contains no task discussion/attachment collections.
+      const updated = { ...bug, status: saved.status, updatedAt: saved.updatedAt }
       setBug(updated)
       setSelectedStatus(updated.status)
-      setInvalidTransitionError(null)
+      setStatusError(null)
       onBugUpdated(updated)
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Lỗi cập nhật')
-    }
+      setSelectedStatus(bug.status)
+      setStatusError(err instanceof Error ? err.message : 'Không thể đổi trạng thái Bug.')
+    } finally { setIsUpdatingStatus(false) }
   }
 
   const handleConfirmClose = async (payload: CloseBugPayload) => {
     const updated = await bugService.closeBug(bug.id, payload)
     setBug(updated)
     setSelectedStatus(updated.status)
-    setInvalidTransitionError(null)
+    setStatusError(null)
     onBugUpdated(updated)
   }
 
@@ -127,6 +113,12 @@ export function BugDetailView({
 
   const getStatusBadge = () => {
     switch (bug.status) {
+      case 'reopened':
+        return {
+          label: 'Mở lại',
+          dotClass: 'bg-emerald-500',
+          badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        }
       case 'open':
         return {
           label: 'Đang mở',
@@ -205,7 +197,7 @@ export function BugDetailView({
             </span>
           </div>
           <div className="text-neutral-400 text-[11px]">
-            Quy trình áp dụng: Tiêu chuẩn Taiga Flow v2.4
+            Chọn trạng thái mong muốn và lưu thay đổi.
           </div>
         </div>
 
@@ -312,62 +304,7 @@ export function BugDetailView({
         </div>
       </div>
 
-      {/* Invalid Transition Error Banner (S11-06) */}
-      {invalidTransitionError && (
-        <div className="p-4 bg-danger-50 dark:bg-danger-950/60 border border-danger-300 dark:border-danger-800 rounded-xl space-y-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-danger-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
-                !
-              </div>
-              <div>
-                <span className="text-xs font-bold text-danger-900 dark:text-danger-200">
-                  {invalidTransitionError.message}
-                </span>
-                <span className="ml-2 px-2 py-0.5 bg-danger-100 dark:bg-danger-900 text-danger-800 dark:text-danger-300 rounded text-[10px] font-semibold">
-                  Vi phạm quy trình
-                </span>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setInvalidTransitionError(null)}
-              className="text-danger-400 hover:text-danger-600 p-1"
-            >
-              <Icon name="close" size={16} />
-            </button>
-          </div>
-
-          <p className="text-xs text-danger-800 dark:text-danger-300 leading-relaxed">
-            {invalidTransitionError.explanation}
-          </p>
-
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-danger-200 dark:border-danger-900/60 text-xs">
-            <div className="font-mono text-[11px] text-danger-700 dark:text-danger-400">
-              Phân tích đường truyền: Mở ──x──&gt; Đóng <strong className="text-danger-800 underline">BỊ CHẶN</strong>{' '}
-              ⇄ Mở ────&gt; Đang xử lý <strong className="text-emerald-700">ĐÚNG LUỒNG</strong>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setInvalidTransitionError(null)}
-                className="px-3 py-1.5 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-lg text-xs font-medium hover:bg-neutral-50"
-              >
-                Đã hiểu & Đặt lại
-              </button>
-              {invalidTransitionError.suggestedStatus && (
-                <button
-                  type="button"
-                  onClick={() => handleStepTransition(invalidTransitionError.suggestedStatus!)}
-                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-xs"
-                >
-                  → Chuyển sang &ldquo;Đang xử lý&rdquo;
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <ProfileToast isVisible={Boolean(statusError)} variant="error" message="Không thể đổi trạng thái Bug" description={statusError || ''} onClose={() => setStatusError(null)} />
 
       {/* Main 2-Column Content Layout (S11-03) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -655,14 +592,15 @@ export function BugDetailView({
 
             <div>
               <label className="block text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 mb-1">
-                Trạng thái Bug: Bắt buộc chuyển tiếp hợp lệ
+                Trạng thái Bug
               </label>
               <select
-                value={selectedStatus}
+                aria-label="Trạng thái Bug" disabled={isUpdatingStatus} value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value as BugStatus)}
                 className="w-full text-xs font-semibold rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-neutral-800 dark:text-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
                 <option value="open">🟢 Mở (Open)</option>
+                <option value="reopened">Mở lại (Reopened)</option>
                 <option value="in_progress">🟠 Đang xử lý (In Progress)</option>
                 <option value="resolved">🔵 Đã sửa (Resolved)</option>
                 <option value="closed">🔒 Đóng (Closed)</option>
@@ -672,8 +610,7 @@ export function BugDetailView({
             <div className="p-2.5 bg-neutral-50 dark:bg-neutral-900/60 rounded-lg text-[11px] text-neutral-600 dark:text-neutral-400 leading-relaxed flex items-start gap-1.5">
               <Icon name="info" size={14} className="text-primary-600 shrink-0 mt-0.5" />
               <span>
-                Theo quy trình ScrumBan Flow, từ &ldquo;Đang xử lý&rdquo; chỉ có thể chuyển sang
-                &ldquo;Đã sửa&rdquo; trước khi đóng.
+                Có thể chọn trực tiếp trạng thái. Thay đổi chỉ hiển thị sau khi máy chủ lưu thành công.
               </span>
             </div>
 
@@ -735,21 +672,16 @@ export function BugDetailView({
                 type="button"
                 onClick={() => handleStepTransition('closed')}
                 className={`w-full text-left p-2.5 rounded-lg border transition-all flex items-center justify-between ${
-                  bug.status !== 'resolved'
-                    ? 'border-neutral-200 text-neutral-400 opacity-60'
-                    : 'border-neutral-200 dark:border-neutral-700 hover:border-neutral-300'
+                  'border-neutral-200 dark:border-neutral-700 hover:border-neutral-300'
                 }`}
               >
                 <div>
                   <div className="flex items-center gap-1.5">
                     <Icon name="lock" size={13} />
                     <span>Đóng (Closed)</span>
-                    {bug.status !== 'resolved' && (
-                      <span className="text-[10px] text-danger-500 font-bold">(Bị chặn)</span>
-                    )}
                   </div>
                   <div className="text-[10px] text-neutral-400 font-normal">
-                    Đã kiểm tra đạt hoặc không tái hiện (Phải qua bước &ldquo;Đã sửa&rdquo;)
+                    Chuyển trực tiếp sang trạng thái Đóng.
                   </div>
                 </div>
               </button>

@@ -196,3 +196,10 @@
 - Unit cuối214/214 PASS; Chromium mock55/55 PASS. Build exit0; lint exit0, còn cảnh báo hooks/script (không coi zero-warning). git diff --check exit0 sau sửa EOF. BE giữ nguyên, chỉ NuGet.Config untracked ban đầu; không đổi branch/commit/push.
 - Báo cáo: PROJECT_WORKFLOW_REPORT.md; JSON kết quả PROJECT_WORKFLOW_TEST_RESULTS.json; manifest PROJECT_WORKFLOW_LIVE_RESULTS.json. Prefix QA-FE-1793291834145; Epic29/PBI15/Sprint23/Task38/Bug23; Dashboard Task39/PBI16/Bug24; Task40 cho test cột/hạn. Giữ dữ liệu QA để xem, không xóa record cũ.
 - Summary/details/comments/history Dashboard đã lấy BE. PBI comments/DoD/capacity và field thiếu giữ placeholder/disabled/nhãn giới hạn. User2 nhìn thấy sau reload/Làm mới/focus; không claim realtime push đầy đủ. Image503 cũ không được test lại hoặc coi đã sửa ở nhiệm vụ này.
+
+## 01/11/2026 — Sprint popup, Bug status, avatar settings
+- Khảo sát: branch fix/quyenpn-20261030, HEAD177ae29, working tree sạch. Đọc AGENTS/skill và source FE/BE; không sửa BE hoặc đổi branch/commit/push.
+- Sửa FE: Sprint đọc response.message thay lỗi Axios, popup mặc định7s, close ngay; autoClose có thể tắt. Bug bỏ ràng buộc tuần tự FE, thêm REOPENED đúng contract, chỉ đổi UI sau lưu thành công và giữ dữ liệu chi tiết. Profile thêm route bảo mật/thông báo/dự án/tích hợp; integrations ghi rõ thiếu API.
+- Regression: lỗi Sprint/transition và REOPENED được tái hiện FAIL trước sửa. Kết quả cuối npm test220/220; Chromium mock62/62; build PASS; lint exit0 với9 cảnh báo cũ.
+- Live: user1 đăng nhập, test Sprint duplicate qua form FE nhận409 message trùng tên, X đóng ngay, form giữ input, GET total không đổi.4 tab profile mở được. Tổng2PASS/1BLOCKED DATA (Playwright skipped: không có Bug QA phù hợp). Không đổi mật khẩu thật. Lượt đầu không có Sprint QA nên skipped; lượt cuối dùng duplicate name của Sprint hiện hữu an toàn, không INSERT.
+- BE BugsController.cs145–147 vẫn chặn chuyển trạng thái ngoài workflow. FE tự do lựa chọn không đồng nghĩa database đã cho phép; không báo toàn bộ PASS. Tích hợp cá nhân chưa có API. Báo cáo chi tiết: UI_FOLLOWUP_2026-11-01.md; tiếp tục cần BE cập nhật workflow và Bug QA phù hợp.

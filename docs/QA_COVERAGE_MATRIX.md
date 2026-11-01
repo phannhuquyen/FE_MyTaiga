@@ -38,3 +38,17 @@ Xem [ma trận delta](QA_API_UPDATE_MATRIX.md) và [báo cáo delta](QA_API_UPDA
 
 ## Project So 1 — 29/10/2026
 Xem [PROJECT_WORKFLOW_REPORT.md](PROJECT_WORKFLOW_REPORT.md) và PROJECT_WORKFLOW_TEST_RESULTS.json:12 nhóm live create/update/read/comment/planning/assignment và user2 visibility PASS. Header-create regression5 route PASS. Status chỉ áp dụng các scenario đó; field không có BE, toàn bộ error/role matrix và realtime đầy đủ vẫn PARTIAL/NOT TESTED. Không kế thừa PASS từ báo cáo cũ.
+
+## 01/11/2026 — Follow-up Sprint / Bug / profile
+
+| Route / function | API and fields | Scenario | Evidence | Status | Gap / next action |
+|---|---|---|---|---|---|
+| /projects/1/sprints create | POST /sprints, request sprintName/projectId/startDate/endDate; response.message | 409 popup7s, X ngay, giữ form | UNIT+MOCK BROWSER+LIVE duplicate name409; count không đổi | PASS | Conflict BE hợp lệ vẫn phải báo lỗi |
+| Shared ProfileToast | duration,autoClose,onClose | timer7000ms, tắt tự đóng, close ngay | UNIT fake timers + Chromium close | PASS | Không khóa nút X theo timer |
+| /projects/1/bugs detail | PATCH /bugs/{id}/status; status/message | chọn trực tiếp, API accept/reject | UNIT+MOCK BROWSER | PASS FE / BLOCKED LIVE | Không có QA Bug phù hợp; BE vẫn giới hạn workflow |
+| Bug REOPENED | PATCH status=REOPENED; response.status | giữ nguyên mapping, list/filter/detail | UNIT+MOCK BROWSER | PASS FE / NOT TESTED LIVE | Chạy mutation QA sau khi có record |
+| /profile/security | POST /auth/change-password; currentPassword/newPassword/confirmPassword | validation,400,success logout | MOCK BROWSER; live chỉ render | PASS MOCK / NOT TESTED mutation LIVE | Không đổi mật khẩu thật |
+| /profile/notifications,projects | notifications/projects APIs | navigation+direct reload | MOCK BROWSER+LIVE user1 | PASS navigation | Không claim toàn bộ mutation của feature |
+| /profile/integrations | Chưa có endpoint | hiển thị chưa hỗ trợ, không fake save | STATIC+MOCK BROWSER+LIVE | PASS placeholder / BLOCKED API | Cần contract tích hợp cá nhân |
+
+Kết quả bộ suite lần này:220 unit PASS,62 mock browser PASS,2 live PASS và1 live BLOCKED DATA (runner skipped). Build PASS, lint exit0/9 cảnh báo. Chi tiết và file thay đổi tại UI_FOLLOWUP_2026-11-01.md; không cộng endpoint inventory thành runtime coverage.

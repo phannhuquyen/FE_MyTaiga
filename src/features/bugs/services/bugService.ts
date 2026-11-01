@@ -99,8 +99,9 @@ function mapStatusFromBe(s: string): BugStatus {
       return 'resolved'
     case 'CLOSED':
       return 'closed'
-    case 'OPEN':
     case 'REOPENED':
+      return 'reopened'
+    case 'OPEN':
     default:
       return 'open'
   }
@@ -108,6 +109,8 @@ function mapStatusFromBe(s: string): BugStatus {
 
 function mapStatusToBe(s: string): 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED' | 'REOPENED' {
   switch (s) {
+    case 'reopened':
+      return 'REOPENED'
     case 'in_progress':
       return 'IN_PROGRESS'
     case 'resolved':
@@ -326,43 +329,22 @@ class BugService {
     return found ? { ...found } : null
   }
 
-  public validateStatusTransition(
-    currentStatus: BugStatus,
-    targetStatus: BugStatus,
-  ): StatusTransitionResult {
-    if (currentStatus === targetStatus) {
-      return { allowed: true }
-    }
-
-    if (currentStatus === 'open' && targetStatus === 'closed') {
-      return {
-        allowed: false,
-        suggestedStatus: 'in_progress',
-        errorMessage: 'Chuyển trạng thái không hợp lệ (Invalid Status Transition)',
-        explanation:
-          'Không thể chuyển trực tiếp từ "Mở (Open)" sang "Đóng (Closed)". Mọi lỗi phải được kỹ sư phân tích tại bước Đang xử lý và nghiệm thu tại bước Đã sửa trước khi đóng.',
-      }
-    }
-
+  public validateStatusTransition(_currentStatus: BugStatus, _targetStatus: BugStatus): StatusTransitionResult {
     return { allowed: true }
   }
 
   public async updateBugStatus(id: string, newStatus: BugStatus): Promise<BugItem> {
-    const numericId = parseInt(id.replace(/\D/g, ''), 10)
-    if (numericId > 0) {
-      try {
-        await api.bugs.changeStatus(numericId, { status: mapStatusToBe(newStatus) })
-      } catch (err: unknown) {
-        const errorObj = err as { response?: { data?: { message?: string } } }
-        throw new Error(errorObj.response?.data?.message || 'Không thể đổi trạng thái Bug')
-      }
+    const numericId = /^\d+$/.test(id) ? Number(id) : NaN
+    if (!Number.isSafeInteger(numericId) || numericId <= 0) throw new Error('Bug chưa có ID thật.')
+    try {
+      const response = await api.bugs.changeStatus(numericId, { status: mapStatusToBe(newStatus) })
+      const updated = mapBugDataToBugItem(response.data)
+      this.bugs = this.bugs.map(item => item.id === id ? updated : item)
+      return updated
+    } catch (err: unknown) {
+      const problem = err as { response?: { data?: { message?: string } } }
+      throw new Error(problem.response?.data?.message || 'Không thể đổi trạng thái Bug. Vui lòng thử lại.')
     }
-
-    const bug = this.bugs.find((b) => b.id === id)
-    if (!bug) throw new Error('Không tìm thấy lỗi')
-    bug.status = newStatus
-    bug.updatedAt = new Date().toISOString()
-    return { ...bug }
   }
 
   public async closeBug(id: string, payload: CloseBugPayload): Promise<BugItem> {

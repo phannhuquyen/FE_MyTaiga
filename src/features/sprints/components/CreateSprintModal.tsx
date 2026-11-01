@@ -1,6 +1,8 @@
 import { useState, useId } from 'react'
 import { Modal, Button, Icon } from '@/components/ui'
 import type { CreateSprintPayload } from '../types'
+import { ProfileToast } from '@/features/profile/components/ProfileToast'
+import { apiErrorMessage } from '@/lib/apiErrors'
 
 export interface CreateSprintModalProps {
   isOpen: boolean
@@ -22,6 +24,7 @@ export function CreateSprintModal({
   const [endDate, setEndDate] = useState('')
   const [capacity, setCapacity] = useState(25)
   const [error, setError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const isEndDateInvalid = Boolean(startDate && endDate && endDate < startDate)
@@ -41,6 +44,7 @@ export function CreateSprintModal({
     try {
       setIsSubmitting(true)
       setError(null)
+      setNotice(null)
       await onSubmit({
         name: name.trim(),
         goal: goal.trim(),
@@ -50,13 +54,14 @@ export function CreateSprintModal({
       })
       onClose()
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Có lỗi xảy ra khi tạo Sprint.')
+      setNotice(apiErrorMessage(err, 'Không thể tạo Sprint. Vui lòng thử lại.'))
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
+    <>
     <Modal
       isOpen={isOpen}
       onClose={onClose}
@@ -214,5 +219,7 @@ export function CreateSprintModal({
         </div>
       </form>
     </Modal>
+    <ProfileToast isVisible={Boolean(notice)} variant="error" message="Không thể tạo Sprint" description={notice || ''} duration={7000} onClose={() => setNotice(null)} />
+    </>
   )
 }

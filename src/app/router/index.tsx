@@ -121,6 +121,13 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: 'profile/:section',
+        lazy: async () => {
+          const Component = (await import('@/features/profile/ProfileSettingsPage')).default
+          return { Component }
+        },
+      },
+      {
         path: 'settings/profile',
         element: <Navigate to="/profile" replace />,
       },

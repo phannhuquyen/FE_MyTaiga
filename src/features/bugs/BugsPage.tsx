@@ -155,6 +155,7 @@ export default function BugsPage() {
   const getStatusDot = (status: BugStatus) => {
     switch (status) {
       case 'open':
+      case 'reopened':
         return <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-1.5" />
       case 'in_progress':
         return <span className="w-2 h-2 rounded-full bg-amber-700 inline-block mr-1.5" />
@@ -167,6 +168,8 @@ export default function BugsPage() {
 
   const getStatusLabel = (status: BugStatus) => {
     switch (status) {
+      case 'reopened':
+        return 'Mở lại'
       case 'open':
         return 'Mở'
       case 'in_progress':
@@ -271,6 +274,7 @@ export default function BugsPage() {
             >
               <option value="all">Trạng thái: Tất cả</option>
               <option value="open">Mở</option>
+              <option value="reopened">Mở lại</option>
               <option value="in_progress">Đang xử lý</option>
               <option value="resolved">Đã sửa</option>
               <option value="closed">Đóng</option>

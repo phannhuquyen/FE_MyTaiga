@@ -2,7 +2,7 @@ export type BugSeverity = 'blocker' | 'major' | 'minor' | 'trivial'
 
 export type BugPriority = 'p1' | 'p2' | 'p3' | 'p4'
 
-export type BugStatus = 'open' | 'in_progress' | 'resolved' | 'closed'
+export type BugStatus = 'open' | 'in_progress' | 'resolved' | 'closed' | 'reopened'
 
 export type ResolutionReason =
   | 'resolved_verified'
