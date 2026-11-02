@@ -42,7 +42,7 @@ export function AttachmentPreviewModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6 bg-neutral-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+    <div onClick={(event) => { if (event.target === event.currentTarget) onClose() }} className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6 bg-neutral-950/80 backdrop-blur-sm animate-in fade-in duration-200">
       <div
         className="w-full max-w-5xl h-[92vh] bg-whiteboard dark:bg-neutral-900 rounded-2xl shadow-2xl border border-neutral-700/50 flex flex-col overflow-hidden"
         role="dialog"

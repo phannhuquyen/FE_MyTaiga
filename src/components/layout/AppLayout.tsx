@@ -44,7 +44,9 @@ export function AppLayout() {
         )}
 
         <main className="flex-1 overflow-y-auto">
-          <Outlet />
+          <div key={location.pathname} className="route-stage">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

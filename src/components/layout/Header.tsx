@@ -55,7 +55,7 @@ export function Header({
   return (
     <header
       className={cn(
-        'h-14 bg-whiteboard border-b border-neutral-200 px-4 sm:px-6 flex items-center justify-between shrink-0 gap-4',
+        'h-14 bg-whiteboard/95 backdrop-blur-md border-b border-primary-100 px-4 sm:px-6 flex items-center justify-between shrink-0 gap-4 shadow-[0_1px_12px_rgb(17_71_63/0.04)]',
         className,
       )}
     >
@@ -142,7 +142,7 @@ export function Header({
           <button
             type="button"
             onClick={onQuickCreate}
-            className="inline-flex items-center gap-1 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-whiteboard text-body-sm font-medium px-3 py-1.5 rounded transition-colors shadow-xs cursor-pointer shrink-0"
+            className="inline-flex items-center gap-1 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-whiteboard text-body-sm font-medium px-3 py-1.5 rounded transition-[background-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 active:translate-y-0 shadow-sm hover:shadow-md hover:shadow-primary-500/20 cursor-pointer shrink-0"
           >
             <Icon name="plus" size={16} />
             <span>Tạo</span>

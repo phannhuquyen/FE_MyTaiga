@@ -29,11 +29,11 @@ export function Button({
   ...props
 }: ButtonProps) {
   const baseStyles =
-    'inline-flex items-center justify-center font-medium rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:opacity-50 disabled:pointer-events-none cursor-pointer'
+    'inline-flex items-center justify-center font-medium rounded transition-[color,background-color,border-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none disabled:transform-none cursor-pointer'
 
   const variantStyles: Record<ButtonVariant, string> = {
     primary:
-      'bg-primary-500 text-whiteboard hover:bg-primary-600 active:bg-primary-700 shadow-sm',
+      'bg-primary-500 text-whiteboard hover:bg-primary-600 active:bg-primary-700 shadow-sm hover:shadow-md hover:shadow-primary-500/20',
     secondary:
       'bg-neutral-100 text-neutral-800 hover:bg-neutral-200 active:bg-neutral-300',
     outline:
@@ -41,7 +41,7 @@ export function Button({
     ghost:
       'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 active:bg-neutral-200',
     danger:
-      'bg-danger-500 text-whiteboard hover:bg-danger-600 active:bg-danger-700',
+      'bg-danger-500 text-whiteboard hover:bg-danger-600 active:bg-danger-700 shadow-sm hover:shadow-md hover:shadow-danger-500/20',
   }
 
   const sizeStyles: Record<ButtonSize, string> = {

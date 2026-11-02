@@ -1,0 +1,270 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\personal\\MyTaiga\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "-c",
+      "playwright.live.config.ts",
+      "tests/live/authenticated.spec.ts"
+    ],
+    "configFile": "D:\\personal\\MyTaiga\\playwright.live.config.ts",
+    "rootDir": "D:/personal/MyTaiga/tests/live",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/personal/MyTaiga/test-results/live",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "D:/personal/MyTaiga/tests/live",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "D:\\personal\\MyTaiga\\test-results\\live",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "D:\\personal\\MyTaiga\\tests\\live",
+        "snapshotDir": "D:\\personal\\MyTaiga\\tests\\live",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://localhost:5173",
+          "browserName": "chromium",
+          "trace": "off",
+          "screenshot": "off",
+          "video": "off"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/live-browser-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "authenticated.spec.ts",
+      "file": "authenticated.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "live admin: login, read-only routes, logout and protected URL",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6554,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "read /admin/users",
+                      "duration": 682
+                    },
+                    {
+                      "title": "read /admin/roles",
+                      "duration": 683
+                    },
+                    {
+                      "title": "read /admin/settings",
+                      "duration": 747
+                    },
+                    {
+                      "title": "read /admin/logs",
+                      "duration": 1139
+                    }
+                  ],
+                  "startTime": "2026-11-02T03:16:47.149Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "54f44905dc7ce2cd4d41-4bf885a934c4f8c3e8fe",
+          "file": "authenticated.spec.ts",
+          "line": 17,
+          "column": 3
+        },
+        {
+          "title": "live user1: login, read-only routes, logout and protected URL",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 17161,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "read project dashboard",
+                      "duration": 2489
+                    },
+                    {
+                      "title": "read project backlog",
+                      "duration": 1462
+                    },
+                    {
+                      "title": "read project sprints",
+                      "duration": 1444
+                    },
+                    {
+                      "title": "read project kanban",
+                      "duration": 2186
+                    },
+                    {
+                      "title": "read project epics",
+                      "duration": 1427
+                    },
+                    {
+                      "title": "read project bugs",
+                      "duration": 1288
+                    },
+                    {
+                      "title": "read project metrics",
+                      "duration": 1385
+                    },
+                    {
+                      "title": "read project members",
+                      "duration": 1324
+                    }
+                  ],
+                  "startTime": "2026-11-02T03:16:53.950Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "54f44905dc7ce2cd4d41-09c6577fadd4ed9dd3f2",
+          "file": "authenticated.spec.ts",
+          "line": 17,
+          "column": 3
+        },
+        {
+          "title": "live user2: login, read-only routes, logout and protected URL",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6436,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-02T03:17:11.147Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "54f44905dc7ce2cd4d41-670f28eeb019ab6ee97d",
+          "file": "authenticated.spec.ts",
+          "line": 17,
+          "column": 3
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-02T03:16:46.418Z",
+    "duration": 32822.412000000004,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

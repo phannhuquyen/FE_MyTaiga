@@ -1,0 +1,1135 @@
+0 [Normal] 
+1 [Normal] ĐẠI HỌC CÔNG NGHIỆP HÀ NỘI
+2 [Heading] TRƯỜNG CÔNG NGHỆ THÔNG TIN VÀ TRUYỀN THÔNG
+3 [Normal] -------------
+4 [Normal] 
+5 [Normal] 
+6 [Normal] 
+7 [Normal] 
+8 [Normal] BÁO CÁO ĐỒ ÁN CHUYÊN NGÀNH
+9 [Normal] Học phần: Đồ án chuyên ngành
+10 [Header] Đề tài:
+11 [Header] Xây dựng hệ thống hỗ trợ quản lý và cộng tác trong dự án phần mềm theo mô hình Scrumban
+12 [Header] .
+13 [Normal] 
+14 [Normal] 			Giáo viên hướng dẫn: ThS. Phạm Thế Anh
+15 [Normal] 			Nhóm em: 8
+16 [Normal] 		Sinh viên thực hiện: 
+17 [Normal] 1. 2023602894	Chử Thị Ngọc Diệp
+18 [Normal] 2. 2023603420	Phan Như Quyền
+19 [Normal] 3. 2023602938	Lê Đình Vượng 
+20 [Normal] 4. 2023603633	Tống Văn Tuấn
+21 [Normal] 5. 2023603018	Nguyễn Văn Tuấn
+22 [Normal] 
+23 [Normal] Lớp: 20261IT6122002	
+24 [Normal] 	
+25 [Normal] Hà Nội - Năm 2026
+26 [Normal] MỤC LỤC
+27 [Normal] PHẦN MỞ ĐẦU
+28 [Normal] Lý do chọn đề tài 
+29 [Normal] Mục tiêu của đề tài 
+30 [Normal] Đối tượng và phạm vi nghiên cứu 
+31 [Normal] Phương pháp nghiên cứu 
+32 [Normal] Cấu trúc báo cáo 
+33 [Normal] CHƯƠNG 1: CƠ SỞ LÝ THUYẾT
+1.1. Các khái niệm
+1.1.1. Quản lý dự án phần mềm
+1.1.2. Scrum
+1.1.3. Kanban
+1.1.4. Scrumban
+1.1.5. Công nghệ sử dụng
+34 [Normal] 1.2. Yêu cầu sử dụng
+1.2.1. Yêu cầu chức năng
+1.2.2. Yêu cầu phi chức năng
+1.2.3. Mục tiêu cần đạt được
+35 [Normal] CHƯƠNG 2: PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+36 [Normal] 2.1. Các chức năng chính của phần mềm
+37 [Normal] 2.1.1. Khảo sát hệ thống
+38 [Normal] 2.1.2. Phân tích yêu cầu
+39 [Normal] 2.1.3. Phân tích chức năng
+40 [Normal] 2.1.4. Biểu đồ Use Case
+41 [Normal] 2.1.5. Biểu đồ trình tự
+42 [Normal] 2.1.6. Biểu đồ hoạt động
+43 [Normal] 2.1.7. Biểu đồ lớp
+44 [Normal] 2.1.8. Sơ đồ ERD / Database Schema
+45 [Normal] 2.1.9. Thiết kế cơ sở dữ liệu
+46 [Normal] 2.1.10. Danh sách UseCase tổng quan
+47 [Normal] 2.2. Kế hoạch triển khai thực hiện
+48 [Normal] 2.2.1. Các bước thực hiện
+49 [Normal] 2.2.2. Kế hoạch phân công và triển khai
+50 [Normal] 2.3. Thiết kế và xây dựng phần mềm
+51 [Normal] 2.3.1. Thiết kế chức năng
+52 [Normal] 2.3.2. Xây dựng hệ thống
+53 [Normal] 2.3.3. Tích hợp hệ thống
+54 [Normal] CHƯƠNG 3: CHƯƠNG TRÌNH VÀ KIỂM THỬ
+3.1. Các hình ảnh của phần mềm
+3.1.1. Giao diện đăng nhập
+3.1.2. Dashboard
+3.1.3. Quản lý dự án
+3.1.4. Product Backlog
+3.1.5. Sprint
+3.1.6. Scrumban Board
+3.1.7. Quản lý Task
+3.1.8. Quản lý thành viên
+3.1.9. Bug/Issue
+3.1.10. Cộng tác nhóm em
+55 [Normal] 3.2. Kiểm thử các chức năng của phần mềm
+3.2.1. Phương pháp kiểm thử
+3.2.2. Kiểm thử chức năng
+3.2.3. Kết quả kiểm thử
+56 [Normal] 3.3. Đánh giá và tính khả thi của đề tài
+3.3.1. Thuận lợi
+3.3.2. Khó khăn
+3.3.3. Tính khả thi
+3.3.4. Hạn chế của hệ thống
+57 [Normal] KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN
+58 [Normal] TÀI LIỆU THAM KHẢO
+59 [Normal] PHỤ LỤC
+60 [Normal] 
+61 [Heading] MỞ ĐẦU
+62 [Heading 1] 1. Lý do chọn đề tài
+63 [Normal] Trong kỷ nguyên chuyển đổi số và sự phát triển vượt bậc của ngành công nghệ phần mềm, việc quản lý dự án, phân công công việc và theo dõi tiến độ đóng vai trò then chốt quyết định sự thành công của mỗi sản phẩm. Khi số lượng thành viên và khối lượng công việc tăng lên, việc quản lý bằng các phương pháp thủ công hoặc sử dụng nhiều công cụ riêng lẻ thường gây ra nhiều khó khăn trong kiểm soát tiến độ, phân định trách nhiệm và cập nhật trạng thái công việc
+64 [Normal] Bên cạnh đó, các dự án phần mềm hiện đại thường xuyên đối mặt với những yêu cầu thay đổi liên tục từ phía khách hàng và thị trường. Do đó, các nhóm em phát triển cần một phương pháp quản lý vừa có khả năng lập kế hoạch có cấu trúc, vừa linh hoạt trong việc điều chỉnh và xử lý công việc phát sinh. Mô hình Scrumban - sự kết hợp giữa Scrum và Kanban - mang lại giải pháp dung hòa: vừa hỗ trợ lập kế hoạch theo chu kỳ/Sprint (Scrum), vừa trực quan hóa quy trình làm việc trên Bảng (Kanban Board), kiểm soát số lượng công việc đang thực hiện (WIP Limit) để hạn chế quá tải và tối ưu hóa thời gian hoàn thành (Cycle Time).
+65 [Normal] Xuất phát từ thực tiễn trên, nhóm em lựa chọn đề tài “Xây dựng hệ thống hỗ trợ quản lý và cộng tác trong dự án phần mềm theo mô hình Scrumban”. Đề tài hướng đến việc xây dựng một hệ thống ứng dụng Web tập trung, cho phép quản lý toàn diện dự án, thành viên, Product Backlog, Epic, Sprint, Task và các Issue/Bug phát sinh. Đồng thời, hệ thống tích hợp các tính năng cộng tác thời gian thực như bình luận, chia sẻ tệp, thông báo, ghi vết lịch sử hoạt động và theo dõi các chỉ số dòng công việc (Flow Metrics).
+66 [Normal] 
+67 [Normal] Thông qua đề tài, nhóm em mong muốn áp dụng các kiến thức chuyên ngành về phân tích thiết kế, kiến trúc phần mềm và phát triển Web vào một sản phẩm thực tế, đồng thời nghiên cứu sâu cách vận dụng mô hình Scrumban trong quản lý và triển khai dự án phần mềm.
+68 [Heading 1] 2. Mục tiêu của đề tài
+69 [Normal] - Mục tiêu tổng quát: Xây dựng một hệ thống web hỗ trợ quản lý và cộng tác trong dự án phần mềm theo mô hình Scrumban, cho phép quản lý tập trung dự án, thành viên và công việc; hỗ trợ lập kế hoạch, theo dõi tiến độ, kiểm soát WIP và tăng cường khả năng cộng tác giữa các thành viên.
+70 [Normal] - Mục tiêu cụ thể:
+71 [Normal] Quản lý dự án và thành viên: Xây dựng các chức năng quản lý dự án, danh sách thành viên và phân quyền dựa trên 5 vai trò (Admin, Project Manager/Product Owner, Scrum Master, Developer, Tester).
+72 [Normal] Quản lý công việc theo Scrumban: Quản lý Product Backlog, Epic, Sprint, Task, Issue/Bug; trực quan hóa quy trình làm việc trên Scrumban Board; thiết lập và kiểm soát WIP Limit; hỗ trợ theo dõi các chỉ số dòng công việc (WIP, Throughput, Work Item Age, Cycle Time).
+73 [Normal] Hỗ trợ cộng tác: Cung cấp chức năng bình luận, nhận thông báo, chia sẻ tệp và ghi nhận lịch sử hoạt động của dự án/công việc.
+74 [Normal] Đảm bảo chất lượng hệ thống: Đảm bảo hệ thống đáp ứng các yêu cầu về hiệu năng, bảo mật, tính dễ sử dụng, khả năng tương thích và toàn vẹn dữ liệu.
+75 [Normal] Hoàn thiện sản phẩm: Xây dựng giao diện trực quan, hỗ trợ đa kích thước màn hình (Responsive UI) và thiết kế hệ thống theo hướng dễ bảo trì, mở rộng.
+76 [Normal] 3. Đối tượng và phạm vi nghiên cứu
+77 [Normal] Đối tượng nghiên cứu: Quy trình quản lý dự án phần mềm và các cơ chế cộng tác nhóm em theo mô hình Scrumban.
+78 [Normal] Phạm vi nghiên cứu & phát triển:
+79 [Normal] Phân hệ chức năng: Quản lý tài khoản, Quản lý dự án & Thành viên, Product Backlog, Epic, Sprint, Task, Scrumban Board, WIP Limit, Flow Metrics (Thống kê dòng công việc), Issue/Bug Tracking và Cộng tác nhóm em.
+80 [Normal] Đối tượng sử dụng: Phân quyền truy cập cho 5 nhóm em vai trò (Admin, PM/PO, Scrum Master, Developer, Tester).
+81 [Normal] Môi trường triển khai: Ứng dụng Web (Web Application) phát triển trên nền tảng .NET Core API và ReactJS.
+82 [Heading 1] 4. Phương pháp nghiên cứu
+83 [Normal] Nghiên cứu lý thuyết: Tổng quan kiến thức về Quản lý dự án phần mềm, Agile, Scrum, Kanban và mô hình lai Scrumban; nghiên cứu các chỉ số đo lường dòng công việc (Flow Metrics); tìm hiểu các công nghệ phát triển Web (ReactJS, Tailwind CSS, C# / ASP.NET Core Web API, SQL Server, Entity Framework Core, SignalR).
+84 [Normal] Thực nghiệm & Phát triển: Phân tích yêu cầu hệ thống; thiết kế kiến trúc, CSDL (ERD) và các sơ đồ UML; lập trình xây dựng sản phẩm; kiểm thử chức năng (Functional Testing) và phi chức năng (Non-Functional Testing).
+85 [Heading 1] 5. Cấu trúc báo cáo
+86 [Normal] Báo cáo được tổ chức thành Mở đầu, 3 Chương nội dung chính, Kết luận và Phụ lục:
+87 [Normal] Chương 1: Cơ sở lý thuyết: Trình bày các khái niệm về quản lý dự án phần mềm, Scrum, Kanban, Scrumban, phân tích so sánh công nghệ sử dụng và hệ thống các yêu cầu sử dụng (FRs, NFRs, Mục tiêu cần đạt được).
+88 [Normal] Chương 2: Phân tích và thiết kế hệ thống: Trình bày quá trình khảo sát, phân tích yêu cầu, phân tích chức năng, các biểu đồ UML, thiết kế cơ sở dữ liệu (ERD), thiết kế giao diện và kế hoạch triển khai.
+89 [Normal] Chương 3: Chương trình và kiểm thử: Trình bày giao diện chi tiết của chương trình, kết quả kiểm thử chức năng/phi chức năng, đánh giá thuận lợi, khó khăn và tính khả thi của đề tài.
+90 [Heading] CHƯƠNG 1: CƠ SỞ LÝ THUYẾT
+91 [Heading 1] 1.1. CÁC KHÁI NIỆM VÀ CÔNG NGHỆ SỬ DỤNG
+92 [Heading 2] 1.1.1. Quản lý dự án phần mềm
+93 [Normal] Quản lý dự án phần mềm (Software Project Management) là quá trình áp dụng có hệ thống các kiến thức, kỹ năng, công cụ và kỹ thuật vào các hoạt động phát triển nhằm thỏa mãn các yêu cầu của dự án trong giới hạn về thời gian, chi phí, phạm vi và chất lượng. Khác với các dự án xây dựng hay sản xuất công nghiệp truyền thống, phần mềm là sản phẩm mang tính trừu tượng cao, độ phức tạp biến đổi liên tục và yêu cầu người dùng thường xuyên thay đổi xuyên suốt vòng đời phát triển.
+94 [Normal] Một dự án phần mềm luôn chịu chi phối bởi Tam giác quản trị dự án (The Project Management Triangle): Phạm vi (Scope), Thời gian (Time) và Chi phí/Nguồn lực (Cost/Resources), với trọng tâm bảo đảm Chất lượng (Quality). Chu trình quản trị dự án bao gồm 5 nhóm em tiến trình: Khởi tạo (Initiating), Lập kế hoạch (Planning), Thực thi (Executing), Giám sát & Kiểm soát (Monitoring & Controlling) và Đóng dự án (Closing).
+95 [Heading 2] 1.1.2. Scrum
+96 [Heading 3] a) Định nghĩa và triết lý vận hành
+97 [Normal] Theo The Scrum Guide (Ken Schwaber & Jeff Sutherland, 2020), Scrum là một khung làm việc thích ứng, mang tính lặp và tăng trưởng ,hỗ trợ các đội ngũ tạo ra giá trị thông qua các giải pháp linh hoạt cho các vấn đề phức tạp. Scrum hoạt động dựa trên thuyết thực nghiệm và tư duy tinh gọn, duy trì 3 trụ cột: Minh bạch, Thanh tra và Thích nghi.
+98 [Heading 3] b) Cơ cấu tổ chức đội ngũ Scrum
+99 [Normal] Đội ngũ Scrum bao gồm tối đa khoảng 10 người, mang tính tự quản (self-managing) và đa chức năng (cross-functional), gồm 3 trách nhiệm chính:
+100 [Normal] 
+
+101 [Normal] Product Owner (PO): Đại diện tiếng nói khách hàng, chịu trách nhiệm tối đa hóa giá trị sản phẩm và quản lý danh mục Product Backlog.
+102 [Normal] Scrum Master (SM): Đảm bảo đội ngũ hiểu và tuân thủ Scrum; phục vụ đội ngũ bằng cách loại bỏ các rào cản cản trở tiến độ.
+103 [Normal] Developers: Đội ngũ chuyên gia trực tiếp đảm nhiệm công việc kỹ thuật (phân tích, lập trình, kiểm thử) để chuyển đổi các hạng mục Backlog thành phần tăng trưởng sản phẩm.
+104 [Heading 3] c) Các sự kiện và Tạo tác trong Scrum
+105 [Normal] Hoạt động của Scrum diễn ra bên trong khung thời gian cố định gọi là Sprint (từ 1 đến 4 tuần). Các sự kiện chính gồm: Sprint Planning, Daily Scrum (15 phút hàng ngày), Sprint Review và Sprint Retrospective. Các tạo tác chính gồm Product Backlog (đi kèm cam kết Product Goal), Sprint Backlog (đi kèm cam kết Sprint Goal) và Increment (đi kèm cam kết Definition of Done - DoD).
+106 [Heading 3] d) Đánh giá ưu điểm và hạn chế của Scrum
+107 [Normal] Ưu điểm: Minh bạch cao, phản hồi định kỳ sau mỗi Sprint, tối ưu tinh thần tự quản và bàn giao sản phẩm liên tục.
+108 [Normal] Hạn chế: Tính cứng nhắc của Sprint Timebox khiến đội ngũ khó tiếp nhận và xử lý ngay các sự cố nghiêm trọng (Hotfix/Bug) hoặc yêu cầu thay đổi khẩn cấp phát sinh giữa Sprint.
+109 [Heading 2] 1.1.3. Kanban
+110 [Heading 3] a) Khái niệm và Thành phần chính
+111 [Normal] Theo The Kanban Guide (May 2025), Kanban là phương pháp quản lý công việc tập trung vào trực quan hóa quy trình, quản lý công việc và cải tiến liên tục. Công việc được thể hiện dưới dạng các thẻ (Work Items) di chuyển qua các cột trạng thái trên bảng Kanban.
+112 [Heading 3] b) Ưu điểm và hạn chế của Kanban
+113 [Normal] Ưu điểm: Trực quan hóa cao, kiểm soát WIP hạn chế quá tải, linh hoạt điều chỉnh quy trình và đo lường dòng công việc chính xác.
+114 [Normal] Hạn chế: Không quy định sẵn vai trò, sự kiện và nhịp làm việc cố định như Scrum; hiệu quả phụ thuộc vào kỷ luật thiết lập WIP Limit.
+115 [Heading 2] 1.1.4. Scrumban
+116 [Heading 3] a) Khái niệm và Đặc điểm
+117 [Normal] Scrumban là cách tiếp cận kết hợp giữa các thực hành của Scrum và Kanban trong quản lý phát triển phần mềm (Corey Ladas, 2009; Alqudah & Razali, 2018). Scrumban duy trì cấu trúc lập kế hoạch (Product Backlog, Sprint/Cadence, Review, Retrospective) của Scrum, kết hợp với cơ chế trực quan hóa, giới hạn WIP Limit, cơ chế Kéo (Pull System) và đo lường Flow Metrics của Kanban.
+118 [Heading 3] b) Các chỉ số dòng công việc (Flow Metrics) trong Scrumban
+119 [Normal] Scrumban tập trung theo dõi 4 chỉ số dòng công việc chính:
+120 [Normal] WIP (Work in Progress): Số lượng công việc đã bắt đầu nhưng chưa hoàn thành tại một thời điểm.
+121 [Normal] Throughput: Số lượng công việc hoàn thành trong một đơn vị thời gian (ví dụ: số Task/tuần).
+122 [Normal] Work Item Age: Thời gian một công việc đã tồn tại kể từ khi bắt đầu xử lý đến thời điểm hiện tại.
+123 [Normal] Cycle Time: Tổng thời gian thực tế để công việc đi từ khi bắt đầu (In Progress) đến khi hoàn thành (Done).
+124 [Heading 3] c) Quy trình Scrumban đề xuất cho hệ thống
+125 [Heading 2] 1.1.5. Phân tích lựa chọn Ngôn ngữ và Công nghệ sử dụng
+126 [Normal] 
+127 [Heading 1] 1.2. YÊU CẦU SỬ DỤNG VÀ THIẾT KẾ ỨNG DỤNG
+128 [Heading 2] 1.2.1. Yêu cầu chức năng
+129 [Normal] Hệ thống được thiết kế hướng tới việc quản lý toàn diện dự án phát triển phần mềm theo mô hình Scrumban thông qua các nhóm em chức năng nghiệp vụ cốt lõi:
+130 [Normal] Quản lý tài khoản và phân quyền: Hệ thống cung cấp các tính năng đăng nhập, đăng xuất, xem và cập nhật thông tin cá nhân, thay đổi mật khẩu. Quyền hạn của người dùng được kiểm soát chặt chẽ dựa trên 5 vai trò chính bao gồm Quản trị viên (Admin), Quản lý dự án/Chủ sản phẩm (PM/PO), Scrum Master, Lập trình viên (Developer) và Kiểm thử viên (Tester).
+131 [Normal] Quản lý dự án và thành viên: Cho phép khởi tạo, cập nhật thông tin, theo dõi trạng thái và đóng/xóa dự án. Người quản lý có thể dễ dàng thêm thành viên, loại bỏ thành viên và gán vai trò tương ứng trong từng dự án.
+132 [Normal] Quản lý Product Backlog và Epic: Hỗ trợ thu thập, mô tả, cập nhật và sắp xếp thứ tự ưu tiên các hạng mục yêu cầu (Product Backlog Items). Cho phép tạo các Epic để nhóm em các công việc lớn thuộc cùng một phạm vi tính năng và theo dõi tiến độ hoàn thành.
+133 [Normal] Quản lý Sprint và Task: Hỗ trợ thiết lập chu kỳ làm việc, thời gian bắt đầu và kết thúc Sprint. Cho phép phân rã và tạo các đơn vị công việc chi tiết (Task), phân công người thực hiện, đặt hạn chót (Deadline), mức độ ưu tiên và liên kết Task với các Epic hay Sprint tương ứng.
+134 [Normal] Scrumban Board và kiểm soát WIP Limit: Cung cấp bảng làm việc trực quan giúp theo dõi sự di chuyển của các công việc qua từng trạng thái quy trình thông qua thao tác kéo - thả. Hệ thống cho phép thiết lập trần giới hạn công việc đang xử lý (WIP Limit) cho từng cột, tự động phát tín hiệu cảnh báo khi xảy ra hiện tượng quá tải và kiểm soát việc kéo thêm công việc mới.
+135 [Normal] Theo dõi dòng công việc (Flow Metrics): Tự động thu thập và đo lường các chỉ số sức khỏe quy trình bao gồm lượng công việc đang làm (WIP), năng suất bàn giao (Throughput), thời gian ngâm công việc (Work Item Age) và thời gian thực hiện (Cycle Time) nhằm hỗ trợ đánh giá và cải tiến năng suất nhóm em.
+136 [Normal] Quản lý Issue/Bug và chức năng cộng tác: Cho phép ghi nhận, phân công và theo dõi tiến trình xử lý các sự cố, lỗi phát sinh trong quá trình phát triển. Hệ thống tích hợp không gian cộng tác thời gian thực cho phép thành viên trao đổi qua bình luận, chia sẻ tệp đính kèm, nhận thông báo tức thì và tra cứu lịch sử hoạt động của dự án.
+137 [Heading 2] 1.2.2. Yêu cầu phi chức năng
+138 [Normal] Để đảm bảo ứng dụng vận hành ổn định, an toàn và mang lại trải nghiệm mượt mà cho người dùng, hệ thống đặt ra các tiêu chuẩn chất lượng kỹ thuật sau:
+139 [Normal] Hiệu năng và độ tương thích: Hệ thống đảm bảo thời gian phản hồi nhanh chóng cho các thao tác tra cứu, xem và cập nhật dữ liệu. Đặc biệt, các thao tác kéo thả trên Scrumban Board phải được cập nhật tức thì trên giao diện. Hệ thống có khả năng phục vụ đồng thời nhiều người dùng, đáp ứng tốt dung lượng dữ liệu dự án và hiển thị Responsive tương thích tốt trên các trình duyệt phổ biến cũng như đa dạng kích thước màn hình từ di động đến máy tính bảng và máy tính để bàn.
+140 [Normal] Bảo mật và độ tin cậy: Bắt buộc người dùng phải xác thực trước khi truy cập các tính năng bên trong. Mật khẩu được mã hóa an toàn và 100% các yêu cầu truy cập được kiểm tra phân quyền chặt chẽ. Dữ liệu được đảm bảo tính toàn vẹn, hoán tác giao dịch khi gặp sự cố, đảm bảo tính nhất quán tuyệt đối giữa dữ liệu hiển thị trên bảng điều khiển và cơ sở dữ liệu hệ thống.
+141 [Normal] Khả năng sử dụng, bảo trì và mở rộng: Giao diện được thiết kế trực quan, thân thiện, nhất quán giúp người dùng mới dễ dàng làm quen trong thời gian ngắn. Mã nguồn backend và frontend được tổ chức phân chia theo module rõ ràng, quản lý phiên bản mã nguồn chặt chẽ, tạo điều kiện thuận lợi cho việc bảo trì, mở rộng quy mô dự án hoặc tích hợp thêm tính năng mới trong tương lai mà không ảnh hưởng đến kiến trúc hiện tại.
+142 [Normal] Khả năng cộng tác thời gian thực: Hệ thống đảm bảo tính đồng bộ dữ liệu thời gian thực khi nhiều thành viên cùng tương tác trên một dự án, giúp thông tin thay đổi được phát sóng và cập nhật tới tất cả người dùng liên quan ngay lập tức mà không làm xung đột hoặc ghi đè sai dữ liệu.
+143 [Heading 2] 1.2.3. Mục tiêu cần đạt được của hệ thống
+144 [Normal] Quản lý dự án và thành viên: Xây dựng chức năng quản lý tập trung dự án, danh sách thành viên và phân quyền dựa trên 5 vai trò (Admin, PM/PO, Scrum Master, Developer, Tester).
+145 [Normal] Quản lý công việc theo Scrumban: Tích hợp quản lý Product Backlog, Epic, Sprint, Task, Issue/Bug; xây dựng Scrumban Board trực quan hóa Workflow; kiểm soát WIP Limit và đo lường các chỉ số Flow Metrics (WIP, Throughput, Work Item Age, Cycle Time).
+146 [Normal] Hỗ trợ cộng tác: Cung cấp kênh trao đổi trực tiếp trên công việc qua bình luận, đính kèm tệp, thông báo thời gian thực và ghi nhận lịch sử hoạt động.
+147 [Normal] Đảm bảo chất lượng hệ thống: Đáp ứng đầy đủ các tiêu chuẩn về hiệu năng, bảo mật, tính dễ sử dụng, tương thích giao diện và kiểm thử đạt kết quả tối ưu.
+148 [Normal] Hoàn thiện sản phẩm: Xây dựng phần mềm Web hoàn chỉnh với giao diện Responsive hiện đại, thân thiện người dùng và kiến trúc hệ thống chuẩn mực đảm bảo tính bảo trì, mở rộng lâu dài.
+149 [Heading] CHƯƠNG 2: PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+150 [Normal] Chương này trình bày kết quả khảo sát, phân tích yêu cầu, phân tích chức năng, các biểu đồ UML (Use Case, trình tự, hoạt động, lớp), thiết kế cơ sở dữ liệu (ERD), thiết kế RESTful API và kế hoạch triển khai cho hệ thống hỗ trợ quản lý và cộng tác trong dự án phần mềm theo mô hình Scrumban. Hệ thống gồm 13 nhóm chức năng, 35 Epic và 126 Use Case, được ánh xạ từ 126 User Story của tài liệu UC_FINAL. Mỗi nhóm chức năng được đặc tả chi tiết qua một Use Case tiêu biểu cùng các biểu đồ tương ứng.
+151 [Heading 21] 2.1. Các chức năng chính của phần mềm
+152 [Heading 31] 2.1.1. Khảo sát hệ thống
+153 [Normal] Mục tiêu khảo sát là xác định nhu cầu của các nhóm phát triển phần mềm nhỏ khi vận hành theo Scrumban, qua đó xác định phạm vi chức năng, người dùng và các ràng buộc của hệ thống. Nhóm tiến hành khảo sát thông qua tài liệu về Scrum, Kanban, Scrumban (trình bày ở Chương 1) và phân tích một số công cụ quản lý dự án phổ biến hiện nay.
+154 [Normal] a) Đối tượng sử dụng
+155 [Normal] Hệ thống phân biệt hai cấp vai trò: vai trò cấp hệ thống (Admin, User) và vai trò cấp dự án (Manager, Member). Bốn tác nhân có trách nhiệm khác nhau như sau:
+156 [Normal] Vai trò cấp hệ thống gồm Admin và User: tài khoản thông thường có vai trò User, còn Admin thực hiện chức năng quản trị hệ thống. Vai trò cấp dự án chỉ có hiệu lực trong từng dự án và không thay đổi vai trò cấp hệ thống: người tạo dự án được gán vai trò Manager mặc định; User được Manager thêm vào dự án có vai trò Member mặc định; Manager hiện tại có thể nâng Member lên Manager. Vì vậy, một User có thể là Manager ở dự án này và Member ở dự án khác. Hồ sơ cá nhân thuộc cấp hệ thống và không phụ thuộc vai trò trong dự án: sau khi đăng nhập, mọi tài khoản (Admin hoặc User, dù là Manager hay Member ở dự án nào) đều xem được hồ sơ của chính mình và lọc được danh sách các dự án mình tham gia kèm vai trò ở từng dự án. Tài khoản mới tạo luôn có vai trò hệ thống User; vai trò Manager hoặc Member chỉ phát sinh khi tạo dự án hoặc được thêm vào dự án. Hệ thống chỉ có một tài khoản Admin.
+157 [Normal] Manager có toàn bộ quyền chức năng thông thường của Member trong cùng dự án, đồng thời có thêm quyền quản lý dự án. Manager và Member là hai vai trò dự án riêng biệt; tại một thời điểm, một thành viên chỉ được gán một trong hai vai trò cho một dự án, và Manager không cần được gán thêm vai trò Member. Do đó, User Story ghi Member chỉ mô tả vai trò điển hình cho nhu cầu đó, không có nghĩa Manager bị cấm sử dụng chức năng tương ứng. Ngoài ra, mỗi thành viên có thể được gán vị trí chuyên môn trong dự án (FE, BE, Tester, ...). Vị trí chỉ mô tả chuyên môn, khác với vai trò Manager/Member và không làm thay đổi quyền chức năng.
+158 [Normal] 
+159 [Normal] b) Khảo sát các công cụ quản lý dự án hiện có
+160 [Normal] Nhóm khảo sát đặc điểm chung của một số công cụ thường được các nhóm phát triển phần mềm sử dụng để rút ra yêu cầu cho hệ thống:
+161 [Normal] Bảng 2.1. So sánh một số công cụ quản lý dự án với hệ thống đề xuất
+162 [Normal] 
+163 [Normal] c) Kết quả khảo sát
+164 [Normal] Từ kết quả khảo sát, hệ thống cần đáp ứng các nhu cầu chính: quản lý tập trung dự án, thành viên và quyền theo vai trò; quản lý Product Backlog, Epic, Sprint, Task và Bug; trực quan hóa luồng công việc bằng Scrumban Board có kiểm soát WIP Limit; đo lường Flow Metrics để cải tiến quy trình; hỗ trợ cộng tác bằng bình luận, tệp đính kèm, thông báo và chat. Các nhu cầu này được cụ thể hóa thành 13 nhóm chức năng ở bảng dưới đây.
+165 [Normal] Bảng 2.2. Các nhóm chức năng của hệ thống
+166 [Normal] 
+167 [Heading 31] 2.1.2. Phân tích yêu cầu
+168 [Heading 41] 2.1.2.1. Yêu cầu chức năng
+169 [Normal] Các yêu cầu chức năng được thu thập dưới dạng User Story, nhóm theo Theme và Epic (13 Theme, 35 Epic, 126 User Story) trong tài liệu UC_FINAL. Mỗi User Story (US) được ánh xạ sang một Use Case (UC) có cùng mã số (ví dụ US4.1 → UC4.1). Số lượng Epic và Use Case của từng nhóm chức năng được tổng hợp ở Bảng 2.2.
+170 [Heading 41] 2.1.2.2. Yêu cầu phi chức năng
+171 [Normal] Bảng 2.3. Yêu cầu phi chức năng của hệ thống
+172 [Normal] 
+173 [Heading 41] 2.1.2.3. Quy ước phân tích và trình bày
+174 [Normal] Các Use Case được đánh mã UCx.y tương ứng USx.y và trình bày theo thứ tự Epic 01 → Epic 35; biểu đồ Use Case theo ký hiệu UML (tác nhân hình người que, Use Case hình elip, tên ghi dưới elip); biểu đồ trình tự gồm Actor, lớp biên, lớp điều khiển và lớp thực thể; biểu đồ hoạt động dạng làn bơi; biểu đồ lớp ba ngăn (tên – thuộc tính – thao tác); tên bảng và cột theo từ điển dữ liệu thống nhất.
+175 [Heading 31] 2.1.3. Phân tích chức năng
+176 [Normal] Mỗi nhóm chức năng dưới đây được mô tả mục tiêu, phạm vi Epic và đặc tả chi tiết một Use Case tiêu biểu. Danh sách đầy đủ 126 Use Case theo từng nhóm chức năng được tổng hợp ở Bảng 2.4.
+177 [Normal] Bảng 2.4 tổng hợp toàn bộ 126 Use Case theo thứ tự mã UC; mỗi Use Case được ánh xạ từ User Story có cùng mã số trong tài liệu UC_FINAL. Bảng chỉ trình bày mã và tên Use Case của từng nhóm chức năng.
+178 [Normal] Bảng 2.4. Danh sách Use Case theo nhóm chức năng
+179 [Normal] 
+180 [Heading 41] 2.1.3.1. Quản lý tài khoản
+181 [Normal] Phạm vi: Epic 01 – Đăng nhập và xác thực (US1.1–US1.4), Epic 02 – Quản lý hồ sơ cá nhân (US2.1–US2.4), Epic 03 – Quản lý trạng thái tài khoản (US3.1–US3.2).
+182 [Normal] Use Case UC1.1: Đăng nhập hệ thống
+183 [Normal] Use Case UC2.1: Xem hồ sơ cá nhân
+184 [Normal] 
+185 [Normal] 
+186 [Heading 41] 2.1.3.2. Quản lý dự án và thành viên
+187 [Normal] Phạm vi: Epic 04 – Quản lý dự án (US4.1–US4.5), Epic 05 – Quản lý thành viên (US5.1–US5.5), Epic 06 – Quản lý phòng ban trong dự án (US6.1–US6.4).
+188 [Normal] Use Case UC4.1: Tạo dự án mới
+189 [Normal] Use Case UC5.5: Nâng vai trò Member lên Manager trong dự án
+190 [Normal] 
+191 [Heading 41] 2.1.3.3. Quản lý Product Backlog
+192 [Normal] Phạm vi: Epic 07 – Quản lý Product Backlog Item (US7.1–US7.4), Epic 08 – Ưu tiên Product Backlog (US8.1–US8.4).
+193 [Normal] Use Case UC7.1: Tạo Product Backlog Item
+194 [Normal] 
+195 [Heading 41] 2.1.3.4. Quản lý Epic
+196 [Normal] Phạm vi: Epic 09 – Quản lý Epic (US9.1–US9.4), Epic 10 – Liên kết Epic (US10.1–US10.3).
+197 [Normal] Use Case UC9.1: Tạo Epic
+198 [Normal] 
+199 [Heading 41] 2.1.3.5. Quản lý Sprint
+200 [Normal] Phạm vi: Epic 11 – Lập kế hoạch Sprint (US11.1–US11.4), Epic 12 – Theo dõi Sprint (US12.1–US12.4).
+201 [Normal] Use Case UC11.1: Tạo Sprint mới
+202 [Normal] 
+203 [Heading 41] 2.1.3.6. Quản lý Task
+204 [Normal] Phạm vi: Epic 13 – Quản lý Task (US13.1–US13.4), Epic 14 – Phân công công việc (US14.1–US14.4), Epic 15 – Deadline và Priority (US15.1–US15.4).
+205 [Normal] Use Case UC13.1: Tạo Task mới
+206 [Normal] 
+207 [Heading 41] 2.1.3.7. Scrumban Board
+208 [Normal] Phạm vi: Epic 16 – Hiển thị Board (US16.1–US16.3), Epic 17 – Điều phối luồng công việc (US17.1–US17.4).
+209 [Normal] Use Case UC16.1: Xem bảng Scrumban
+210 [Normal] 
+211 [Heading 41] 2.1.3.8. Quản lý WIP Limit
+212 [Normal] Phạm vi: Epic 18 – Thiết lập WIP (US18.1–US18.3), Epic 19 – Kiểm soát quá tải (US19.1–US19.4).
+213 [Normal] Use Case UC18.1: Thiết lập WIP Limit cho cột
+214 [Normal] 
+215 [Heading 41] 2.1.3.9. Flow Metrics
+216 [Normal] Phạm vi: Epic 20 – WIP Metrics (US20.1–US20.2), Epic 21 – Throughput (US21.1–US21.2), Epic 22 – Cycle Time (US22.1–US22.2), Epic 23 – Work Item Age (US23.1–US23.2).
+217 [Normal] Use Case UC20.1: Theo dõi tổng WIP
+218 [Normal] 
+219 [Heading 41] 2.1.3.10. Quản lý Issue / Bug
+220 [Normal] Phạm vi: Epic 24 – Quản lý Bug (US24.1–US24.4), Epic 25 – Xử lý Bug (US25.1–US25.4).
+221 [Normal] Use Case UC24.1: Tạo Bug
+222 [Normal] 
+223 [Heading 41] 2.1.3.11. Cộng tác (bình luận, tệp đính kèm, thông báo)
+224 [Normal] Phạm vi: Epic 26 – Bình luận (US26.1–US26.4), Epic 27 – Tệp đính kèm (US27.1–US27.3), Epic 28 – Thông báo (US28.1–US28.3).
+225 [Normal] Use Case UC26.1: Bình luận trên Task
+226 [Normal] 
+227 [Heading 41] 2.1.3.12. Nhắn tin và trao đổi trực tiếp
+228 [Normal] Phạm vi: Epic 29 – Chat cá nhân (US29.1–US29.4), Epic 30 – Chat nhóm (US30.1–US30.4), Epic 31 – Chia sẻ tệp qua chat (US31.1–US31.3), Epic 32 – Thông báo chat (US32.1–US32.3).
+229 [Normal] Use Case UC29.1: Gửi tin nhắn cá nhân
+230 [Normal] 
+231 [Heading 41] 2.1.3.13. Phân quyền chức năng theo vai trò
+232 [Normal] Phạm vi: Epic 33 – Quản trị hệ thống (US33.1–US33.3), Epic 34 – Quyền Manager trong dự án (US34.1–US34.6), Epic 35 – Quyền Member trong dự án (US35.1–US35.4).
+233 [Normal] Use Case UC33.1: Quản lý người dùng
+234 [Normal] Để làm rõ cách phân chia hai vai trò trong dự án, Bảng 2.5 tổng hợp quyền chức năng của Admin, Manager và Member theo từng nhóm chức năng, căn cứ vào các User Story của UC_FINAL. Hai cột Manager và Member là hai vai trò cấp dự án; tài khoản thông thường (User) nào cũng có thể là Manager ở dự án này và Member ở dự án khác.
+235 [Normal] Bảng 2.5. Phân quyền chức năng theo vai trò hệ thống và vai trò trong dự án
+236 [Normal] Các chức năng đánh dấu ✓ ở cả hai cột Manager và Member là chức năng của Member mà Manager kế thừa; các chức năng chỉ đánh dấu ở cột Manager là quyền quản lý dự án và không dành cho Member. Admin chỉ thực hiện quản trị cấp hệ thống, không tham gia nghiệp vụ trong dự án. Trong một dự án luôn có ít nhất một Manager (người tạo dự án).
+237 [Normal] 
+238 [Heading 31] 2.1.4. Biểu đồ Use Case
+239 [Normal] Trước các biểu đồ chi tiết của từng nhóm chức năng, Hình 2.1 trình bày biểu đồ Use Case tổng quát của hệ thống: chỉ vẽ các Use Case chính, mỗi Use Case đại diện cho một nhóm chức năng hoặc một chức năng quản lý lớn. Biểu đồ thể hiện quan hệ kế thừa giữa các tác nhân: Manager kế thừa Member (Manager thực hiện được toàn bộ Use Case của Member), và Member kế thừa User (thành viên dự án trước hết là một User đã đăng nhập). Do đó các Use Case của Member không cần vẽ lại cho Manager. Admin là tác nhân cấp hệ thống độc lập, chỉ có một tài khoản và không nằm trong chuỗi kế thừa này.
+240 [Normal] 
+241 [Normal] Hình 2.1. Biểu đồ Use Case tổng quát của hệ thống
+242 [Normal] Biểu đồ Use Case của từng nhóm chức năng thể hiện các tác nhân (bên trái) và các Use Case (bên phải). Mũi tên đi từ tác nhân đến Use Case mà tác nhân đó thực hiện; mọi liên kết đều là đường nối thẳng từ tác nhân tới Use Case. Biểu đồ phân biệt tác nhân cấp hệ thống (Admin, User) và tác nhân cấp dự án (Manager, Member). Với Use Case mà cả Manager và Member được thực hiện, cả hai tác nhân cùng liên kết tới Use Case đó, thể hiện nguyên tắc Manager kế thừa quyền thông thường của Member trong dự án. User Story hiện hành không quy định quan hệ include/extend nên biểu đồ chỉ thể hiện quan hệ giữa tác nhân và Use Case.
+243 [Normal] 
+244 [Normal] Hình 2.2. Biểu đồ Use Case – Quản lý tài khoản
+245 [Normal] 
+246 [Normal] Hình 2.3. Biểu đồ Use Case – Quản lý dự án và thành viên
+247 [Normal] 
+248 [Normal] Hình 2.4. Biểu đồ Use Case – Quản lý Product Backlog
+249 [Normal] 
+250 [Normal] Hình 2.5. Biểu đồ Use Case – Quản lý Epic
+251 [Normal] 
+252 [Normal] Hình 2.6. Biểu đồ Use Case – Quản lý Sprint
+253 [Normal] 
+254 [Normal] Hình 2.7. Biểu đồ Use Case – Quản lý Task
+255 [Normal] 
+256 [Normal] Hình 2.8. Biểu đồ Use Case – Scrumban Board
+257 [Normal] 
+258 [Normal] Hình 2.9. Biểu đồ Use Case – Quản lý WIP Limit
+259 [Normal] 
+260 [Normal] Hình 2.10. Biểu đồ Use Case – Flow Metrics
+261 [Normal] 
+262 [Normal] Hình 2.11. Biểu đồ Use Case – Quản lý Issue / Bug
+263 [Normal] 
+264 [Normal] Hình 2.12. Biểu đồ Use Case – Cộng tác (bình luận, tệp đính kèm, thông báo)
+265 [Normal] 
+266 [Normal] Hình 2.13. Biểu đồ Use Case – Nhắn tin và trao đổi trực tiếp
+267 [Normal] 
+268 [Normal] Hình 2.14. Biểu đồ Use Case – Phân quyền chức năng theo vai trò
+269 [Heading 31] 2.1.5. Biểu đồ trình tự
+270 [Normal] Biểu đồ trình tự mô tả luồng cơ bản (Basic Flow) của một Use Case tiêu biểu trong mỗi nhóm chức năng, xây dựng từ các lớp phân tích Boundary – Control – Entity. Biểu đồ chỉ gồm tác nhân, lớp biên, lớp điều khiển và các lớp thực thể tham gia Use Case.
+271 [Normal] 
+272 [Normal] Hình 2.15. Biểu đồ trình tự UC1.1 – Đăng nhập hệ thống
+273 [Normal] 
+274 [Normal] Hình 2.16. Biểu đồ trình tự UC4.1 – Tạo dự án mới
+275 [Normal] 
+276 [Normal] Hình 2.17. Biểu đồ trình tự UC7.1 – Tạo Product Backlog Item
+277 [Normal] 
+278 [Normal] Hình 2.18. Biểu đồ trình tự UC9.1 – Tạo Epic
+279 [Normal] 
+280 [Normal] Hình 2.19. Biểu đồ trình tự UC11.1 – Tạo Sprint mới
+281 [Normal] 
+282 [Normal] Hình 2.20. Biểu đồ trình tự UC13.1 – Tạo Task mới
+283 [Normal] 
+284 [Normal] Hình 2.21. Biểu đồ trình tự UC16.1 – Xem bảng Scrumban
+285 [Normal] 
+286 [Normal] Hình 2.22. Biểu đồ trình tự UC18.1 – Thiết lập WIP Limit cho cột
+287 [Normal] 
+288 [Normal] Hình 2.23. Biểu đồ trình tự UC20.1 – Theo dõi tổng WIP
+289 [Normal] 
+290 [Normal] Hình 2.24. Biểu đồ trình tự UC24.1 – Tạo Bug
+291 [Normal] 
+292 [Normal] Hình 2.25. Biểu đồ trình tự UC26.1 – Bình luận trên Task
+293 [Normal] 
+294 [Normal] Hình 2.26. Biểu đồ trình tự UC29.1 – Gửi tin nhắn cá nhân
+295 [Normal] 
+296 [Normal] Hình 2.27. Biểu đồ trình tự UC33.1 – Quản lý người dùng
+297 [Heading 31] 2.1.6. Biểu đồ hoạt động
+298 [Normal] Biểu đồ hoạt động dạng làn bơi (swimlane) mô tả luồng xử lý giữa người dùng, giao diện và máy chủ cho từng nhóm chức năng. Mỗi biểu đồ mô tả luồng chính và các luồng rẽ nhánh của Use Case tiêu biểu trong nhóm chức năng.
+299 [Normal] 
+300 [Normal] Hình 2.28. Biểu đồ hoạt động – Quản lý tài khoản
+301 [Normal] 
+302 [Normal] Hình 2.29. Biểu đồ hoạt động – Quản lý dự án và thành viên
+303 [Normal] 
+304 [Normal] Hình 2.30. Biểu đồ hoạt động – Quản lý Product Backlog
+305 [Normal] 
+306 [Normal] Hình 2.31. Biểu đồ hoạt động – Quản lý Epic
+307 [Normal] 
+308 [Normal] Hình 2.32. Biểu đồ hoạt động – Quản lý Sprint
+309 [Normal] 
+310 [Normal] Hình 2.33. Biểu đồ hoạt động – Quản lý Task
+311 [Normal] 
+312 [Normal] Hình 2.34. Biểu đồ hoạt động – Scrumban Board
+313 [Normal] 
+314 [Normal] Hình 2.35. Biểu đồ hoạt động – Quản lý WIP Limit
+315 [Normal] 
+316 [Normal] Hình 2.36. Biểu đồ hoạt động – Flow Metrics
+317 [Normal] 
+318 [Normal] Hình 2.37. Biểu đồ hoạt động – Quản lý Issue / Bug
+319 [Normal] 
+320 [Normal] Hình 2.38. Biểu đồ hoạt động – Cộng tác (bình luận, tệp đính kèm, thông báo)
+321 [Normal] 
+322 [Normal] Hình 2.39. Biểu đồ hoạt động – Nhắn tin và trao đổi trực tiếp
+323 [Normal] 
+324 [Normal] Hình 2.40. Biểu đồ hoạt động – Phân quyền chức năng theo vai trò
+325 [Heading 31] 2.1.7. Biểu đồ lớp
+326 [Normal] Biểu đồ lớp phân tích (VOPC) gồm các lớp biên, lớp điều khiển và lớp thực thể tham gia Use Case tiêu biểu của từng nhóm chức năng. Thuộc tính của lớp thực thể tương ứng với cột của bảng dữ liệu. Các thao tác của lớp lấy từ thông điệp trong biểu đồ trình tự tương ứng; thuộc tính đánh dấu * là cột đề xuất bổ sung (mục 2.1.9).
+327 [Normal] 
+328 [Normal] Hình 2.41. Biểu đồ lớp phân tích – Quản lý tài khoản
+329 [Normal] 
+330 [Normal] Hình 2.42. Biểu đồ lớp phân tích – Quản lý dự án và thành viên
+331 [Normal] 
+332 [Normal] Hình 2.43. Biểu đồ lớp phân tích – Quản lý Product Backlog
+333 [Normal] 
+334 [Normal] Hình 2.44. Biểu đồ lớp phân tích – Quản lý Epic
+335 [Normal] 
+336 [Normal] Hình 2.45. Biểu đồ lớp phân tích – Quản lý Sprint
+337 [Normal] 
+338 [Normal] Hình 2.46. Biểu đồ lớp phân tích – Quản lý Task
+339 [Normal] 
+340 [Normal] Hình 2.47. Biểu đồ lớp phân tích – Scrumban Board
+341 [Normal] 
+342 [Normal] Hình 2.48. Biểu đồ lớp phân tích – Quản lý WIP Limit
+343 [Normal] 
+344 [Normal] Hình 2.49. Biểu đồ lớp phân tích – Flow Metrics
+345 [Normal] 
+346 [Normal] Hình 2.50. Biểu đồ lớp phân tích – Quản lý Issue / Bug
+347 [Normal] 
+348 [Normal] Hình 2.51. Biểu đồ lớp phân tích – Cộng tác (bình luận, tệp đính kèm, thông báo)
+349 [Normal] 
+350 [Normal] Hình 2.52. Biểu đồ lớp phân tích – Nhắn tin và trao đổi trực tiếp
+351 [Normal] 
+352 [Normal] Hình 2.53. Biểu đồ lớp phân tích – Phân quyền chức năng theo vai trò
+353 [Heading 31] 2.1.8. Sơ đồ ERD / Database Schema
+354 [Normal] Cơ sở dữ liệu của hệ thống gồm 28 bảng. Để dễ đọc, sơ đồ ERD được chia thành sáu phần theo nhóm nghiệp vụ; ký hiệu PK là khóa chính, FK là khóa ngoại, đường nối có chân chim ở phía bảng con (quan hệ 1–N). Các hình chỉ thể hiện khóa chính, khóa ngoại và các cột có căn cứ trong đặc tả Use Case hoặc cấu trúc bảng ở mục 2.1.9; ký hiệu * đánh dấu bảng hoặc cột đề xuất bổ sung. Bảng chỉ hiện khóa chính là bảng tham chiếu từ phần khác của sơ đồ.
+355 [Normal] 
+356 [Normal] Hình 2.54. ERD 1 – Người dùng, vai trò, dự án và Scrumban Board
+357 [Normal] 
+358 [Normal] Hình 2.55. ERD 2 – Epic, Product Backlog, Sprint, Task và Flow Metrics
+359 [Normal] 
+360 [Normal] Hình 2.56. ERD 3 – Bug, bình luận và tệp đính kèm
+361 [Normal] 
+362 [Normal] Hình 2.57. ERD 4 – Thông báo và nhật ký hoạt động
+363 [Normal] 
+364 [Normal] Hình 2.58. ERD 5 – Nhắn tin và trao đổi trực tiếp
+365 [Normal] 
+366 [Normal] Hình 2.59. ERD 6 – Xác thực và phân quyền
+367 [Heading 31] 2.1.9. Thiết kế cơ sở dữ liệu
+368 [Normal] Cơ sở dữ liệu được thiết kế trên SQL Server. Tên bảng và cột lấy theo từ điển dữ liệu thống nhất của nhóm; kiểu dữ liệu trong bảng dưới đây được viết ở dạng chung và ánh xạ sang SQL Server như sau: TEXT → NVARCHAR(MAX), BOOLEAN → BIT, AUTO_INCREMENT → IDENTITY(1,1), CURRENT_TIMESTAMP → GETDATE(). Bảng 2.6 liệt kê 28 bảng theo nhóm chức năng; Bảng 2.7 và Bảng 2.8 trình bày cấu trúc chi tiết của hai bảng chính. Bảng Department và cột DepartmentId của ProjectMember là đề xuất bổ sung để đáp ứng các User Story của Epic 06 (quản lý phòng ban trong dự án). Để tách vai trò cấp hệ thống khỏi vai trò trong dự án, nhóm đề xuất bổ sung cột Role.Scope (SYSTEM hoặc PROJECT) và cột ProjectMember.RoleId: bảng Role gồm bốn bản ghi ADMIN, USER (Scope = SYSTEM) và MANAGER, MEMBER (Scope = PROJECT). Bảng UserRole chỉ gán vai trò có Scope = SYSTEM; ProjectMember.RoleId chỉ trỏ tới vai trò có Scope = PROJECT và khóa chính (ProjectId, UserId) bảo đảm mỗi thành viên chỉ có một vai trò trong một dự án. Nhờ đó một User có thể là Manager ở dự án A và Member ở dự án B, còn việc nâng Member lên Manager chỉ cập nhật ProjectMember.RoleId của dự án tương ứng, không thay đổi UserRole. Ngoài vai trò, mỗi thành viên còn có vị trí chuyên môn trong dự án (ví dụ FE, BE, Tester, BA). Vị trí khác với vai trò: vai trò (Manager, Member) quyết định quyền chức năng của thành viên trong dự án, còn vị trí chỉ mô tả chuyên môn đảm nhiệm và không ảnh hưởng đến quyền. Vì vậy nhóm bổ sung hai bảng: Position định nghĩa các vị trí của từng dự án, và ProjectMemberPosition là bảng trung gian gắn thành viên (ProjectMember) vào vị trí; một thành viên có thể giữ nhiều vị trí và một vị trí có nhiều thành viên. Cấu trúc hai bảng này trình bày ở Bảng 2.9 và Bảng 2.10. Các thay đổi này là đề xuất thiết kế.
+369 [Normal] Bảng 2.6. Tổng hợp các bảng dữ liệu của hệ thống
+370 [Normal] 
+371 [Normal] Cấu trúc chi tiết của một số bảng dữ liệu chính (người dùng và công việc) được trình bày dưới đây; các bảng còn lại thiết kế tương tự.
+372 [Normal] Bảng 2.7. Cấu trúc bảng User
+373 [Normal] 
+374 [Normal] Bảng 2.8. Cấu trúc bảng Task
+375 [Normal] Bảng 2.9. Cấu trúc bảng Position
+376 [Normal] Bảng 2.10. Cấu trúc bảng ProjectMemberPosition
+377 [Normal] 
+378 [Heading 31] 2.1.10. Thiết kế giao diện
+379 [Heading 21] 2.2. Kế hoạch triển khai thực hiện
+380 [Heading 31] 2.2.1. Các bước thực hiện
+381 [Normal] Hệ thống được thực hiện theo quy trình Scrumban đã trình bày ở Chương 1, chia thành các bước sau:
+382 [Normal] Bảng 2.11. Các bước thực hiện đề tài
+383 [Normal] 
+384 [Heading 31] 2.2.2. Kế hoạch phân công và triển khai
+385 [Normal] Nhóm gồm 5 thành viên, trong đó nhóm trưởng là bạn Chử Thị Ngọc Diệp. Công việc được chia theo nhóm chức năng và triển khai qua các Sprint; mỗi thành viên phụ trách phân tích, thiết kế, lập trình và kiểm thử các chức năng được giao, đồng thời hỗ trợ tích hợp chung. Bảng sau là phân công dự kiến:
+386 [Normal] Bảng 2.12. Phân công dự kiến theo nhóm chức năng
+387 [Normal] 
+388 [Normal] Bảng 2.13. Kế hoạch triển khai theo Sprint
+389 [Normal] 
+390 [Heading 21] 2.3. Thiết kế và xây dựng phần mềm
+391 [Heading 31] 2.3.1. Thiết kế chức năng
+392 [Normal] Hệ thống được thiết kế theo kiến trúc ba tầng: giao diện ReactJS (lớp biên), ASP.NET Core Web API (lớp điều khiển và nghiệp vụ) và SQL Server (lớp thực thể, truy cập qua Entity Framework Core). Các chức năng được cung cấp qua RESTful API; chat và thông báo thời gian thực dùng SignalR.
+393 [Normal] Quy ước chung của RESTful API
+394 [Normal] -  Tiền tố và phiên bản: /api/v1.
+395 [Normal] -  Xác thực: JWT trong header Authorization: Bearer <token>.
+396 [Normal] -  Định dạng dữ liệu: JSON { success, message, data }; thời gian theo chuẩn ISO 8601 (UTC); danh sách có phân trang.
+397 [Normal] -  Phân quyền: kiểm tra vai trò cấp hệ thống (Admin, User) và vai trò trong dự án (Manager, Member) lấy từ ProjectMember ở từng endpoint; Manager được kế thừa quyền của Member trong cùng dự án.
+398 [Normal] Bảng 2.14. Mã trạng thái HTTP dùng chung
+399 [Normal] 
+400 [Normal] Các bảng dưới đây chỉ trình bày một số RESTful API tiêu biểu hoặc quan trọng đối với nghiệp vụ của từng nhóm chức năng, không liệt kê toàn bộ endpoint. Đây là thiết kế API, chưa phải mô tả hệ thống đã triển khai; các dòng ghi “đề xuất” là API bổ sung chưa có trong thiết kế trước đó.
+401 [Heading 41] 2.3.1.1. Quản lý tài khoản
+402 [Normal] Bảng 2.15. Một số RESTful API tiêu biểu – Quản lý tài khoản
+403 [Normal] 
+404 [Heading 41] 2.3.1.2. Quản lý dự án và thành viên
+405 [Normal] Bảng 2.16. Một số RESTful API tiêu biểu – Quản lý dự án và thành viên
+406 [Normal] 
+407 [Heading 41] 2.3.1.3. Quản lý Product Backlog
+408 [Normal] Bảng 2.17. Một số RESTful API tiêu biểu – Quản lý Product Backlog
+409 [Normal] 
+410 [Heading 41] 2.3.1.4. Quản lý Epic
+411 [Normal] Bảng 2.18. Một số RESTful API tiêu biểu – Quản lý Epic
+412 [Normal] 
+413 [Heading 41] 2.3.1.5. Quản lý Sprint
+414 [Normal] Bảng 2.19. Một số RESTful API tiêu biểu – Quản lý Sprint
+415 [Normal] 
+416 [Heading 41] 2.3.1.6. Quản lý Task
+417 [Normal] Bảng 2.20. Một số RESTful API tiêu biểu – Quản lý Task
+418 [Normal] 
+419 [Heading 41] 2.3.1.7. Scrumban Board
+420 [Normal] Bảng 2.21. Một số RESTful API tiêu biểu – Scrumban Board
+421 [Normal] 
+422 [Heading 41] 2.3.1.8. Quản lý WIP Limit
+423 [Normal] Bảng 2.22. Một số RESTful API tiêu biểu – Quản lý WIP Limit
+424 [Normal] 
+425 [Heading 41] 2.3.1.9. Flow Metrics
+426 [Normal] Bảng 2.23. Một số RESTful API tiêu biểu – Flow Metrics
+427 [Normal] 
+428 [Heading 41] 2.3.1.10. Quản lý Issue / Bug
+429 [Normal] Bảng 2.24. Một số RESTful API tiêu biểu – Quản lý Issue / Bug
+430 [Normal] 
+431 [Heading 41] 2.3.1.11. Cộng tác (bình luận, tệp đính kèm, thông báo)
+432 [Normal] Bảng 2.25. Một số RESTful API tiêu biểu – Cộng tác (bình luận, tệp đính kèm, thông báo)
+433 [Normal] 
+434 [Heading 41] 2.3.1.12. Nhắn tin và trao đổi trực tiếp
+435 [Normal] Bảng 2.26. Một số RESTful API tiêu biểu – Nhắn tin và trao đổi trực tiếp
+436 [Normal] 
+437 [Heading 41] 2.3.1.13. Phân quyền chức năng theo vai trò
+438 [Normal] Bảng 2.27. Một số RESTful API tiêu biểu – Phân quyền chức năng theo vai trò
+439 [Normal] 
+440 [Heading 31] 2.3.2. Xây dựng hệ thống
+441 [Normal] Hệ thống được xây dựng bằng các công nghệ đã lựa chọn ở mục 1.1.5. Các lớp phân tích trong biểu đồ VOPC được hiện thực hóa như sau:
+442 [Normal] Bảng 2.28. Ánh xạ lớp phân tích sang thành phần cài đặt
+443 [Normal] 
+444 [Normal] Cấu trúc mã nguồn dự kiến
+445 [Normal] -  Backend: Controllers, Services, Repositories, Entities, DTOs, Hubs, Middlewares, Migrations.
+446 [Normal] -  Frontend: pages (Dashboard, Project, Backlog, Sprint, Board, Bug, Chat, Admin), components dùng chung, services (gọi API), store (trạng thái người dùng và dự án), hooks.
+447 [Normal] -  Cơ sở dữ liệu: tạo bằng Entity Framework Core Migrations từ các Entity; dữ liệu khởi tạo gồm 4 vai trò (ADMIN, USER thuộc cấp hệ thống; MANAGER, MEMBER thuộc cấp dự án) và danh mục quyền.
+448 [Heading 31] 2.3.3. Tích hợp hệ thống
+449 [Normal] Các điểm tích hợp chính giữa các thành phần của hệ thống gồm:
+450 [Normal] Bảng 2.29. Các điểm tích hợp của hệ thống
+451 [Normal] 
+
+TABLE 0
+Thành phần / Thực hành | Nội dung | Ý nghĩa
+Trực quan hóa workflow | Biểu diễn công việc và trạng thái trên bảng | Nhìn thấy toàn bộ luồng và vị trí công việc.
+Work Item | Đơn vị công việc (Story, Task, Bug) | Đối tượng xử lý trong quy trình.
+WIP & WIP Limit | Số lượng việc đang làm & Giới hạn tối đa | Giảm quá tải, tránh nghẽn công việc.
+Pull system | Nhận việc mới khi có năng lực xử lý | Hạn chế đẩy quá nhiều việc vào hệ thống.
+Flow metrics | WIP, Throughput, Work Item Age, Cycle Time | Đo lường và đánh giá dòng công việc.
+
+TABLE 1
+Bước | Hoạt động | Mục đích
+1 | Product Backlog | Tập hợp, mô tả và sắp xếp thứ tự ưu tiên các yêu cầu.
+2 | Planning / Replenishment | Lựa chọn công việc dựa trên độ ưu tiên và năng lực.
+3 | Scrumban Board | Trực quan hóa công việc theo các trạng thái (Backlog, To Do, In Progress, Testing, Done).
+4 | WIP Control | Giới hạn công việc đang xử lý, áp dụng cơ chế Pull.
+5 | Review / Feedback | Kiểm tra kết quả, bàn giao sản phẩm tăng trưởng.
+6 | Retrospective / Improvement | Đánh giá chỉ số dòng công việc và thực hiện cải tiến quy trình.
+
+TABLE 2
+Thành phần | Công nghệ / Công cụ | Lý do lựa chọn & Phân tích so sánh
+Frontend | ReactJS | Kiến trúc Component và Virtual DOM tối ưu hóa hiệu năng render giao diện Kéo - Thả (Drag & Drop) mượt mà trên Scrumban Board hơn so với HTML/jQuery truyền thống.
+Giao diện | Tailwind CSS | Utility-first CSS framework giúp thiết kế giao diện Responsive nhanh chóng, nhất quán trên Desktop, Tablet và Mobile.
+Backend | C# / ASP.NET Core Web API | Mang lại hiệu năng cao, hỗ trợ xử lý đa luồng bất đồng bộ (async/await) tốt cho tác vụ tính toán Flow Metrics.
+Cơ sở dữ liệu | SQL Server | Hệ quản trị CSDL quan hệ đảm bảo tính toàn vẹn dữ liệu (ACID) cho luồng quan hệ chặt chẽ giữa Dự án, Sprint, Task và Member.
+ORM | Entity Framework Core | Thao tác CSDL qua đối tượng, tăng tốc độ phát triển và tự động ngăn chặn SQL Injection.
+Xác thực | ASP.NET Core Identity / JWT | Cơ chế xác thực Stateless an toàn, hỗ trợ mã hóa Token và phân quyền 5 vai trò người dùng chặt chẽ.
+Real-time | SignalR | Cung cấp kết nối hai chiều (Full-Duplex) giữa Client-Server, tự động quản lý kết nối hơn WebSocket thuần, giúp đồng bộ Board dưới 2 giây.
+IDE & Tool | Visual Studio, SSMS, Git, Postman, Figma, Draw.io | Các công cụ tiêu chuẩn hỗ trợ phát triển, quản lý mã nguồn, thiết kế UI/UX và kiểm thử API.
+
+TABLE 3
+STT | Tác nhân | Mô tả vai trò và trách nhiệm
+1 | Admin (cấp hệ thống) | Quản trị hệ thống: đăng nhập và quản lý hồ sơ cá nhân; khóa và mở khóa tài khoản người dùng; quản lý người dùng, vai trò hệ thống Admin/User và cấu hình hệ thống.
+2 | User (cấp hệ thống) | Tài khoản người dùng thông thường sau khi đăng nhập: đăng nhập, quản lý hồ sơ cá nhân; tạo dự án; xem danh sách dự án đã tạo hoặc tham gia. Trong từng dự án, User mang vai trò Manager hoặc Member.
+3 | Manager (cấp dự án) | Quản lý dự án và sản phẩm: người tạo dự án mặc định là Manager; quản lý dự án, thành viên (thêm, loại bỏ, nâng Member lên Manager) và phòng ban; Product Backlog, Epic, Sprint; phân công Task, thiết lập Deadline và Priority; thiết lập WIP Limit, theo dõi Flow Metrics; tạo và quản lý phòng chat của dự án. Manager có toàn bộ quyền chức năng thông thường của Member trong cùng dự án.
+4 | Member (cấp dự án) | Thực hiện công việc trong dự án (vai trò mặc định của User được thêm vào dự án): tạo và cập nhật Task, làm việc trên Scrumban Board, quản lý Bug, bình luận, tệp đính kèm, thông báo và nhắn tin trao đổi.
+
+TABLE 4
+Công cụ | Điểm mạnh | Hạn chế khi áp dụng cho nhóm nhỏ theo Scrumban | Định hướng của hệ thống đề xuất
+Jira | Hỗ trợ Scrum/Kanban, Backlog, Sprint, báo cáo phong phú, tùy biến cao. | Cấu hình phức tạp, nhiều tính năng vượt nhu cầu nhóm nhỏ; một số báo cáo luồng công việc cần cấu hình hoặc bổ sung. | Tập trung đúng quy trình Scrumban, giao diện gọn, có sẵn WIP Limit và Flow Metrics.
+Trello | Bảng Kanban trực quan, dễ dùng, kéo thả nhanh. | Không có sẵn Sprint, Burndown, Flow Metrics theo Sprint; phân quyền theo vai trò Scrum hạn chế. | Kết hợp Scrumban Board với Sprint, Backlog và đo lường luồng công việc.
+Azure DevOps / GitHub Projects | Tích hợp chặt với mã nguồn, CI/CD; có Board và Backlog. | Gắn với hệ sinh thái nền tảng, cần thiết lập và đào tạo; ít kênh trao đổi trực tiếp trong cùng hệ thống. | Tích hợp bình luận, thông báo và chat ngay trên công việc.
+
+TABLE 5
+STT | Nhóm chức năng | Epic | Số Use Case
+1 | Quản lý tài khoản | 01, 02, 03 | 10
+2 | Quản lý dự án và thành viên | 04, 05, 06 | 14
+3 | Quản lý Product Backlog | 07, 08 | 8
+4 | Quản lý Epic | 09, 10 | 7
+5 | Quản lý Sprint | 11, 12 | 8
+6 | Quản lý Task | 13, 14, 15 | 12
+7 | Scrumban Board | 16, 17 | 7
+8 | Quản lý WIP Limit | 18, 19 | 7
+9 | Flow Metrics | 20, 21, 22, 23 | 8
+10 | Quản lý Issue / Bug | 24, 25 | 8
+11 | Cộng tác (bình luận, tệp đính kèm, thông báo) | 26, 27, 28 | 10
+12 | Nhắn tin và trao đổi trực tiếp | 29, 30, 31, 32 | 14
+13 | Phân quyền chức năng theo vai trò | 33, 34, 35 | 13
+ | Tổng cộng | 35 Epic | 126
+
+TABLE 6
+Nhóm | Yêu cầu / ràng buộc
+Bảo mật | Xác thực bằng JWT (hạn 24 giờ); mật khẩu băm một chiều (Bcrypt); kiểm tra vai trò hệ thống (Admin, User) và vai trò trong dự án (Manager, Member) ở mọi API; mã đặt lại mật khẩu có hiệu lực 30 phút và chỉ dùng một lần.
+Hiệu năng | Truy vấn danh sách có phân trang; thao tác kéo thả trên Scrumban Board cập nhật tức thì trên giao diện; hệ thống phục vụ đồng thời nhiều người dùng.
+Thời gian thực | Thông báo, tin nhắn và thay đổi trên Board được đẩy tới người dùng liên quan qua SignalR.
+Toàn vẹn dữ liệu | Dùng ràng buộc khóa chính, khóa ngoại và giao dịch (ví dụ khi chọn PBI vào Sprint, sắp xếp lại thứ tự ưu tiên); mọi thay đổi quan trọng được ghi vào ActivityLog.
+Tệp đính kèm | Mỗi tệp tối đa 25MB, tối đa 10 tệp mỗi lần tải lên; kiểm tra định dạng ở cả giao diện và máy chủ.
+Khả năng sử dụng | Giao diện Responsive, thống nhất; thông báo lỗi rõ ràng (400, 401, 403, 404, 409, 500).
+Bảo trì, mở rộng | Chia module backend/frontend; API tuân thủ chuẩn RESTful, phiên bản hóa bằng tiền tố /api/v1.
+
+TABLE 7
+Nhóm chức năng | Các Use Case
+Quản lý tài khoản (10 UC) | UC1.1 Đăng nhập hệ thống; UC1.2 Đăng xuất khỏi hệ thống; UC1.3 Khôi phục mật khẩu; UC1.4 Nhận thông báo đăng nhập thất bại; UC2.1 Xem hồ sơ cá nhân; UC2.2 Cập nhật họ tên; UC2.3 Cập nhật số điện thoại và email; UC2.4 Cập nhật ảnh đại diện; UC3.1 Khóa tài khoản người dùng; UC3.2 Mở khóa tài khoản
+Quản lý dự án và thành viên (14 UC) | UC4.1 Tạo dự án mới; UC4.2 Cập nhật thông tin dự án; UC4.3 Xem danh sách dự án; UC4.4 Đóng dự án; UC4.5 Xóa dự án; UC5.1 Thêm thành viên vào dự án; UC5.2 Loại bỏ thành viên khỏi dự án; UC5.3 Xem danh sách thành viên; UC5.4 Tìm kiếm thành viên theo tên hoặc phòng ban; UC5.5 Nâng vai trò Member lên Manager trong dự án; UC6.1 Thêm phòng ban vào dự án; UC6.2 Sửa thông tin phòng ban; UC6.3 Xóa phòng ban; UC6.4 Gán hoặc chuyển thành viên vào phòng ban
+Quản lý Product Backlog (8 UC) | UC7.1 Tạo Product Backlog Item; UC7.2 Cập nhật Product Backlog Item; UC7.3 Xóa Product Backlog Item; UC7.4 Xem chi tiết Product Backlog Item; UC8.1 Thiết lập độ ưu tiên cho PBI; UC8.2 Kéo thả PBI để đổi thứ tự; UC8.3 Lọc PBI theo trạng thái; UC8.4 Tìm kiếm PBI theo từ khóa
+Quản lý Epic (7 UC) | UC9.1 Tạo Epic; UC9.2 Cập nhật Epic; UC9.3 Xóa Epic; UC9.4 Xem danh sách Epic; UC10.1 Liên kết PBI với Epic; UC10.2 Liên kết Task với Epic; UC10.3 Xem tiến độ Epic
+Quản lý Sprint (8 UC) | UC11.1 Tạo Sprint mới; UC11.2 Chọn PBI vào Sprint; UC11.3 Chỉnh sửa Sprint; UC11.4 Xóa Sprint; UC12.1 Theo dõi tiến độ Sprint; UC12.2 Xem Burndown Chart; UC12.3 Xem Sprint Goal; UC12.4 Đóng Sprint
+Quản lý Task (12 UC) | UC13.1 Tạo Task mới; UC13.2 Cập nhật thông tin Task; UC13.3 Xóa Task; UC13.4 Xem chi tiết Task; UC14.1 Giao Task cho thành viên; UC14.2 Thay đổi người thực hiện Task; UC14.3 Tạo Subtask; UC14.4 Theo dõi tiến độ Task; UC15.1 Thiết lập Deadline cho Task; UC15.2 Thiết lập Priority cho Task; UC15.3 Cảnh báo Task sắp/đã quá hạn; UC15.4 Xem danh sách Task quá hạn
+Scrumban Board (7 UC) | UC16.1 Xem bảng Scrumban; UC16.2 Xem Task theo từng cột trạng thái; UC16.3 Thu gọn / mở rộng cột trên Board; UC17.1 Kéo thả Task giữa các cột; UC17.2 Lọc Task theo người thực hiện; UC17.3 Lọc Task theo Sprint; UC17.4 Tìm kiếm Task theo từ khóa
+Quản lý WIP Limit (7 UC) | UC18.1 Thiết lập WIP Limit cho cột; UC18.2 Cập nhật WIP Limit; UC18.3 Xóa WIP Limit; UC19.1 Xem số Task hiện có theo trạng thái; UC19.2 Xem giới hạn WIP tối đa; UC19.3 Nhận cảnh báo khi vượt WIP Limit; UC19.4 Đánh dấu trực quan cột quá tải
+Flow Metrics (8 UC) | UC20.1 Theo dõi tổng WIP; UC20.2 Thống kê WIP theo Sprint; UC21.1 Xem Throughput theo khoảng thời gian; UC21.2 So sánh Throughput giữa các Sprint; UC22.1 Xem Cycle Time của từng Task; UC22.2 Xem Cycle Time trung bình; UC23.1 Theo dõi Work Item Age; UC23.2 Phát hiện công việc tồn đọng
+Quản lý Issue / Bug (8 UC) | UC24.1 Tạo Bug; UC24.2 Cập nhật thông tin Bug; UC24.3 Xóa Bug; UC24.4 Xem chi tiết Bug; UC25.1 Phân công Bug; UC25.2 Thiết lập mức độ ưu tiên Bug; UC25.3 Cập nhật trạng thái Bug; UC25.4 Đóng Bug
+Cộng tác (bình luận, tệp đính kèm, thông báo) (10 UC) | UC26.1 Bình luận trên Task; UC26.2 Chỉnh sửa bình luận; UC26.3 Xóa bình luận; UC26.4 Nhắc tên (mention) thành viên; UC27.1 Tải lên tệp đính kèm; UC27.2 Xem tệp đính kèm; UC27.3 Tải xuống tệp đính kèm; UC28.1 Nhận thông báo thay đổi; UC28.2 Xem lịch sử hoạt động; UC28.3 Đánh dấu thông báo đã đọc
+Nhắn tin và trao đổi trực tiếp (14 UC) | UC29.1 Gửi tin nhắn cá nhân; UC29.2 Nhận tin nhắn thời gian thực; UC29.3 Xem lịch sử trò chuyện; UC29.4 Tìm kiếm tin nhắn; UC30.1 Tạo phòng chat cho dự án; UC30.2 Thêm thành viên vào phòng chat; UC30.3 Gửi tin nhắn trong nhóm; UC30.4 Quản lý thành viên nhóm chat; UC31.1 Gửi tệp qua tin nhắn; UC31.2 Tải xuống tệp từ tin nhắn; UC31.3 Xem trước tệp; UC32.1 Nhận thông báo tin nhắn mới; UC32.2 Xem số tin nhắn chưa đọc; UC32.3 Đánh dấu tin nhắn đã đọc
+Phân quyền chức năng theo vai trò (13 UC) | UC33.1 Quản lý người dùng; UC33.2 Quản lý vai trò hệ thống của tài khoản; UC33.3 Quản lý cấu hình hệ thống; UC34.1 Quản lý dự án; UC34.2 Quản lý Product Backlog; UC34.3 Quản lý Epic; UC34.4 Quản lý Sprint; UC34.5 Quản lý WIP Limit; UC34.6 Theo dõi Flow Metrics; UC35.1 Cập nhật Task; UC35.2 Báo cáo tiến độ công việc; UC35.3 Quản lý Bug; UC35.4 Sử dụng công cụ trao đổi và cộng tác
+
+TABLE 8
+Mã Use Case | UC1.1
+Tên Use Case | Đăng nhập hệ thống
+User Story | US1.1
+Tác nhân | Người dùng (Admin hoặc User)
+Mục tiêu | Xác thực danh tính người dùng để cấp quyền truy cập vào các tài nguyên của hệ thống.
+Tiền điều kiện | Người dùng đã được cấp tài khoản hợp lệ (User.Status = 1).
+Hậu điều kiện | Hệ thống cấp JWT Token và lưu ở phía client; thời điểm đăng nhập được ghi vào ActivityLog; FailedLoginCount được đặt về 0.
+Luồng sự kiện chính (Basic Flow) | 1. Người dùng truy cập trang đăng nhập.
+2. Hệ thống hiển thị biểu mẫu nhập email và mật khẩu.
+3. Người dùng nhập thông tin và chọn “Đăng nhập”.
+4. Giao diện kiểm tra sơ bộ định dạng email.
+5. Giao diện gửi yêu cầu POST /api/v1/auth/login tới máy chủ.
+6. Máy chủ tìm User theo Email và đối chiếu mật khẩu với PasswordHash (Bcrypt).
+7. Nếu hợp lệ, máy chủ tạo JWT Token (hạn 24 giờ) và trả về.
+8. Giao diện lưu Token, thông báo thành công và chuyển đến Dashboard.
+Luồng rẽ nhánh (Alternative Flows) | E1 – Dữ liệu trống hoặc sai định dạng: giao diện chặn gửi yêu cầu và hiển thị lỗi tại biểu mẫu.
+E2 – Sai email hoặc mật khẩu: máy chủ trả 401, tăng FailedLoginCount và hiển thị “Tài khoản hoặc mật khẩu không chính xác” kèm số lần thử còn lại (UC1.4).
+E3 – Tài khoản bị khóa (Status = 0): máy chủ trả 403 và hiển thị “Tài khoản đã bị khóa, vui lòng liên hệ quản trị viên”.
+Quy tắc nghiệp vụ | • Mật khẩu được băm một chiều bằng Bcrypt.
+• Sai mật khẩu 5 lần liên tiếp thì tài khoản bị khóa tự động; JWT Token có thời hạn 24 giờ (hai quy tắc này là đề xuất thiết kế, không thuộc các User Story US1.1–US1.4).
+
+TABLE 9
+Mã Use Case | UC2.1
+Tên Use Case | Xem hồ sơ cá nhân
+User Story | US2.1
+Tác nhân | Người dùng (Admin hoặc User)
+Mục tiêu | Xem thông tin tài khoản của chính mình và danh sách các dự án mình tham gia.
+Tiền điều kiện | Người dùng đã đăng nhập.
+Hậu điều kiện | Không thay đổi dữ liệu (use case chỉ đọc).
+Luồng sự kiện chính (Basic Flow) | 1. Người dùng chọn “Hồ sơ cá nhân” trên menu.
+2. Giao diện gửi yêu cầu GET /api/v1/users/me.
+3. Máy chủ xác định tài khoản từ JWT Token và lấy thông tin User: họ tên, email, số điện thoại, ảnh đại diện, vai trò hệ thống.
+4. Giao diện hiển thị hồ sơ cá nhân và mục “Dự án của tôi”.
+5. Giao diện gửi yêu cầu GET /api/v1/projects (UC4.3) để lấy các dự án mà tài khoản đã tạo hoặc tham gia, kèm vai trò Manager hoặc Member ở từng dự án; người dùng có thể lọc danh sách theo vai trò.
+Luồng rẽ nhánh (Alternative Flows) | E1 – JWT Token hết hạn hoặc không hợp lệ: máy chủ trả 401 và giao diện chuyển về trang đăng nhập.
+E2 – Tài khoản đã bị khóa: máy chủ trả 403.
+E3 – Người dùng chưa tham gia dự án nào: mục “Dự án của tôi” hiển thị trống.
+E4 – Mất kết nối CSDL: hệ thống hiển thị “Lỗi kết nối!” và kết thúc.
+Quy tắc nghiệp vụ | • Người dùng chỉ xem được hồ sơ của chính mình.
+• Hồ sơ gắn với tài khoản (cấp hệ thống) và không phụ thuộc vai trò trong dự án: Manager và Member xem hồ sơ như nhau.
+• Danh sách dự án chỉ gồm dự án mà tài khoản đã tạo hoặc được thêm vào; vai trò Manager hoặc Member được hiển thị riêng cho từng dự án.
+
+TABLE 10
+Mã Use Case | UC4.1
+Tên Use Case | Tạo dự án mới
+User Story | US4.1
+Tác nhân | User
+Mục tiêu | Tạo một dự án mới để bắt đầu quản lý sản phẩm hoặc kế hoạch phát triển.
+Tiền điều kiện | User đã đăng nhập vào hệ thống.
+Hậu điều kiện | Bản ghi Project mới được lưu với Status = ACTIVE; User tạo dự án được ghi nhận là CreatedBy và được gán vai trò Manager trong dự án (ProjectMember); ActivityLog được ghi.
+Luồng sự kiện chính (Basic Flow) | 1. User chọn nút “Tạo dự án” trên màn hình Danh sách dự án.
+2. Hệ thống hiển thị biểu mẫu gồm: tên dự án, mô tả, ngày bắt đầu, ngày kết thúc dự kiến.
+3. User nhập thông tin và chọn nút “Tạo”.
+4. Hệ thống kiểm tra dữ liệu hợp lệ (tên không rỗng, EndDate ≥ StartDate).
+5. Hệ thống tạo bản ghi Project (Status = ACTIVE) và ProjectMember cho người tạo với vai trò Manager.
+6. Hệ thống hiển thị danh sách dự án đã cập nhật. Use case kết thúc.
+Luồng rẽ nhánh (Alternative Flows) | A1 – Dữ liệu không hợp lệ (bước 4): hệ thống hiển thị thông báo lỗi tại trường sai và yêu cầu nhập lại.
+A2 – User chọn “Hủy bỏ” (bước 3): hệ thống bỏ qua thao tác và quay về danh sách dự án.
+A3 – Mất kết nối CSDL: hệ thống hiển thị thông báo “Lỗi kết nối!” và use case kết thúc.
+Quy tắc nghiệp vụ | • Tên dự án (ProjectName) tối đa 200 ký tự, không trùng trong phạm vi người tạo.
+• Mọi User đã đăng nhập đều được tạo dự án; người tạo được gán vai trò Manager mặc định trong dự án đó.
+
+TABLE 11
+Mã Use Case | UC5.5
+Tên Use Case | Nâng vai trò Member lên Manager trong dự án
+User Story | US5.5
+Tác nhân | Manager (của dự án)
+Mục tiêu | Nâng vai trò của một Member lên Manager trong dự án để phân quyền quản lý phù hợp.
+Tiền điều kiện | Người dùng đã đăng nhập và là Manager của dự án; thành viên được chọn đang có vai trò Member trong dự án.
+Hậu điều kiện | Vai trò của thành viên trong dự án được cập nhật thành Manager; vai trò cấp hệ thống (Admin/User) của tài khoản không thay đổi; ActivityLog được ghi.
+Luồng sự kiện chính (Basic Flow) | 1. Manager mở danh sách thành viên của dự án (UC5.3) và chọn một Member.
+2. Manager chọn “Nâng lên Manager”.
+3. Hệ thống hiển thị màn hình xác nhận.
+4. Manager chọn “Đồng ý”.
+5. Hệ thống kiểm tra người thực hiện là Manager của dự án và thành viên được chọn đang là Member.
+6. Hệ thống cập nhật vai trò của thành viên trong dự án thành Manager và ghi ActivityLog.
+7. Hệ thống hiển thị danh sách thành viên đã cập nhật. Use case kết thúc.
+Luồng rẽ nhánh (Alternative Flows) | A1 – Manager chọn “Không đồng ý” (bước 4): hệ thống bỏ qua thao tác và hiển thị danh sách thành viên.
+A2 – Người thực hiện không phải Manager của dự án: hệ thống từ chối (403).
+A3 – Thành viên được chọn không còn thuộc dự án hoặc đã là Manager: hệ thống từ chối và hiển thị thông báo.
+A4 – Mất kết nối CSDL: hệ thống hiển thị “Lỗi kết nối!” và use case kết thúc.
+Quy tắc nghiệp vụ | • Việc nâng vai trò chỉ có hiệu lực trong dự án tương ứng, không thay đổi vai trò cấp hệ thống.
+• Mỗi thành viên chỉ có một vai trò (Manager hoặc Member) trong một dự án; sau khi được nâng, thành viên không cần gán thêm vai trò Member vì Manager đã có toàn bộ quyền của Member.
+
+TABLE 12
+Mã Use Case | UC7.1
+Tên Use Case | Tạo Product Backlog Item
+User Story | US7.1
+Tác nhân | Manager
+Mục tiêu | Ghi nhận yêu cầu mới của sản phẩm dưới dạng Product Backlog Item thuộc một Epic.
+Tiền điều kiện | Người dùng đã đăng nhập và là Manager của dự án; dự án đã có ít nhất một Epic.
+Hậu điều kiện | Bản ghi ProductBacklogItem mới được lưu với Status = NEW; ActivityLog được ghi.
+Luồng sự kiện chính (Basic Flow) | 1. Manager chọn mục “Product Backlog” và nhấn “Thêm PBI”.
+2. Hệ thống hiển thị biểu mẫu: Epic, tiêu đề, mô tả, StoryPoint, độ ưu tiên.
+3. Manager nhập dữ liệu và chọn “Lưu”.
+4. Giao diện gửi yêu cầu POST /api/v1/product-backlog-items.
+5. Hệ thống kiểm tra quyền, Epic tồn tại, tiêu đề không rỗng (≤ 255 ký tự), StoryPoint ≥ 0.
+6. Hệ thống tạo PBI (Status = NEW), thứ tự ưu tiên mặc định ở cuối Backlog và ghi ActivityLog.
+7. Hệ thống hiển thị Product Backlog đã cập nhật.
+Luồng rẽ nhánh (Alternative Flows) | E1 – Thiếu dữ liệu bắt buộc: trả 400, đánh dấu trường lỗi, giữ nguyên dữ liệu đã nhập.
+E2 – Epic không tồn tại: trả 404.
+E3 – Không đủ quyền (không phải Manager của dự án): trả 403.
+Quy tắc nghiệp vụ | • Priority là số nguyên, 1 là cao nhất; StoryPoint không âm.
+• Trạng thái mặc định khi tạo là NEW.
+
+TABLE 13
+Mã Use Case | UC9.1
+Tên Use Case | Tạo Epic
+User Story | US9.1
+Tác nhân | Manager
+Mục tiêu | Tạo Epic để nhóm các yêu cầu có cùng mục tiêu kinh doanh.
+Tiền điều kiện | Người dùng đã đăng nhập và là Manager của dự án.
+Hậu điều kiện | Bản ghi Epic mới được lưu với Status = OPEN; ActivityLog được ghi.
+Luồng sự kiện chính (Basic Flow) | 1. Manager chọn mục “Epic” và nhấn “Tạo Epic”.
+2. Hệ thống hiển thị biểu mẫu: tiêu đề, mô tả, độ ưu tiên.
+3. Manager nhập thông tin và chọn “Lưu”.
+4. Giao diện gửi yêu cầu POST /api/v1/epics.
+5. Hệ thống kiểm tra quyền và dữ liệu (tiêu đề không rỗng, tối đa 255 ký tự).
+6. Hệ thống tạo Epic (Status = OPEN, CreatedBy = người tạo) và ghi ActivityLog.
+7. Hệ thống hiển thị danh sách Epic đã cập nhật.
+Luồng rẽ nhánh (Alternative Flows) | E1 – Thiếu tiêu đề: trả 400 và đánh dấu trường lỗi.
+E2 – Trùng tiêu đề Epic trong dự án: trả 409 và yêu cầu đặt tên khác.
+E3 – Không đủ quyền: trả 403.
+Quy tắc nghiệp vụ | • Priority của Epic là số nguyên, 1 là cao nhất.
+• Trạng thái mặc định khi tạo là OPEN.
+
+TABLE 14
+Mã Use Case | UC11.1
+Tên Use Case | Tạo Sprint mới
+User Story | US11.1
+Tác nhân | Manager
+Mục tiêu | Tạo Sprint mới với tên, mục tiêu (Sprint Goal) và thời gian thực hiện để bắt đầu một chu kỳ phát triển.
+Tiền điều kiện | Người dùng đã đăng nhập và là Manager của dự án.
+Hậu điều kiện | Bản ghi Sprint mới được lưu với Status = PLANNED; ActivityLog được ghi; thành viên dự án nhận thông báo.
+Luồng sự kiện chính (Basic Flow) | 1. Manager chọn mục “Sprint” và nhấn “Tạo Sprint”.
+2. Hệ thống hiển thị biểu mẫu: tên Sprint, Sprint Goal, ngày bắt đầu, ngày kết thúc.
+3. Manager nhập dữ liệu và chọn “Tạo Sprint”.
+4. Giao diện gửi yêu cầu POST /api/v1/sprints.
+5. Hệ thống kiểm tra quyền và dữ liệu (tên không rỗng, ≤ 150 ký tự, không trùng trong dự án; EndDate ≥ StartDate; không chồng lấn Sprint chưa CLOSED).
+6. Hệ thống tạo Sprint (Status = PLANNED), ghi ActivityLog và gửi thông báo.
+7. Hệ thống chuyển đến trang chi tiết Sprint để chọn PBI.
+Luồng rẽ nhánh (Alternative Flows) | E1 – Thiếu dữ liệu bắt buộc: trả 400, đánh dấu trường lỗi.
+E2 – Ngày không hợp lệ hoặc chồng lấn Sprint khác: từ chối và yêu cầu chọn lại.
+E3 – Tên Sprint đã tồn tại: trả 409.
+E4 – Không đủ quyền: trả 403.
+Quy tắc nghiệp vụ | • SprintName duy nhất trong phạm vi một dự án.
+• Mỗi dự án chỉ có tối đa một Sprint ở trạng thái ACTIVE.
+
+TABLE 15
+Mã Use Case | UC13.1
+Tên Use Case | Tạo Task mới
+User Story | US13.1
+Tác nhân | Member (thành viên dự án; Manager kế thừa quyền Member)
+Mục tiêu | Ghi nhận một công việc mới cần thực hiện trong dự án.
+Tiền điều kiện | Người dùng đã đăng nhập và là thành viên của dự án; dự án ở trạng thái ACTIVE.
+Hậu điều kiện | Bản ghi Task mới được lưu với Status = TODO, ReporterId là người tạo; ActivityLog được ghi.
+Luồng sự kiện chính (Basic Flow) | 1. Thành viên chọn nút “Tạo Task” trên Board hoặc danh sách Task.
+2. Hệ thống hiển thị biểu mẫu: tiêu đề, mô tả, Epic, Sprint, Priority, Deadline, Assignee (không bắt buộc).
+3. Thành viên nhập thông tin và chọn “Tạo”.
+4. Hệ thống kiểm tra tiêu đề không rỗng, Deadline không nhỏ hơn ngày hiện tại.
+5. Hệ thống tạo Task (Status = TODO, Priority mặc định MEDIUM) và ghi ActivityLog.
+6. Hệ thống hiển thị Task mới trên Board/danh sách.
+Luồng rẽ nhánh (Alternative Flows) | A1 – Thiếu dữ liệu bắt buộc (bước 4): hệ thống đánh dấu trường lỗi và yêu cầu nhập lại.
+A2 – Thành viên chọn “Hủy bỏ” (bước 3): hệ thống bỏ qua thao tác.
+A3 – Mất kết nối CSDL: hệ thống hiển thị “Lỗi kết nối!” và kết thúc.
+Quy tắc nghiệp vụ | • Title tối đa 255 ký tự; Priority ∈ {LOW, MEDIUM, HIGH, CRITICAL}.
+• Task phải thuộc một dự án; Epic và Sprint là tùy chọn.
+
+TABLE 16
+Mã Use Case | UC16.1
+Tên Use Case | Xem bảng Scrumban
+User Story | US16.1
+Tác nhân | Member (thành viên dự án; Manager kế thừa quyền Member)
+Mục tiêu | Hiển thị toàn bộ công việc của dự án dưới dạng các cột trạng thái để theo dõi tiến độ trực quan.
+Tiền điều kiện | Người dùng đã đăng nhập và là thành viên của dự án.
+Hậu điều kiện | Không thay đổi dữ liệu (use case chỉ đọc).
+Luồng sự kiện chính (Basic Flow) | 1. Thành viên chọn mục “Scrumban Board” trong menu dự án.
+2. Hệ thống lấy danh sách cột (BoardColumn) của dự án theo thứ tự Position.
+3. Hệ thống lấy các Task của dự án và nhóm theo cột tương ứng với Task.Status.
+4. Hệ thống hiển thị Board: mỗi cột có tên, số lượng Task, WIP Limit (nếu có); mỗi thẻ Task hiển thị tiêu đề, Assignee, Priority, Deadline.
+Luồng rẽ nhánh (Alternative Flows) | A1 – Dự án chưa có Task: hệ thống hiển thị các cột rỗng và thông báo “Chưa có công việc”.
+A2 – Mất kết nối CSDL: hệ thống hiển thị “Lỗi kết nối!” và kết thúc.
+Quy tắc nghiệp vụ | • Cột mặc định: TODO, IN_PROGRESS, IN_REVIEW, DONE.
+• Thành viên chỉ xem được Board của dự án mà mình tham gia.
+
+TABLE 17
+Mã Use Case | UC18.1
+Tên Use Case | Thiết lập WIP Limit cho cột
+User Story | US18.1
+Tác nhân | Manager
+Mục tiêu | Giới hạn số lượng Task tối đa được phép ở một cột nhằm kiểm soát khối lượng công việc đang thực hiện.
+Tiền điều kiện | Người dùng đã đăng nhập và là Manager của dự án; cột tồn tại trên Board.
+Hậu điều kiện | BoardColumn.WipLimit được lưu; Board hiển thị giới hạn mới; ActivityLog được ghi.
+Luồng sự kiện chính (Basic Flow) | 1. Manager chọn “Cấu hình WIP Limit” trên Board.
+2. Hệ thống hiển thị danh sách cột kèm số Task hiện có và WIP Limit hiện tại.
+3. Manager chọn cột, nhập giá trị giới hạn (số nguyên ≥ 1) và chọn “Lưu”.
+4. Hệ thống kiểm tra giá trị hợp lệ.
+5. Hệ thống lưu WipLimit vào BoardColumn và ghi ActivityLog.
+6. Hệ thống hiển thị lại Board với giới hạn mới; nếu số Task hiện có đã vượt giới hạn, cột được đánh dấu quá tải.
+Luồng rẽ nhánh (Alternative Flows) | A1 – Giá trị không hợp lệ (không phải số nguyên dương): hệ thống báo lỗi và yêu cầu nhập lại.
+A2 – Manager chọn “Hủy bỏ”: hệ thống bỏ qua thao tác.
+A3 – Người dùng không phải Manager của dự án: hệ thống từ chối (403).
+Quy tắc nghiệp vụ | • WipLimit = NULL nghĩa là không giới hạn.
+• UC18.2 dùng cùng luồng với giá trị mới; UC18.3 đặt WipLimit = NULL sau khi xác nhận.
+
+TABLE 18
+Mã Use Case | UC20.1
+Tên Use Case | Theo dõi tổng WIP
+User Story | US20.1
+Tác nhân | Manager
+Mục tiêu | Biết tổng số công việc đang được thực hiện đồng thời để kiểm soát mức độ quá tải.
+Tiền điều kiện | Người dùng đã đăng nhập và là Manager của dự án.
+Hậu điều kiện | Không thay đổi dữ liệu (có thể lưu bản chụp FlowMetric.WIP).
+Luồng sự kiện chính (Basic Flow) | 1. Manager chọn mục “Flow Metrics” trong menu dự án.
+2. Hệ thống xác định các Task có Status ∈ {IN_PROGRESS, IN_REVIEW} của dự án.
+3. Hệ thống đếm số Task và nhóm theo cột trạng thái.
+4. Hệ thống hiển thị tổng WIP và phân bố WIP theo cột (dạng số và biểu đồ cột).
+Luồng rẽ nhánh (Alternative Flows) | A1 – Chưa có Task đang thực hiện: hệ thống hiển thị WIP = 0.
+A2 – Mất kết nối CSDL: hệ thống hiển thị “Lỗi kết nối!” và kết thúc.
+Quy tắc nghiệp vụ | • WIP = số Task có Status ∈ {IN_PROGRESS, IN_REVIEW}.
+• Không tính Task TODO và DONE.
+
+TABLE 19
+Mã Use Case | UC24.1
+Tên Use Case | Tạo Bug
+User Story | US24.1
+Tác nhân | Member (Manager kế thừa quyền Member)
+Mục tiêu | Ghi nhận lỗi phần mềm mới kèm mô tả, bước tái hiện, mức độ nghiêm trọng và ưu tiên.
+Tiền điều kiện | Người dùng đã đăng nhập và là thành viên của dự án (vai trò Member hoặc Manager); Task liên quan tồn tại trong dự án.
+Hậu điều kiện | Bản ghi Bug mới được lưu với Status = OPEN; ActivityLog được ghi; người liên quan nhận thông báo.
+Luồng sự kiện chính (Basic Flow) | 1. Member mở Task liên quan và chọn “Báo cáo Bug”.
+2. Hệ thống hiển thị biểu mẫu: tiêu đề, mô tả (bước tái hiện), môi trường, Severity, Priority.
+3. Member nhập thông tin và (tùy chọn) đính kèm tệp minh chứng.
+4. Member chọn “Gửi”.
+5. Hệ thống kiểm tra dữ liệu (tiêu đề và mô tả không rỗng, Severity/Priority hợp lệ).
+6. Hệ thống tạo Bug (Status = OPEN, ReporterId = người gửi), ghi ActivityLog và gửi thông báo cho Manager của dự án (đề xuất thiết kế).
+7. Hệ thống hiển thị chi tiết Bug vừa tạo.
+Luồng rẽ nhánh (Alternative Flows) | E1 – Thiếu dữ liệu bắt buộc: trả 400, đánh dấu trường lỗi.
+E2 – Tệp minh chứng vượt 25MB hoặc sai định dạng: từ chối tệp và báo lỗi.
+E3 – Task không tồn tại: trả 404.
+Quy tắc nghiệp vụ | • Severity ∈ {TRIVIAL, MINOR, MAJOR, BLOCKER}; Priority ∈ {LOW, MEDIUM, HIGH, CRITICAL}.
+• Mỗi Bug gắn với một Task.
+
+TABLE 20
+Mã Use Case | UC26.1
+Tên Use Case | Bình luận trên Task
+User Story | US26.1
+Tác nhân | Member (Manager kế thừa quyền Member)
+Mục tiêu | Trao đổi thông tin liên quan đến công việc ngay trên Task.
+Tiền điều kiện | Người dùng đã đăng nhập và là thành viên của dự án chứa Task.
+Hậu điều kiện | Bản ghi Comment mới được lưu; người được nhắc tên và Assignee nhận thông báo; ActivityLog được ghi.
+Luồng sự kiện chính (Basic Flow) | 1. Thành viên mở chi tiết Task và chuyển đến phần “Bình luận”.
+2. Thành viên nhập nội dung (có thể nhắc tên bằng ký hiệu @).
+3. Thành viên chọn “Gửi”.
+4. Hệ thống kiểm tra nội dung không rỗng (≤ 5000 ký tự) và quyền truy cập Task.
+5. Hệ thống lưu Comment (UserId, TaskId, Content, CreatedAt).
+6. Hệ thống tạo Notification cho người được nhắc tên và người thực hiện Task.
+7. Hệ thống hiển thị bình luận mới trong danh sách.
+Luồng rẽ nhánh (Alternative Flows) | E1 – Nội dung rỗng: hệ thống không gửi và giữ nguyên ô nhập.
+E2 – Không thuộc dự án: trả 403.
+E3 – Mất kết nối CSDL: hiển thị “Lỗi kết nối!” và giữ lại nội dung.
+Quy tắc nghiệp vụ | • Người dùng chỉ sửa/xóa bình luận của chính mình.
+
+TABLE 21
+Mã Use Case | UC29.1
+Tên Use Case | Gửi tin nhắn cá nhân
+User Story | US29.1
+Tác nhân | Member (thành viên dự án; Manager kế thừa quyền Member)
+Mục tiêu | Trao đổi trực tiếp với một thành viên khác trong dự án.
+Tiền điều kiện | Người dùng đã đăng nhập; người nhận là thành viên cùng dự án.
+Hậu điều kiện | Message mới được lưu trong phòng chat riêng (ChatRoom loại PRIVATE); người nhận nhận tin nhắn theo thời gian thực.
+Luồng sự kiện chính (Basic Flow) | 1. Người dùng chọn một thành viên trong danh sách thành viên và chọn “Nhắn tin”.
+2. Hệ thống tìm phòng chat riêng giữa hai người; nếu chưa có thì tạo mới (ChatRoom + 2 ChatParticipant).
+3. Hệ thống hiển thị khung chat cùng lịch sử gần nhất.
+4. Người dùng nhập nội dung và chọn “Gửi” (hoặc nhấn Enter).
+5. Hệ thống kiểm tra nội dung không rỗng, lưu Message với SentAt hiện tại.
+6. Hệ thống đẩy tin nhắn tới người nhận qua SignalR và hiển thị tin nhắn trong khung chat người gửi.
+Luồng rẽ nhánh (Alternative Flows) | A1 – Nội dung rỗng (bước 5): hệ thống không gửi, giữ nguyên ô nhập.
+A2 – Mất kết nối mạng: tin nhắn hiển thị trạng thái “Gửi lỗi” và cho phép gửi lại.
+A3 – Người nhận đang ngoại tuyến: tin nhắn được lưu và hiển thị khi người nhận trực tuyến, đồng thời tạo thông báo (UC32.1).
+Quy tắc nghiệp vụ | • Mỗi cặp người dùng chỉ có tối đa một phòng chat riêng.
+• Nội dung tối đa 5000 ký tự.
+
+TABLE 22
+Mã Use Case | UC33.1
+Tên Use Case | Quản lý người dùng
+User Story | US33.1
+Tác nhân | Admin
+Mục tiêu | Quản trị tài khoản người dùng trong toàn hệ thống: tạo, cập nhật thông tin, khóa và mở khóa.
+Tiền điều kiện | Admin đã đăng nhập.
+Hậu điều kiện | Bản ghi User được tạo/cập nhật; trạng thái tài khoản (Status) thay đổi tương ứng; ActivityLog được ghi.
+Luồng sự kiện chính (Basic Flow) | 1. Admin chọn mục “Quản lý người dùng” trên menu quản trị.
+2. Hệ thống hiển thị danh sách người dùng (họ tên, email, vai trò, trạng thái) có tìm kiếm và phân trang.
+3. Admin chọn “Khóa” trên dòng của một người dùng.
+4. Hệ thống hiển thị màn hình xác nhận.
+5. Admin chọn “Đồng ý”.
+6. Hệ thống đặt User.Status = 0 (khóa), vô hiệu hóa các phiên đăng nhập hiện có, ghi ActivityLog và hiển thị danh sách đã cập nhật.
+Luồng rẽ nhánh (Alternative Flows) | A1 – Admin chọn “Không đồng ý” (bước 5): hệ thống bỏ qua thao tác khóa.
+A2 – Admin khóa chính tài khoản của mình: hệ thống từ chối.
+A3 – Admin chọn “Tạo mới” hoặc “Sửa”: nhập thông tin hợp lệ (email không trùng), hệ thống lưu và hiển thị danh sách.
+Quy tắc nghiệp vụ | • Tài khoản bị khóa không thể đăng nhập.
+• Email là duy nhất trong hệ thống.
+• Thao tác khóa / mở khóa tài khoản dùng chung với UC3.1 và UC3.2 (chức năng Quản lý tài khoản).
+• Tài khoản mới tạo mặc định có vai trò hệ thống User; hệ thống chỉ có một tài khoản Admin được khởi tạo sẵn (đề xuất thiết kế).
+
+TABLE 23
+Nhóm chức năng (Epic / User Story) | Admin | Manager | Member
+Đăng nhập, đăng xuất, khôi phục mật khẩu, hồ sơ cá nhân (Epic 01, 02) | ✓ | ✓ | ✓
+Khóa / mở khóa tài khoản; quản lý người dùng, vai trò hệ thống, cấu hình hệ thống (Epic 03, Epic 33) | ✓ | – | –
+Tạo dự án, xem danh sách dự án đã tạo hoặc tham gia (US4.1, US4.3) | – | ✓ | ✓
+Cập nhật, đóng, xóa dự án; quản lý thành viên, nâng Member lên Manager; quản lý phòng ban (US4.2, US4.4, US4.5, Epic 05, 06) | – | ✓ | –
+Product Backlog, Epic (Epic 07–10) | – | ✓ | –
+Lập kế hoạch và theo dõi Sprint (Epic 11, 12) | – | ✓ | –
+Tạo, cập nhật, xóa, xem chi tiết Task (Epic 13) | – | ✓ | ✓
+Giao Task, tạo Subtask, thiết lập Deadline và Priority, cảnh báo quá hạn (Epic 14, 15) | – | ✓ | –
+Scrumban Board: xem, kéo thả, lọc, tìm kiếm (Epic 16, 17) | – | ✓ | ✓
+WIP Limit và Flow Metrics (Epic 18–23) | – | ✓ | –
+Quản lý và xử lý Bug (Epic 24, 25) | – | ✓ | ✓
+Bình luận, tệp đính kèm, thông báo (Epic 26–28) | – | ✓ | ✓
+Chat cá nhân, gửi tin trong nhóm chat, chia sẻ tệp, thông báo chat (Epic 29, 31, 32, US30.3) | – | ✓ | ✓
+Tạo phòng chat dự án, thêm và quản lý thành viên phòng chat (US30.1, US30.2, US30.4) | – | ✓ | –
+
+TABLE 24
+STT | Tên bảng | Nhóm chức năng | Mô tả
+1 | User | Quản lý tài khoản | Người dùng hệ thống.
+2 | Role | Quản lý tài khoản | Danh mục vai trò: vai trò hệ thống (ADMIN, USER) và vai trò trong dự án (MANAGER, MEMBER), phân biệt bằng cột Scope (đề xuất bổ sung).
+3 | UserRole | Quản lý tài khoản | Gán vai trò hệ thống (ADMIN hoặc USER) cho người dùng (N–N giữa User và Role có Scope = SYSTEM).
+4 | PasswordResetToken | Quản lý tài khoản | Mã đặt lại mật khẩu (đề xuất bổ sung cho UC1.3).
+5 | Project | Quản lý dự án và thành viên | Dự án.
+6 | ProjectMember | Quản lý dự án và thành viên | Thành viên dự án (quan hệ N–N giữa User và Project); có RoleId (đề xuất bổ sung) lưu vai trò trong dự án (MANAGER hoặc MEMBER) và DepartmentId (đề xuất bổ sung) để gán thành viên vào phòng ban.
+7 | Department | Quản lý dự án và thành viên | Phòng ban của dự án (đề xuất bổ sung).
+8 | Position | Quản lý dự án và thành viên | Vị trí chuyên môn trong dự án (FE, BE, Tester, ...); khác với vai trò Manager/Member (đề xuất bổ sung).
+9 | ProjectMemberPosition | Quản lý dự án và thành viên | Bảng trung gian gắn thành viên dự án vào vị trí (N–N giữa ProjectMember và Position) (đề xuất bổ sung).
+10 | ProductBacklogItem | Quản lý Product Backlog | Yêu cầu sản phẩm trong Product Backlog.
+11 | Epic | Quản lý Epic | Nhóm các yêu cầu có cùng mục tiêu; mỗi Epic thuộc một dự án.
+12 | Sprint | Quản lý Sprint | Chu kỳ phát triển có mục tiêu và thời hạn.
+13 | SprintBacklogItem | Quản lý Sprint | Liên kết N–N giữa Sprint và PBI (đề xuất bổ sung).
+14 | Task | Quản lý Task | Công việc.
+15 | BoardColumn | Scrumban Board | Cột của Scrumban Board (đề xuất bổ sung; mỗi dự án có tập cột riêng, mặc định 4 cột).
+16 | FlowMetric | Flow Metrics | Bản chụp chỉ số luồng công việc theo Sprint.
+17 | Bug | Quản lý Issue / Bug | Lỗi phát hiện trong quá trình kiểm thử; mỗi Bug gắn với một Task.
+18 | Comment | Cộng tác (bình luận, tệp đính kèm, thông báo) | Bình luận gắn với Task.
+19 | Attachment | Cộng tác (bình luận, tệp đính kèm, thông báo) | Tệp đính kèm của Task.
+20 | Notification | Cộng tác (bình luận, tệp đính kèm, thông báo) | Thông báo gửi đến người dùng.
+21 | ActivityLog | Cộng tác (bình luận, tệp đính kèm, thông báo) | Nhật ký hoạt động (lịch sử thao tác trên hệ thống).
+22 | ChatRoom | Nhắn tin và trao đổi trực tiếp | Phòng chat (riêng tư 1-1 hoặc nhóm theo dự án).
+23 | ChatParticipant | Nhắn tin và trao đổi trực tiếp | Thành viên của phòng chat.
+24 | Message | Nhắn tin và trao đổi trực tiếp | Tin nhắn.
+25 | MessageAttachment | Nhắn tin và trao đổi trực tiếp | Tệp đính kèm của tin nhắn.
+26 | Permission | Phân quyền chức năng theo vai trò | Danh mục quyền chức năng (đề xuất bổ sung).
+27 | RolePermission | Phân quyền chức năng theo vai trò | Quyền của từng vai trò; quyền của MANAGER bao gồm toàn bộ quyền của MEMBER (đề xuất bổ sung).
+28 | SystemConfig | Phân quyền chức năng theo vai trò | Tham số cấu hình hệ thống (đề xuất bổ sung).
+
+TABLE 25
+Tên cột | Kiểu dữ liệu | Ràng buộc | Mô tả
+UserId | BIGINT | PK, AUTO_INCREMENT | Mã người dùng
+FullName | VARCHAR(100) | NOT NULL | Họ tên
+Email | VARCHAR(255) | UNIQUE, NOT NULL | Email đăng nhập
+PasswordHash | VARCHAR(255) | NOT NULL | Mật khẩu đã băm (Bcrypt)
+Avatar | VARCHAR(500) | NULL | Ảnh đại diện
+PhoneNumber | VARCHAR(20) | NULL | Số điện thoại
+Status | TINYINT | NOT NULL, DEFAULT 1 | 1: hoạt động, 0: bị khóa
+FailedLoginCount | INT | NOT NULL, DEFAULT 0 | Số lần đăng nhập sai liên tiếp (bổ sung)
+CreatedAt | DATETIME | NOT NULL | Thời điểm tạo
+UpdatedAt | DATETIME | NULL | Thời điểm cập nhật
+
+TABLE 26
+Tên cột | Kiểu dữ liệu | Ràng buộc | Mô tả
+TaskId | BIGINT | PK, AUTO_INCREMENT | Mã Task
+ProjectId | BIGINT | NOT NULL, FK(Project.ProjectId) | Dự án chứa Task (bổ sung)
+SprintId | BIGINT | NULL, FK(Sprint.SprintId) | Sprint chứa Task
+EpicId | BIGINT | NULL, FK(Epic.EpicId) | Epic liên kết
+ParentTaskId | BIGINT | NULL, FK(Task.TaskId) | Task cha của Subtask (bổ sung)
+AssigneeId | BIGINT | NULL, FK(User.UserId) | Người thực hiện
+ReporterId | BIGINT | NOT NULL, FK(User.UserId) | Người tạo
+Title | VARCHAR(255) | NOT NULL | Tiêu đề
+Description | TEXT | NULL | Mô tả
+Priority | VARCHAR(20) | NOT NULL, DEFAULT 'MEDIUM' | LOW, MEDIUM, HIGH, CRITICAL
+Status | VARCHAR(30) | NOT NULL, DEFAULT 'TODO' | TODO, IN_PROGRESS, IN_REVIEW, DONE
+Deadline | DATETIME | NULL | Hạn hoàn thành
+ProgressPercent | INT | NOT NULL, DEFAULT 0, CHECK 0–100 | Tiến độ % (bổ sung)
+Position | INT | NOT NULL, DEFAULT 0 | Thứ tự thẻ trong cột Board (bổ sung)
+StartedAt | DATETIME | NULL | Thời điểm bắt đầu xử lý (bổ sung)
+CompletedAt | DATETIME | NULL | Thời điểm hoàn thành (bổ sung)
+CreatedAt | DATETIME | NOT NULL | Thời điểm tạo
+UpdatedAt | DATETIME | NULL | Thời điểm cập nhật
+
+TABLE 27
+Tên cột | Kiểu dữ liệu | Ràng buộc | Mô tả
+PositionId | BIGINT | PK, AUTO_INCREMENT | Mã vị trí (bổ sung)
+ProjectId | BIGINT | NOT NULL, FK(Project.ProjectId) | Dự án định nghĩa vị trí (bổ sung)
+PositionName | VARCHAR(100) | NOT NULL, UNIQUE(ProjectId, PositionName) | Tên vị trí, ví dụ FE, BE (bổ sung)
+Description | VARCHAR(500) | NULL | Mô tả vị trí (bổ sung)
+
+TABLE 28
+Tên cột | Kiểu dữ liệu | Ràng buộc | Mô tả
+ProjectId | BIGINT | PK, FK(ProjectMember.ProjectId) | Dự án của thành viên (bổ sung)
+UserId | BIGINT | PK, FK(ProjectMember.UserId) | Thành viên (cặp ProjectId, UserId tham chiếu ProjectMember) (bổ sung)
+PositionId | BIGINT | PK, FK(Position.PositionId) | Vị trí được gán; vị trí phải thuộc cùng dự án (bổ sung)
+
+TABLE 29
+Bước | Hoạt động | Kết quả
+1 | Khảo sát và thu thập yêu cầu | Danh sách 35 Epic, 126 User Story; xác định 2 vai trò hệ thống (Admin, User) và 2 vai trò trong dự án (Manager, Member).
+2 | Phân tích Use Case | 126 Use Case ánh xạ từ User Story; đặc tả các Use Case chính.
+3 | Thiết kế UML | Biểu đồ Use Case, trình tự, hoạt động, lớp phân tích cho 13 nhóm chức năng.
+4 | Thiết kế cơ sở dữ liệu và API | Sơ đồ ERD, 28 bảng dữ liệu, các RESTful API tiêu biểu.
+5 | Xây dựng backend | ASP.NET Core Web API, Entity Framework Core, JWT, SignalR.
+6 | Xây dựng frontend | Giao diện ReactJS, Tailwind CSS: Dashboard, Scrumban Board, Sprint, Backlog, Chat.
+7 | Tích hợp và kiểm thử | Kiểm thử chức năng và phi chức năng; sửa lỗi; đánh giá.
+8 | Hoàn thiện sản phẩm và báo cáo | Phần mềm hoàn chỉnh, tài liệu và báo cáo đồ án.
+
+TABLE 30
+Thành viên | Nhóm chức năng phụ trách | Sprint
+Chử Thị Ngọc Diệp (nhóm trưởng) | Quản lý tài khoản; Phân quyền chức năng theo vai trò; tích hợp, quản lý tiến độ và biên soạn báo cáo | 1, 4
+Phan Như Quyền | Quản lý dự án và thành viên; Quản lý Product Backlog; Quản lý Epic | 1, 2
+Lê Đình Vượng | Quản lý Sprint; Quản lý Task | 2, 3
+Tống Văn Tuấn | Scrumban Board; Quản lý WIP Limit; Flow Metrics | 3, 4
+Nguyễn Văn Tuấn | Quản lý Issue/Bug; Cộng tác; Nhắn tin và trao đổi trực tiếp | 3, 4
+
+TABLE 31
+Sprint | Nội dung chính | Sản phẩm bàn giao
+Sprint 1 | Khung hệ thống; xác thực và tài khoản; dự án và thành viên; CSDL nền tảng. | Đăng nhập, quản lý dự án và thành viên chạy được.
+Sprint 2 | Product Backlog, Epic, Sprint. | Lập kế hoạch Sprint từ Product Backlog.
+Sprint 3 | Task, Scrumban Board, WIP Limit, Bug. | Bảng Scrumban kéo thả, cảnh báo WIP, quản lý Bug.
+Sprint 4 | Flow Metrics, cộng tác, chat, phân quyền; tích hợp và kiểm thử toàn hệ thống. | Hệ thống hoàn chỉnh, báo cáo kiểm thử.
+
+TABLE 32
+Mã | Tên | Tình huống
+200 / 201 | OK / Created | Xử lý thành công / tạo mới thành công.
+204 | No Content | Xóa thành công, không trả dữ liệu.
+400 | Bad Request | Thiếu trường bắt buộc hoặc sai định dạng dữ liệu.
+401 | Unauthorized | Thiếu hoặc hết hạn JWT; sai thông tin đăng nhập.
+403 | Forbidden | Không thuộc dự án hoặc vai trò không đủ quyền.
+404 | Not Found | Đối tượng không tồn tại.
+409 | Conflict | Xung đột dữ liệu hoặc chuyển trạng thái không hợp lệ.
+413 / 415 | Payload Too Large / Unsupported Media Type | Tệp vượt 25MB / sai định dạng.
+500 / 503 | Server Error | Lỗi hệ thống hoặc không kết nối được cơ sở dữ liệu (“Lỗi kết nối!”).
+
+TABLE 33
+Method | Route | Chức năng (Use Case)
+POST | /api/v1/auth/login | Đăng nhập, cấp JWT Token (UC1.1, UC1.4)
+POST | /api/v1/auth/logout | Đăng xuất (UC1.2)
+POST | /api/v1/auth/forgot-password | Gửi liên kết đặt lại mật khẩu (UC1.3)
+POST | /api/v1/auth/reset-password | Đặt lại mật khẩu bằng mã (UC1.3)
+GET | /api/v1/users/me | Xem hồ sơ cá nhân của chính mình, không phụ thuộc vai trò trong dự án (UC2.1)
+PUT | /api/v1/users/me | Cập nhật họ tên, số điện thoại, email (UC2.2, UC2.3)
+PATCH | /api/v1/admin/users/{userId}/lock | Khóa tài khoản (UC3.1)
+PATCH | /api/v1/admin/users/{userId}/unlock | Mở khóa tài khoản (UC3.2)
+
+TABLE 34
+Method | Route | Chức năng (Use Case)
+POST | /api/v1/projects | Tạo dự án mới; người tạo được gán vai trò Manager (UC4.1)
+GET | /api/v1/projects | Danh sách dự án mà tài khoản đã tạo hoặc tham gia, kèm vai trò trong từng dự án (phân trang, lọc theo Status và role = MANAGER/MEMBER) (UC4.3) – tham số role là đề xuất
+PUT | /api/v1/projects/{projectId} | Cập nhật thông tin dự án (UC4.2)
+PATCH | /api/v1/projects/{projectId}/close | Đóng dự án (UC4.4)
+POST | /api/v1/projects/{projectId}/members | Thêm User vào dự án với vai trò Member mặc định (UC5.1)
+DELETE | /api/v1/projects/{projectId}/members/{userId} | Loại bỏ thành viên (UC5.2)
+PATCH | /api/v1/projects/{projectId}/members/{userId}/role | Nâng vai trò Member lên Manager trong dự án (UC5.5) – đề xuất
+GET | /api/v1/projects/{projectId}/members?keyword=&departmentId= | Danh sách và tìm kiếm thành viên theo tên hoặc phòng ban (UC5.3, UC5.4) – tham số departmentId là đề xuất
+POST | /api/v1/projects/{projectId}/departments | Thêm phòng ban vào dự án (UC6.1) – đề xuất
+PATCH | /api/v1/projects/{projectId}/members/{userId}/department | Gán / chuyển thành viên vào phòng ban (UC6.4) – đề xuất
+
+TABLE 35
+Method | Route | Chức năng (Use Case)
+POST | /api/v1/product-backlog-items | Tạo PBI (UC7.1)
+GET | /api/v1/product-backlog-items/{pbiId} | Xem chi tiết PBI (UC7.4)
+PATCH | /api/v1/product-backlog-items/{pbiId}/priority | Thiết lập độ ưu tiên (UC8.1)
+PUT | /api/v1/product-backlog-items/order | Sắp xếp lại thứ tự (kéo thả) (UC8.2)
+GET | /api/v1/product-backlog-items?status= | Danh sách, lọc theo trạng thái, phân trang (UC8.3)
+
+TABLE 36
+Method | Route | Chức năng (Use Case)
+POST | /api/v1/epics | Tạo Epic (UC9.1)
+GET | /api/v1/epics?projectId= | Danh sách Epic của dự án (UC9.4)
+PUT | /api/v1/epics/{epicId}/product-backlog-items | Liên kết PBI với Epic (UC10.1)
+GET | /api/v1/epics/{epicId}/progress | Tiến độ Epic (UC10.3)
+
+TABLE 37
+Method | Route | Chức năng (Use Case)
+POST | /api/v1/sprints | Tạo Sprint mới (UC11.1)
+POST | /api/v1/sprints/{sprintId}/backlog-items | Chọn PBI vào Sprint (UC11.2)
+GET | /api/v1/sprints/{sprintId}/progress | Tiến độ Sprint (UC12.1)
+GET | /api/v1/sprints/{sprintId}/burndown | Dữ liệu Burndown Chart (UC12.2)
+POST | /api/v1/sprints/{sprintId}/close | Đóng Sprint (UC12.4)
+
+TABLE 38
+Method | Route | Chức năng (Use Case)
+POST | /api/v1/projects/{projectId}/tasks | Tạo Task mới (UC13.1)
+GET | /api/v1/tasks/{taskId} | Xem chi tiết Task (UC13.4)
+PUT | /api/v1/tasks/{taskId} | Cập nhật thông tin Task (UC13.2)
+PATCH | /api/v1/tasks/{taskId}/assignee | Giao / đổi người thực hiện (UC14.1, UC14.2)
+PATCH | /api/v1/tasks/{taskId}/deadline | Thiết lập Deadline (UC15.1)
+PATCH | /api/v1/tasks/{taskId}/priority | Thiết lập Priority (UC15.2)
+GET | /api/v1/projects/{projectId}/tasks/overdue | Danh sách Task quá hạn (UC15.4)
+
+TABLE 39
+Method | Route | Chức năng (Use Case)
+GET | /api/v1/projects/{projectId}/board | Lấy Board (cột và Task); hỗ trợ lọc sprintId, assigneeId, keyword (UC16.1, UC16.2, UC17.2–UC17.4)
+PATCH | /api/v1/tasks/{taskId}/move | Kéo thả Task sang cột / vị trí mới (UC17.1)
+PUT | /api/v1/users/me/board-preferences | Lưu trạng thái thu gọn / mở rộng cột của người dùng (UC16.3)
+
+TABLE 40
+Method | Route | Chức năng (Use Case)
+PUT | /api/v1/projects/{projectId}/board/columns/{columnId}/wip-limit | Thiết lập / cập nhật WIP Limit (UC18.1, UC18.2)
+DELETE | /api/v1/projects/{projectId}/board/columns/{columnId}/wip-limit | Xóa WIP Limit (UC18.3)
+GET | /api/v1/projects/{projectId}/wip | Số Task, giới hạn và cờ quá tải của từng cột (UC19.1, UC19.2, UC19.4)
+GET | /api/v1/projects/{projectId}/wip/alerts | Danh sách cảnh báo vượt WIP Limit (UC19.3)
+
+TABLE 41
+Method | Route | Chức năng (Use Case)
+GET | /api/v1/projects/{projectId}/flow-metrics/wip?sprintId= | Tổng WIP hiện tại và thống kê theo Sprint (UC20.1, UC20.2)
+GET | /api/v1/projects/{projectId}/flow-metrics/throughput?from=&to= | Throughput theo khoảng thời gian (UC21.1)
+GET | /api/v1/projects/{projectId}/flow-metrics/cycle-time?sprintId= | Cycle Time từng Task (UC22.1)
+GET | /api/v1/projects/{projectId}/flow-metrics/cycle-time/average?sprintId= | Cycle Time trung bình (UC22.2)
+GET | /api/v1/projects/{projectId}/flow-metrics/work-item-age | Work Item Age của Task chưa hoàn thành (UC23.1)
+
+TABLE 42
+Method | Route | Chức năng (Use Case)
+POST | /api/v1/tasks/{taskId}/bugs | Tạo Bug (kèm tệp minh chứng nếu có) (UC24.1)
+GET | /api/v1/projects/{projectId}/bugs?status=&severity=&assigneeId= | Danh sách, lọc, phân trang (UC24.4)
+GET | /api/v1/bugs/{bugId} | Chi tiết Bug (kèm tệp, bình luận, lịch sử) (UC24.4)
+PATCH | /api/v1/bugs/{bugId}/assignee | Phân công Bug (UC25.1)
+PATCH | /api/v1/bugs/{bugId}/status | Chuyển trạng thái theo Workflow (gồm đóng Bug) (UC25.3, UC25.4)
+
+TABLE 43
+Method | Route | Chức năng (Use Case)
+POST | /api/v1/tasks/{taskId}/comments | Thêm bình luận (có thể kèm mentionUserIds) (UC26.1, UC26.4)
+PUT | /api/v1/comments/{commentId} | Chỉnh sửa bình luận của chính mình (UC26.2)
+POST | /api/v1/tasks/{taskId}/attachments | Tải lên tệp đính kèm (multipart) (UC27.1)
+GET | /api/v1/attachments/{attachmentId}/download | Tải xuống tệp (UC27.3)
+GET | /api/v1/notifications?isRead= | Danh sách thông báo của tôi (UC28.1)
+PATCH | /api/v1/notifications/{notificationId}/read | Đánh dấu thông báo đã đọc (UC28.3)
+GET | /api/v1/projects/{projectId}/activity-logs | Lịch sử hoạt động của dự án (UC28.2)
+WS | /hubs/notifications | SignalR Hub đẩy thông báo thời gian thực (UC28.1)
+
+TABLE 44
+Method | Route | Chức năng (Use Case)
+POST | /api/v1/chat/rooms | Tạo phòng chat riêng hoặc nhóm (UC29.1, UC30.1)
+POST | /api/v1/chat/rooms/{chatRoomId}/messages | Gửi tin nhắn (JSON hoặc multipart kèm tệp) (UC29.1, UC30.3, UC31.1)
+GET | /api/v1/chat/rooms/{chatRoomId}/messages?before=&limit= | Lịch sử trò chuyện (phân trang) (UC29.3)
+POST | /api/v1/chat/rooms/{chatRoomId}/participants | Thêm thành viên vào phòng chat (UC30.2)
+POST | /api/v1/chat/rooms/{chatRoomId}/read | Đánh dấu đã đọc (UC32.3)
+GET | /api/v1/chat/unread-count | Tổng số tin nhắn chưa đọc (UC32.2)
+WS | /hubs/chat | SignalR Hub: sự kiện message.new, notification.new (UC29.2, UC32.1)
+
+TABLE 45
+Method | Route | Chức năng (Use Case)
+GET | /api/v1/admin/users?keyword=&status= | Danh sách và tìm kiếm người dùng (UC33.1)
+POST | /api/v1/admin/users | Tạo tài khoản người dùng (UC33.1)
+GET | /api/v1/admin/roles | Danh sách vai trò hệ thống Admin/User (UC33.2)
+PUT | /api/v1/admin/users/{userId}/role | Gán vai trò hệ thống Admin/User cho tài khoản (UC33.2) – đề xuất
+PUT | /api/v1/admin/system-config | Cập nhật cấu hình hệ thống (UC33.3)
+GET | /api/v1/me/permissions?projectId= | Vai trò trong dự án (Manager/Member) và quyền của người dùng hiện tại (để ẩn/hiện chức năng) (UC34.1–UC35.4)
+
+TABLE 46
+Lớp phân tích | Thành phần cài đặt | Công nghệ
+<<boundary>> (…UI) | Trang và component giao diện: biểu mẫu, bảng danh sách, Scrumban Board, khung chat; gọi API qua lớp dịch vụ. | ReactJS, Tailwind CSS
+<<control>> (…Controller) | Controller tiếp nhận yêu cầu; Service xử lý nghiệp vụ, kiểm tra quyền, ghi ActivityLog; Hub gửi dữ liệu thời gian thực. | ASP.NET Core Web API, SignalR
+<<entity>> | Lớp Entity ánh xạ bảng dữ liệu; Repository truy vấn qua DbContext; DTO trao đổi dữ liệu với giao diện. | Entity Framework Core, SQL Server
+Xác thực, phân quyền | Middleware xác thực JWT; chính sách phân quyền theo vai trò hệ thống và vai trò trong dự án (Authorize/Policy). | ASP.NET Core Identity / JWT
+
+TABLE 47
+Điểm tích hợp | Mô tả
+Frontend – Backend | Giao diện gọi RESTful API (JSON) qua HTTPS, đính kèm JWT trong mỗi yêu cầu; xử lý mã lỗi 401/403 để chuyển về đăng nhập hoặc báo thiếu quyền.
+Thời gian thực | Hub SignalR đẩy tin nhắn (/hubs/chat), thông báo (/hubs/notifications) và thay đổi trên Scrumban Board tới các thành viên cùng dự án.
+Phân quyền | Cùng một bộ quyền (Permission, RolePermission) dùng cho kiểm tra ở API và để ẩn/hiện chức năng trên giao diện (GET /api/v1/me/permissions); vai trò hệ thống lấy từ UserRole, vai trò trong dự án lấy từ ProjectMember.RoleId.
+Lưu trữ tệp | Tệp đính kèm (Task, chat) lưu ở kho lưu trữ; cơ sở dữ liệu chỉ lưu đường dẫn, tên và dung lượng.
+Nhật ký và thông báo | Mọi thao tác quan trọng ghi ActivityLog và tạo Notification dùng chung cho Task, Bug, Sprint, WIP Limit, bình luận và chat.
+Giữa các chức năng | Task liên kết Sprint, Epic, Bug, Comment, Attachment; Board dựng từ Task và BoardColumn; Flow Metrics tính từ Task (StartedAt, CompletedAt) và Sprint.

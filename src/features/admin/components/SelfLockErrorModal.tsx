@@ -9,7 +9,7 @@ export function SelfLockErrorModal({ isOpen, onClose }: SelfLockErrorModalProps)
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/70 backdrop-blur-xs animate-in fade-in duration-200">
+    <div onClick={(event) => { if (event.target === event.currentTarget) onClose() }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/70 backdrop-blur-xs animate-in fade-in duration-200">
       <div
         className="w-full max-w-lg bg-whiteboard dark:bg-neutral-900 rounded-2xl shadow-2xl border border-rose-300 dark:border-rose-900/60 p-6 flex flex-col overflow-hidden relative"
         role="alertdialog"

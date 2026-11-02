@@ -53,7 +53,7 @@ export function LinkEpicModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+    <div onClick={(event) => { if (event.target === event.currentTarget) onClose() }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div
         className="w-full max-w-xl bg-whiteboard rounded-xl shadow-2xl border border-neutral-200 overflow-hidden flex flex-col max-h-[85vh]"
         role="dialog"

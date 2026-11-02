@@ -66,7 +66,7 @@ export function CreateUserModal({ isOpen, onClose, onCreateUser }: CreateUserMod
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/70 backdrop-blur-xs animate-in fade-in duration-200">
+    <div onClick={(event) => { if (event.target === event.currentTarget) handleClose() }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/70 backdrop-blur-xs animate-in fade-in duration-200">
       <div
         className="w-full max-w-xl bg-whiteboard dark:bg-neutral-900 rounded-2xl shadow-2xl border border-neutral-200 dark:border-neutral-800 flex flex-col overflow-hidden"
         role="dialog"
