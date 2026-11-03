@@ -1,0 +1,19 @@
+{
+  "final_scenarios": [
+    {
+      "scenario": "delta task image: exact PNG upload, metadata, signed preview and download",
+      "status": "passed"
+    },
+    {
+      "scenario": "delta Chat image and reply: backend metadata and FE history preservation",
+      "status": "passed"
+    },
+    {
+      "scenario": "delta Avatar UI: exact PNG on dedicated QA account, absolute CDN URL and reload",
+      "status": "passed"
+    }
+  ],
+  "test_data": "project3 QA and user5 avatar",
+  "source_png_bytes": 1958133,
+  "initial_avatar_probe": "Read too early during loading; final waits for actual decoded image after reload."
+}

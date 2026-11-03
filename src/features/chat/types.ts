@@ -4,6 +4,7 @@ export interface ChatMember {
   id: string
   name: string
   avatar: string
+  avatarUrl?: string | null
   role: string
   department?: string
   email?: string
@@ -11,6 +12,8 @@ export interface ChatMember {
 }
 
 export interface ChatAttachment {
+  messageId?: number
+  roomId?: number
   id: string
   name: string
   size: string
@@ -28,6 +31,7 @@ export interface ChatMessage {
   senderId: string
   senderName: string
   senderAvatar: string
+  senderAvatarUrl?: string | null
   senderRole?: string
   timestamp: string
   createdAt: string
@@ -68,6 +72,7 @@ export interface Conversation {
   type: ConversationType
   name: string
   avatar?: string
+  avatarUrl?: string | null
   roleBadge?: string
   status?: 'online' | 'offline' | 'busy'
   lastMessage?: string

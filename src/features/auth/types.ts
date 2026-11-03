@@ -6,7 +6,7 @@ export interface AuthUser {
   role: string
   /** Vai trò hệ thống gốc từ BE ('ADMIN' | 'USER') */
   systemRole?: 'ADMIN' | 'USER'
-  /** URL ảnh đại diện từ BE (yêu cầu Bearer token để load) */
+  /** URL ảnh đại diện public từ BE/Cloudinary */
   avatar?: string
   /** 2 ký tự đầu tên, dùng khi chưa có ảnh */
   avatarCode: string

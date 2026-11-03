@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar'
 import { useState } from 'react'
 import type { KanbanTask } from '../types'
 import { Modal, Button, Icon } from '@/components/ui'
@@ -77,7 +78,7 @@ export function DeleteTaskModal({
             <span className="text-neutral-500">Người thực hiện:</span>
             <div className="flex items-center gap-1.5 font-medium text-neutral-800">
               <span className="w-5 h-5 rounded-full bg-neutral-200 text-neutral-700 text-[10px] flex items-center justify-center font-bold">
-                {task.assignee.avatarCode}
+                <Avatar src={task.assignee.avatarUrl} name={task.assignee.name} fallback={task.assignee.avatarCode} />
               </span>
               <span>{task.assignee.name}</span>
             </div>

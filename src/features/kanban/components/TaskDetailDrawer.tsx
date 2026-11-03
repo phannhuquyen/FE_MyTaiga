@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar'
 import { useState, useEffect, useRef } from 'react'
 import type { KanbanTask, KanbanColumnId, KanbanPriority, KanbanAttachment, KanbanComment } from '../types'
 import { Button, Icon } from '@/components/ui'
@@ -36,7 +37,7 @@ function DrawerInner({
   onAddComment,
 }: DrawerInnerProps) {
   const { projectId } = useParams()
-  const [members, setMembers] = useState<{ userId: number; fullName: string; projectRole: string }[]>([])
+  const [members, setMembers] = useState<{ userId: number; fullName: string; projectRole: string; avatar?: string | null }[]>([])
   useEffect(() => {
     let cancelled = false
     if (projectId) api.projectMembers.list(Number(projectId), { pageSize: 100 }).then(res => { if (!cancelled) setMembers(res.data.items) }).catch(() => {})
@@ -82,6 +83,7 @@ function DrawerInner({
             id: String(c.commentId),
             authorName: c.authorName || `Thành viên #${c.userId}`,
             authorRole: c.authorRole || 'Chưa có thông tin vai trò',
+            authorAvatarUrl: c.authorAvatarUrl,
             authorAvatar: c.authorAvatarCode || `U${c.userId}`,
             timestamp: new Date(c.createdAt).toLocaleString('vi-VN', {
               hour: '2-digit',
@@ -144,7 +146,7 @@ function DrawerInner({
 
   const handleAssigneeChange = async (id: string) => {
     const member = members.find(item => String(item.userId) === id)
-    await runTaskAction(() => onUpdate(task.id, { assignee: { id: member?.userId, name: member?.fullName || 'Chưa giao', avatarCode: member?.fullName.slice(0, 2) || '—', role: member?.projectRole } }))
+    await runTaskAction(() => onUpdate(task.id, { assignee: { id: member?.userId, name: member?.fullName || 'Chưa giao', avatarCode: member?.fullName.slice(0, 2) || '—', avatarUrl: member?.avatar, role: member?.projectRole } }))
   }
 
   const handleAddSubtaskSubmit = async (e: React.FormEvent) => {
@@ -269,9 +271,15 @@ function DrawerInner({
     const numId = parseBackendId(att.id)
     if (numId > 0) {
       try {
-        const blob = await api.attachments.previewBlob(numId)
-        const url = window.URL.createObjectURL(blob)
-        window.open(url, '_blank')
+        const metadata = await api.attachments.get(numId)
+        if (metadata.data.url?.startsWith('https://res.cloudinary.com/')) {
+          window.open(metadata.data.previewUrl || metadata.data.url, '_blank', 'noopener,noreferrer')
+        } else {
+          const blob = await api.attachments.previewBlob(numId)
+          const url = window.URL.createObjectURL(blob)
+          window.open(url, '_blank')
+          window.setTimeout(() => URL.revokeObjectURL(url), 60_000)
+        }
       } catch (err) {
         console.error('⚠️ Lỗi xem trước file:', err)
         alert('Không thể xem trước tệp này.')
@@ -712,7 +720,7 @@ function DrawerInner({
                 comments.map((c) => (
                   <div key={c.id} className="flex gap-2.5 text-xs group">
                     <div className="w-7 h-7 rounded-full bg-primary-100 text-primary-800 text-[10px] font-bold flex items-center justify-center shrink-0">
-                      {c.authorAvatar}
+                      <Avatar src={c.authorAvatarUrl} name={c.authorName} fallback={c.authorAvatar} />
                     </div>
                     <div className="flex-1 space-y-1 bg-neutral-50 p-2.5 rounded-lg border border-neutral-200 relative">
                       <div className="flex items-center justify-between">

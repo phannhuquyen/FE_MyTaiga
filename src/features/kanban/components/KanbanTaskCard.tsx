@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar'
 import type { KanbanTask } from '../types'
 import { Icon } from '@/components/ui'
 
@@ -105,7 +106,7 @@ export function KanbanTaskCard({ task, onClick, onDelete }: KanbanTaskCardProps)
           className="w-6 h-6 rounded-full bg-neutral-800 text-whiteboard text-[10px] font-bold flex items-center justify-center ring-2 ring-whiteboard shrink-0"
           title={`Người thực hiện: ${task.assignee.name}`}
         >
-          {task.assignee.avatarCode}
+          <Avatar src={task.assignee.avatarUrl} name={task.assignee.name} fallback={task.assignee.avatarCode} />
         </div>
       </div>
     </div>

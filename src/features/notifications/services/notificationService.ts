@@ -543,6 +543,7 @@ class NotificationService {
             actor: {
               name: n.actorName || 'Chưa có dữ liệu người thực hiện',
               avatar: n.actorAvatarCode || '?',
+              avatarUrl: n.actorAvatarUrl,
               role: n.actorRole || 'Chưa có thông tin vai trò',
             },
             targetCode: n.refType && n.refId ? `#${n.refType}-${n.refId}` : undefined,
@@ -581,6 +582,7 @@ class NotificationService {
             actor: {
               name: a.userName || `Thành viên #${a.userId}`,
               avatar: a.userAvatarCode || '?',
+              avatarUrl: a.userAvatarUrl,
               role: a.userRole || 'Chưa có thông tin vai trò',
             },
             actionType: 'task_complete',

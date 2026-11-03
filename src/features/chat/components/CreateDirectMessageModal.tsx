@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar'
 import { useState, useMemo } from 'react'
 import { Icon } from '@/components/ui'
 import { AVAILABLE_CHAT_MEMBERS } from '../services/chatService'
@@ -103,7 +104,7 @@ export function CreateDirectMessageModal({
               >
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-neutral-900 text-neutral-100 flex items-center justify-center font-bold text-xs shrink-0">
-                    {member.avatar}
+                    <Avatar src={member.avatarUrl} name={member.name} fallback={member.avatar} />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">

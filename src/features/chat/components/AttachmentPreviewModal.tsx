@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Icon } from '@/components/ui'
 import type { ChatAttachment } from '../types'
+import { refreshChatAttachment } from '../services/attachmentService'
 
 interface AttachmentPreviewModalProps {
   isOpen: boolean
@@ -16,6 +17,26 @@ export function AttachmentPreviewModal({
   const [zoom, setZoom] = useState(100)
   const [currentPage, setCurrentPage] = useState(1)
   const totalPages = 8
+  const [media, setMedia] = useState<{ source: ChatAttachment; fresh?: ChatAttachment; error?: string } | null>(null)
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null)
+  useEffect(() => {
+    if (!isOpen || !attachment) return
+    let cancelled = false
+    const refresh = () => {
+      refreshChatAttachment(attachment).then(fresh => {
+        if (!cancelled) setMedia({ source: attachment, fresh })
+      }).catch(() => {
+        if (!cancelled) setMedia({ source: attachment, error: 'Không thể tải ảnh. Vui lòng mở lại bản xem trước.' })
+      })
+    }
+    refresh()
+    const timer = window.setInterval(refresh, 9 * 60_000)
+    return () => { cancelled = true; window.clearInterval(timer) }
+  }, [isOpen, attachment])
+  const fresh = attachment && (!attachment.roomId || !attachment.messageId)
+    ? attachment
+    : media?.source === attachment ? media?.fresh : undefined
+  const imageUrl = fresh?.previewUrl || fresh?.url
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -32,9 +53,9 @@ export function AttachmentPreviewModal({
   if (!isOpen || !attachment) return null
 
   const handleDownload = () => {
-    if (!attachment.url) return
+    if (!fresh?.url) return
     const link = document.createElement('a')
-    link.href = attachment.url
+    link.href = fresh.url
     link.target = '_blank'
     link.rel = 'noopener noreferrer'
     link.download = attachment.name
@@ -129,6 +150,7 @@ export function AttachmentPreviewModal({
             <button
               type="button"
               onClick={handleDownload}
+              disabled={!fresh?.url}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-whiteboard text-xs font-semibold shadow-xs cursor-pointer"
             >
               <Icon name="download" size={14} />
@@ -149,11 +171,11 @@ export function AttachmentPreviewModal({
         {/* Document Content Viewport (S13-11) */}
         <div className="flex-1 overflow-auto bg-neutral-200/50 dark:bg-neutral-950 p-4 sm:p-8 flex justify-center">
           {attachment.type === 'image' ? (
-            attachment.previewUrl || attachment.url ? (
-              <img src={attachment.previewUrl || attachment.url} alt={attachment.name}
+            imageUrl && failedImageUrl !== imageUrl ? (
+              <img src={imageUrl} alt={attachment.name} onError={() => setFailedImageUrl(imageUrl)}
                 style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}
                 className="max-w-full object-contain self-start" />
-            ) : <p role="status">Chưa có liên kết xem trước ảnh. Vui lòng tải lại tin nhắn.</p>
+            ) : <p role="status">{media?.source === attachment && media.error ? media.error : imageUrl ? 'Không tải được ảnh. Vui lòng mở lại bản xem trước.' : 'Đang lấy liên kết xem trước ảnh...'}</p>
           ) : (
           <div
             style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}

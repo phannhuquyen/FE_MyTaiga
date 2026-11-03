@@ -71,6 +71,7 @@ export default function ProfilePage() {
   const handleUpdateAvatar = async (avatarUrl: string) => {
     const updated = await profileService.updateAvatar({ avatarUrl })
     setProfile(updated)
+    updateUser({ avatar: updated.avatarUrl })
     setToastState({
       isVisible: true,
       message: 'Đã cập nhật ảnh đại diện thành công',

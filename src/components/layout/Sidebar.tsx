@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar'
 import { Link, useLocation, useMatch, useNavigate, useParams } from 'react-router-dom'
 import { Icon, type IconName } from '@/components/ui'
 import { useAuth } from '@/features/auth'
@@ -283,7 +284,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           >
             <div className="relative">
               <div className="w-8 h-8 rounded-full bg-neutral-700 text-whiteboard flex items-center justify-center text-xs font-semibold group-hover:ring-2 group-hover:ring-primary-500 transition-all">
-                {user?.avatarCode || 'MQ'}
+                <Avatar src={user?.avatar} name={user?.name} fallback={user?.avatarCode || 'MQ'} />
               </div>
               <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-success-500 ring-2 ring-neutral-900" />
             </div>

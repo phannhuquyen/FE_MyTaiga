@@ -21,6 +21,7 @@ export interface KanbanComment {
   authorName: string
   authorRole: string
   authorAvatar: string
+  authorAvatarUrl?: string | null
   timestamp: string
   content: string
 }
@@ -40,6 +41,7 @@ export interface KanbanTask {
     id?: number
     name: string
     avatarCode: string
+    avatarUrl?: string | null
     role?: string
     isCurrentUser?: boolean
   }

@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar'
 import { useState } from 'react'
 import { Icon } from '@/components/ui'
 import type { CreateChannelPayload, ChatMember } from '../types'
@@ -174,7 +175,7 @@ export function CreateChannelModal({
                     className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs bg-whiteboard dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 shadow-2xs"
                   >
                     <span className="w-4 h-4 rounded-full bg-neutral-900 text-neutral-100 text-[10px] font-bold flex items-center justify-center">
-                      {mem.avatar}
+                      <Avatar src={mem.avatarUrl} name={mem.name} fallback={mem.avatar} />
                     </span>
                     <span className="font-medium">
                       {mem.name} {isOwner ? '(Bạn - Trưởng nhóm)' : ''}
@@ -213,7 +214,7 @@ export function CreateChannelModal({
                         className="w-4 h-4 text-primary-600 rounded border-neutral-300 dark:border-neutral-700 focus:ring-primary-500"
                       />
                       <div className="w-8 h-8 rounded-lg bg-neutral-900 text-neutral-100 flex items-center justify-center font-bold text-xs shrink-0">
-                        {member.avatar}
+                        <Avatar src={member.avatarUrl} name={member.name} fallback={member.avatar} />
                       </div>
                       <div>
                         <div className="text-xs font-bold text-neutral-900 dark:text-neutral-100">

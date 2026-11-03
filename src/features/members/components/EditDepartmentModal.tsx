@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar'
 import { useState, useId } from 'react'
 import { Icon } from '@/components/ui'
 import type { Department, Member } from '../types'
@@ -196,7 +197,7 @@ function EditDepartmentModalContent({
                     className="w-7 h-7 rounded-full bg-neutral-700 text-whiteboard text-[10px] font-bold flex items-center justify-center ring-2 ring-whiteboard"
                     title={m.name}
                   >
-                    {m.avatarCode}
+                    <Avatar src={m.avatarUrl} name={m.name} fallback={m.avatarCode} />
                   </div>
                 ))}
                 {deptMembers.length > 4 && (

@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar'
 import { useState } from 'react'
 import { Icon } from '@/components/ui'
 import { cn } from '@/lib/utils'
@@ -105,7 +106,7 @@ export function TaskDetailPanel({
           </span>
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-full bg-neutral-800 text-whiteboard text-[11px] font-semibold flex items-center justify-center shrink-0">
-              {task.assignee.avatarCode}
+              <Avatar src={task.assignee.avatarUrl} name={task.assignee.name} fallback={task.assignee.avatarCode} />
             </div>
             <span className="font-medium text-neutral-800 truncate">
               {task.assignee.name}

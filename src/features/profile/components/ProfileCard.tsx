@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar'
 import { useState, type FormEvent } from 'react'
 import { Icon } from '@/components/ui'
 import type { UserProfile } from '../types'
@@ -109,15 +110,7 @@ export function ProfileCard({
             {/* Avatar squircle */}
             <div className="relative group shrink-0">
               <div className="w-18 h-18 rounded-2xl overflow-hidden bg-neutral-800 text-whiteboard flex items-center justify-center font-bold text-xl shadow-md border-2 border-neutral-200">
-                {profile.avatarUrl ? (
-                  <img
-                    src={profile.avatarUrl}
-                    alt={profile.fullName}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span>{profile.avatarCode}</span>
-                )}
+                <Avatar src={profile.avatarUrl} name={profile.fullName} fallback={profile.avatarCode} />
               </div>
               <button
                 type="button"

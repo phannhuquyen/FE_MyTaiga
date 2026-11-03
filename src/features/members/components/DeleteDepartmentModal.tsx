@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar'
 import { useState } from 'react'
 import { Icon } from '@/components/ui'
 import type { Department, Member } from '../types'
@@ -99,7 +100,7 @@ export function DeleteDepartmentModal({
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <div className="w-6 h-6 rounded-full bg-neutral-700 text-whiteboard text-[10px] font-bold flex items-center justify-center shrink-0">
-                        {m.avatarCode}
+                        <Avatar src={m.avatarUrl} name={m.name} fallback={m.avatarCode} />
                       </div>
                       <div className="min-w-0">
                         <span className="font-bold text-neutral-900 block truncate">{m.name}</span>

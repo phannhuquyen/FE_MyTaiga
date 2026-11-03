@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar'
 import { useState, useId } from 'react'
 import { Icon } from '@/components/ui'
 import type { Candidate, Department, MemberRole } from '../types'
@@ -204,7 +205,7 @@ export function AddMemberModal({
                         </div>
 
                         <div className="w-8 h-8 rounded-full bg-neutral-700 text-whiteboard font-semibold text-xs flex items-center justify-center shrink-0">
-                          {cand.avatarCode}
+                          <Avatar src={cand.avatarUrl} name={cand.name} fallback={cand.avatarCode} />
                         </div>
 
                         <div className="min-w-0">

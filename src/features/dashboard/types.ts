@@ -23,6 +23,7 @@ export interface TaskComment {
   id: string
   author: string
   authorAvatar?: string
+  authorAvatarUrl?: string | null
   content: string
   timeAgo: string
   createdAt: string
@@ -44,6 +45,7 @@ export interface TaskItem {
   assignee: {
     name: string
     avatarCode: string
+    avatarUrl?: string | null
     role: string
   }
   sprint: string
@@ -53,6 +55,7 @@ export interface TaskItem {
 }
 
 export interface ActivityItem {
+  avatarUrl?: string | null
   id: string
   author: string
   avatarCode: string

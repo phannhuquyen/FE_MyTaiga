@@ -416,6 +416,7 @@ export interface TaskExtra {
   assignee?: PersonSummary | null
   assigneeName?: string | null
   assigneeAvatarCode?: string | null
+  assigneeAvatarUrl?: string | null
   assigneeRole?: string | null
   reporterName?: string | null
   epicTitle?: string | null
@@ -766,6 +767,7 @@ export interface ListBugsQuery {
 
 export interface CommentData {
   authorName?: string
+  authorAvatarUrl?: string | null
   authorAvatarCode?: string
   authorRole?: string | null
   isEditable?: boolean
@@ -805,6 +807,7 @@ export interface AttachmentData {
 export interface NotificationData {
   actorName?: string | null
   actorAvatarCode?: string | null
+  actorAvatarUrl?: string | null
   actorRole?: string | null
   actorUnknown?: boolean
   targetTitle?: string | null
@@ -829,6 +832,7 @@ export interface ListNotificationsQuery {
 export interface ActivityLogItem {
   userName?: string | null
   userAvatarCode?: string | null
+  userAvatarUrl?: string | null
   userRole?: string | null
   entityTitle?: string | null
   isSystemAction?: boolean
@@ -871,6 +875,7 @@ export interface ChatAttachmentData {
 export interface ChatMessageData {
   senderName?: string | null
   senderAvatarCode?: string | null
+  senderAvatarUrl?: string | null
   senderRole?: string | null
   isEdited?: boolean
   editedAt?: string | null
@@ -893,6 +898,7 @@ export interface ChatMessagesData {
 export interface ChatRoomData {
   otherParticipantName?: string | null
   otherParticipantAvatarCode?: string | null
+  otherParticipantAvatarUrl?: string | null
   otherParticipantStatus?: 'ONLINE' | 'OFFLINE'
   participantsCount?: number
   lastMessageSenderName?: string | null

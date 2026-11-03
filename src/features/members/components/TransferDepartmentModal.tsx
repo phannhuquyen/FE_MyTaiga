@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar'
 import { useState, useId } from 'react'
 import { Icon } from '@/components/ui'
 import type { Department, Member } from '../types'
@@ -74,7 +75,7 @@ export function TransferDepartmentModal({
           <div className="p-3.5 rounded-lg border border-neutral-200 bg-neutral-50/70 flex items-center justify-between">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-10 h-10 rounded-full bg-primary-800 text-whiteboard font-semibold text-body-sm flex items-center justify-center shrink-0">
-                {member.avatarCode}
+                <Avatar src={member.avatarUrl} name={member.name} fallback={member.avatarCode} />
               </div>
               <div className="min-w-0">
                 <div className="text-body-sm font-bold text-neutral-900 truncate">

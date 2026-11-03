@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar'
 import { useState } from 'react'
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { Icon, type IconName } from '@/components/ui'
@@ -179,7 +180,7 @@ export function AdminPortalLayout() {
         <div className="p-4 border-t border-neutral-800 bg-neutral-950/40 flex items-center justify-between">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-full bg-emerald-700 flex items-center justify-center text-whiteboard font-bold text-xs shrink-0">
-              {user?.avatarCode || 'AD'}
+              <Avatar src={user?.avatar} name={user?.name} fallback={user?.avatarCode || 'AD'} />
             </div>
             <div className="min-w-0">
               <div className="text-xs font-semibold text-whiteboard truncate">

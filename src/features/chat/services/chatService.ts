@@ -14,6 +14,7 @@ function mapApiMessage(message: ChatMessageData, conversationId: string, history
   return {
     id: String(message.messageId), conversationId, senderId: String(message.senderId),
     senderName: message.senderName || `Thành viên #${message.senderId}`,
+    senderAvatarUrl: message.senderAvatarUrl,
     senderAvatar: message.senderAvatarCode || `U${message.senderId}`,
     senderRole: message.senderRole || undefined,
     timestamp: new Date(message.sentAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
@@ -27,6 +28,7 @@ function mapApiMessage(message: ChatMessageData, conversationId: string, history
       const name = item.originalFileName || item.fileName
       const bytes = item.fileSizeBytes ?? item.fileSize
       return {
+        roomId: message.chatRoomId, messageId: message.messageId,
         id: String(item.messageAttachmentId), name, bytes, size: `${(bytes / (1024 * 1024)).toFixed(1)} MB`,
         type: item.mimeType?.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(name) ? 'image' : /\.pdf$/i.test(name) ? 'pdf' : 'archive',
         url: item.downloadUrl, previewUrl: item.previewUrl || item.url || undefined,
@@ -556,6 +558,7 @@ class ChatService {
           projectId: r.projectId,
           type: r.roomType === 'PRIVATE' ? 'direct' : 'channel',
           name: r.roomName || r.otherParticipantName || (r.roomType === 'PRIVATE' ? `Trò chuyện riêng #${r.chatRoomId}` : `Kênh #${r.chatRoomId}`),
+          avatarUrl: r.otherParticipantAvatarUrl,
           avatar: r.otherParticipantAvatarCode || undefined,
           status: r.otherParticipantStatus === 'ONLINE' ? 'online' : 'offline',
           membersCount: r.participantsCount,
@@ -823,6 +826,7 @@ class ChatService {
       type: 'direct',
       name: member.name,
       avatar: member.avatar,
+      avatarUrl: member.avatarUrl,
       roleBadge: member.role,
       status: member.status || 'online',
       unreadCount: 0,

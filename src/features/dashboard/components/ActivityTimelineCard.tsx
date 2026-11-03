@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar'
 import { Icon } from '@/components/ui'
 import type { ActivityItem } from '../types'
 
@@ -26,7 +27,7 @@ export function ActivityTimelineCard({
           <div key={item.id} className="flex items-start gap-3 text-body-sm">
             {/* Avatar Circle */}
             <div className="w-7 h-7 rounded-full bg-neutral-800 text-whiteboard flex items-center justify-center text-xs font-semibold shrink-0 mt-0.5 shadow-xs">
-              {item.avatarCode}
+              <Avatar src={item.avatarUrl} name={item.author} fallback={item.avatarCode} />
             </div>
 
             {/* Content & Timestamp */}

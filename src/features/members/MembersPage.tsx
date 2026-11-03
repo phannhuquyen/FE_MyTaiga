@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar'
 import { useState, useEffect, useMemo, useId } from 'react'
 import { Link } from 'react-router-dom'
 import { Icon } from '@/components/ui'
@@ -646,7 +647,7 @@ export default function MembersPage() {
                               title="Xem chi tiết"
                             >
                               <div className="w-9 h-9 rounded-full bg-neutral-800 text-whiteboard font-semibold text-xs flex items-center justify-center shrink-0">
-                                {member.avatarCode}
+                                <Avatar src={member.avatarUrl} name={member.name} fallback={member.avatarCode} />
                               </div>
                               <span
                                 className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full ring-2 ring-whiteboard ${

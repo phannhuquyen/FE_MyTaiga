@@ -1,0 +1,96 @@
+{
+  "output": "D:\\personal\\MyTaiga\\artifacts\\report-chapter3\\revision-fhd\\BaoCaoDACN_Nhom8_HoanThien.docx",
+  "screenshots": {
+    "01-login": {
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "e6144bac0d8bbba89f0dd607e96afd4667d75787a15504a707edcde828e7e629"
+    },
+    "02-dashboard": {
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "1937191fa0b9eed80210b25e30164235c32662d72d531079510e62303fc52f29"
+    },
+    "03-projects": {
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "d75fb4dd76d52072b7be246919f39ea1b07a47b00ac9c8cb2f00395506515ab6"
+    },
+    "04-backlog": {
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "f0d5ec8488b98da403fd8caad785443c1b9c1468aa35c77b3669a6a965ec839b"
+    },
+    "12-epics": {
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "cca6acb8865a6d6b5b724974356c9bdea23355e6e60c9c121a7960132af5c111"
+    },
+    "05-sprints": {
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "0b7af28e6a54d2b1f201562f0d3530ad7d0ab1cde5d98114dfe54f1513b2dd93"
+    },
+    "06-kanban": {
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "9cc917316e48df943857e08740fac0012b87b5c8ac142b2a60a583bc1048c708"
+    },
+    "11-metrics": {
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "3ce9ddd8d73e8852cade187b95cea2950317ad747622c0fb20cf414d92eb7a36"
+    },
+    "07-task": {
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "ca45124b5b053be69d4ba8ac5f34466745bc9e97bcc25cf0a112ac8fff1ed98e"
+    },
+    "08-members": {
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "56fab12e1caebac94314759e3c951328f1a09a8c4d0d57370dc0eb29c9dbfb4e"
+    },
+    "09-bugs": {
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "aae994928889b0e4e9f44608c604bb5d3bc11fd4bb346458a3c6f8f6bc4e34ab"
+    },
+    "10-chat": {
+      "pixels": [
+        1920,
+        1080
+      ],
+      "sha256": "a32d1358cb2f5749d17f15b5c7f72c2ddf8b9ffe44d75197eb3f44d4f186e61e"
+    }
+  },
+  "before_chapter3_unchanged": true,
+  "cloudinary_final": {
+    "task": "PASS",
+    "chat": "PASS",
+    "avatar": "PASS"
+  },
+  "note": "Initial avatar assertion ran during profile loading; final poll verifies actual decoded image after reload."
+}

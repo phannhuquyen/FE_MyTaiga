@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar'
 import { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Icon } from '@/components/ui'
@@ -390,7 +391,7 @@ export function NotificationsPage() {
                             </div>
                           ) : (
                             <div className="w-8 h-8 rounded-lg bg-neutral-800 text-neutral-100 flex items-center justify-center font-bold text-xs">
-                              {notif.actor.avatar}
+                              <Avatar src={notif.actor.avatarUrl} name={notif.actor.name} fallback={notif.actor.avatar} />
                             </div>
                           )}
                         </div>

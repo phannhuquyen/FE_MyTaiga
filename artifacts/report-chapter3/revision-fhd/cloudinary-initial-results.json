@@ -1,0 +1,251 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\personal\\MyTaiga\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "-c",
+      "artifacts/report-chapter3/revision-fhd/playwright.config.ts"
+    ],
+    "configFile": "D:\\personal\\MyTaiga\\artifacts\\report-chapter3\\revision-fhd\\playwright.config.ts",
+    "rootDir": "D:/personal/MyTaiga/artifacts/report-chapter3/revision-fhd",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/personal/MyTaiga/artifacts/report-chapter3/revision-fhd/test-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "D:/personal/MyTaiga/artifacts/report-chapter3/revision-fhd",
+        "testIgnore": [],
+        "testMatch": [
+          "cloudinary.spec.ts"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "D:\\personal\\MyTaiga\\artifacts\\report-chapter3\\revision-fhd\\test-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "D:\\personal\\MyTaiga\\artifacts\\report-chapter3\\revision-fhd",
+        "snapshotDir": "D:\\personal\\MyTaiga\\artifacts\\report-chapter3\\revision-fhd",
+        "testIgnore": [],
+        "testMatch": "cloudinary.spec.ts",
+        "timeout": 120000,
+        "use": {
+          "baseURL": "http://localhost:5173",
+          "browserName": "chromium",
+          "viewport": {
+            "width": 1920,
+            "height": 1080
+          },
+          "trace": "off",
+          "screenshot": "off",
+          "video": "off"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "artifacts/report-chapter3/revision-fhd/cloudinary-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "cloudinary.spec.ts",
+      "file": "cloudinary.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "delta task image: exact PNG upload, metadata, signed preview and download",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 20971,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-02T16:00:15.761Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a90b017bbf3fd6ebd021-ae156bc53354374e7d24",
+          "file": "cloudinary.spec.ts",
+          "line": 54,
+          "column": 1
+        },
+        {
+          "title": "delta Chat image and reply: backend metadata and FE history preservation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12265,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-02T16:00:38.443Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a90b017bbf3fd6ebd021-c2bee49a0f73cba58b7b",
+          "file": "cloudinary.spec.ts",
+          "line": 68,
+          "column": 1
+        },
+        {
+          "title": "delta Avatar UI: exact PNG on dedicated QA account, absolute CDN URL and reload",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 6182,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at D:\\personal\\MyTaiga\\artifacts\\report-chapter3\\revision-fhd\\cloudinary.spec.ts:100:151",
+                    "location": {
+                      "file": "D:\\personal\\MyTaiga\\artifacts\\report-chapter3\\revision-fhd\\cloudinary.spec.ts",
+                      "column": 151,
+                      "line": 100
+                    },
+                    "snippet": "   98 |   await assertImage(page, me.avatar)\n   99 |   await page.reload()\n> 100 |   expect(await page.locator('img').evaluateAll(images => images.some(img => img.complete && img.naturalWidth > 0 && img.src.startsWith('https://')))).toBe(true)\n      |                                                                                                                                                       ^\n  101 | })\n  102 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "D:\\personal\\MyTaiga\\artifacts\\report-chapter3\\revision-fhd\\cloudinary.spec.ts",
+                        "column": 151,
+                        "line": 100
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n   98 |   await assertImage(page, me.avatar)\n   99 |   await page.reload()\n> 100 |   expect(await page.locator('img').evaluateAll(images => images.some(img => img.complete && img.naturalWidth > 0 && img.src.startsWith('https://')))).toBe(true)\n      |                                                                                                                                                       ^\n  101 | })\n  102 |\n    at D:\\personal\\MyTaiga\\artifacts\\report-chapter3\\revision-fhd\\cloudinary.spec.ts:100:151"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-02T16:00:50.796Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "D:\\personal\\MyTaiga\\artifacts\\report-chapter3\\revision-fhd\\test-output\\cloudinary-delta-Avatar-UI-94877-absolute-CDN-URL-and-reload\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "D:\\personal\\MyTaiga\\artifacts\\report-chapter3\\revision-fhd\\cloudinary.spec.ts",
+                    "column": 151,
+                    "line": 100
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "a90b017bbf3fd6ebd021-b60455a1578adcc57329",
+          "file": "cloudinary.spec.ts",
+          "line": 87,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-02T16:00:14.612Z",
+    "duration": 42622.313,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

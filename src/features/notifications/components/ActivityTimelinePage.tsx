@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar'
 import { useState, useMemo, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Icon } from '@/components/ui'
@@ -242,7 +243,7 @@ export function ActivityTimelinePage() {
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <div className="flex items-center gap-2">
                           <div className="w-7 h-7 rounded-lg bg-neutral-900 text-neutral-100 flex items-center justify-center font-bold text-xs">
-                            {item.actor.avatar}
+                            <Avatar src={item.actor.avatarUrl} name={item.actor.name} fallback={item.actor.avatar} />
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5">

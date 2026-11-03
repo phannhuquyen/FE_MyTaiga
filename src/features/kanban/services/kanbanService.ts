@@ -212,6 +212,7 @@ export const kanbanService = {
                 id: t.assigneeId || undefined,
                 name: t.assigneeName || (t.assigneeId ? `Thành viên #${t.assigneeId}` : 'Chưa giao'),
                 avatarCode: t.assigneeAvatarCode || 'NA',
+                avatarUrl: t.assignee?.avatarUrl || t.assigneeAvatarUrl,
                 role: t.assigneeRole || undefined,
               },
               storyPoints: t.storyPoints ?? undefined,
@@ -255,6 +256,7 @@ export const kanbanService = {
             id: t.assigneeId || undefined,
             name: t.assigneeName || (t.assigneeId ? `Thành viên #${t.assigneeId}` : 'Chưa giao'),
             avatarCode: t.assigneeAvatarCode || 'NA',
+                avatarUrl: t.assignee?.avatarUrl || t.assigneeAvatarUrl,
             role: t.assigneeRole || undefined,
           },
           subtasks: subtasks.map((s) => ({
@@ -314,6 +316,7 @@ export const kanbanService = {
           assignee: {
             name: t.assigneeName || 'Chưa giao',
             avatarCode: t.assigneeAvatarCode || 'NA',
+                avatarUrl: t.assignee?.avatarUrl || t.assigneeAvatarUrl,
           },
           subtasks: [],
           order: t.position,

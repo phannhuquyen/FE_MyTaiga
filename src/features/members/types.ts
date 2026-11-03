@@ -31,6 +31,7 @@ export interface Member {
   employeeCode?: string
   name: string
   avatarCode: string
+  avatarUrl?: string | null
   bgColor?: string
   email: string
   role: MemberRole
@@ -48,6 +49,7 @@ export interface Candidate {
   employeeCode: string
   name: string
   avatarCode: string
+  avatarUrl?: string | null
   email: string
   roleTitle: string
   departmentName: string

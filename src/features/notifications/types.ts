@@ -16,6 +16,7 @@ export type NotificationType =
 export interface NotificationActor {
   name: string
   avatar: string
+  avatarUrl?: string | null
   role?: string
   email?: string
 }
@@ -59,6 +60,7 @@ export interface ActivityItem {
   actor: {
     name: string
     avatar: string
+  avatarUrl?: string | null
     role: string
     isBot?: boolean
   }

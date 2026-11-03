@@ -1,0 +1,155 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\personal\\MyTaiga\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "-c",
+      "artifacts/report-chapter3/revision-fhd/playwright.config.ts",
+      "-g",
+      "delta Avatar UI"
+    ],
+    "configFile": "D:\\personal\\MyTaiga\\artifacts\\report-chapter3\\revision-fhd\\playwright.config.ts",
+    "rootDir": "D:/personal/MyTaiga/artifacts/report-chapter3/revision-fhd",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/personal/MyTaiga/artifacts/report-chapter3/revision-fhd/test-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "D:/personal/MyTaiga/artifacts/report-chapter3/revision-fhd",
+        "testIgnore": [],
+        "testMatch": [
+          "cloudinary.spec.ts"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "D:\\personal\\MyTaiga\\artifacts\\report-chapter3\\revision-fhd\\test-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "D:\\personal\\MyTaiga\\artifacts\\report-chapter3\\revision-fhd",
+        "snapshotDir": "D:\\personal\\MyTaiga\\artifacts\\report-chapter3\\revision-fhd",
+        "testIgnore": [],
+        "testMatch": "cloudinary.spec.ts",
+        "timeout": 120000,
+        "use": {
+          "baseURL": "http://localhost:5173",
+          "browserName": "chromium",
+          "viewport": {
+            "width": 1920,
+            "height": 1080
+          },
+          "trace": "off",
+          "screenshot": "off",
+          "video": "off"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "artifacts/report-chapter3/revision-fhd/cloudinary-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "cloudinary.spec.ts",
+      "file": "cloudinary.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "delta Avatar UI: exact PNG on dedicated QA account, absolute CDN URL and reload",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8830,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-02T16:18:47.930Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a90b017bbf3fd6ebd021-b60455a1578adcc57329",
+          "file": "cloudinary.spec.ts",
+          "line": 87,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-02T16:18:46.800Z",
+    "duration": 10368.045,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

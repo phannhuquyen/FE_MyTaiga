@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar'
 import { Icon } from '@/components/ui'
 import type { Member } from '../types'
 
@@ -64,7 +65,7 @@ export function MemberDetailDrawer({
           <div className="p-4 rounded-xl border border-neutral-200 bg-whiteboard shadow-xs text-center">
             <div className="relative inline-block mx-auto mb-3">
               <div className="w-16 h-16 rounded-full bg-primary-800 text-whiteboard text-title-small font-bold flex items-center justify-center shadow-sm">
-                {member.avatarCode}
+                <Avatar src={member.avatarUrl} name={member.name} fallback={member.avatarCode} />
               </div>
               <span
                 className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-whiteboard ${

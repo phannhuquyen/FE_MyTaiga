@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar'
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { Icon } from '@/components/ui'
 import { chatService } from './services/chatService'
@@ -58,7 +59,7 @@ export function ChatPage() {
       setActiveConvId(scoped[0]?.id || '')
     }).catch(() => { if (!cancelled) setUploadError('Không thể tải kênh tin nhắn của dự án.') })
     api.projectMembers.list(projectId, { pageSize: 100 }).then((res) => {
-      if (!cancelled) setProjectMembers(res.data.items.map((member) => ({ id: String(member.userId), name: member.fullName, avatar: member.fullName.slice(0, 2), role: member.projectRole })))
+      if (!cancelled) setProjectMembers(res.data.items.map((member) => ({ id: String(member.userId), name: member.fullName, avatar: member.fullName.slice(0, 2), avatarUrl: member.avatar, role: member.projectRole })))
     }).catch(() => { if (!cancelled) setProjectMembers([]) })
     const refresh = () => {
       setConversations(chatService.getConversations().filter((room) => room.projectId === projectId))
@@ -332,7 +333,7 @@ export function ChatPage() {
                     </div>
                   ) : (
                     <div className="w-10 h-10 rounded-xl bg-neutral-900 text-neutral-100 flex items-center justify-center font-bold text-xs">
-                      {conv.avatar || conv.name.slice(0, 2).toUpperCase()}
+                      <Avatar src={conv.avatarUrl} name={conv.name} fallback={conv.avatar || conv.name.slice(0, 2).toUpperCase()} />
                     </div>
                   )}
 
@@ -422,7 +423,7 @@ export function ChatPage() {
                   </div>
                 ) : (
                   <div className="w-9 h-9 rounded-xl bg-neutral-900 text-neutral-100 flex items-center justify-center font-bold text-xs shrink-0">
-                    {activeConversation.avatar || activeConversation.name.slice(0, 2).toUpperCase()}
+                    <Avatar src={activeConversation.avatarUrl} name={activeConversation.name} fallback={activeConversation.avatar || activeConversation.name.slice(0, 2).toUpperCase()} />
                   </div>
                 )}
 
@@ -559,7 +560,7 @@ export function ChatPage() {
                     >
                       {/* Avatar */}
                       <div className="w-8 h-8 rounded-lg bg-neutral-900 text-neutral-100 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
-                        {msg.senderAvatar}
+                        <Avatar src={msg.senderAvatarUrl} name={msg.senderName} fallback={msg.senderAvatar} />
                       </div>
 
                       {/* Content block */}
@@ -836,7 +837,7 @@ export function ChatPage() {
                     >
                       <div className="flex items-center gap-2">
                         <span className="w-6 h-6 rounded-md bg-neutral-900 text-whiteboard text-[10px] font-bold flex items-center justify-center">
-                          {m.avatar}
+                          <Avatar src={m.avatarUrl} name={m.name} fallback={m.avatar} />
                         </span>
                         <div>
                           <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100">
