@@ -24,21 +24,25 @@ export default function FlowMetricsPage() {
   const [activeTab, setActiveTab] = useState<MetricTabId>('wip')
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false)
   const [wipLimit, setWipLimit] = useState(metricService.getWipLimit())
-  const [metricsData, setMetricsData] = useState<FlowMetricsData | null>(null)
+  const [metricsResult, setMetricsResult] = useState<{ data: FlowMetricsData; scope: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [isExporting, setIsExporting] = useState(false)
+  const [exportError, setExportError] = useState<string | null>(null)
+  const metricsScope = `${numericProjectId}:${selectedSprint}:${wipLimit}`
+  const metricsData = metricsResult?.data
 
   useEffect(() => {
     let cancelled = false
     metricService.getMetricsData(numericProjectId, selectedSprint, wipLimit).then(data => {
       if (!cancelled) {
-        setMetricsData(data)
+        setMetricsResult({ data, scope: metricsScope })
         setError(null)
       }
     }).catch((err: unknown) => {
       if (!cancelled) setError(err instanceof Error ? err.message : 'Không thể tải Flow Metrics.')
     })
     return () => { cancelled = true }
-  }, [numericProjectId, selectedSprint, wipLimit])
+  }, [numericProjectId, selectedSprint, wipLimit, metricsScope])
 
   useEffect(() => {
     if (!numericProjectId) return
@@ -49,10 +53,21 @@ export default function FlowMetricsPage() {
     return () => { cancelled = true }
   }, [numericProjectId])
 
-  const handleExport = () => {
-    alert(
-      'Đã xuất báo cáo Flow Metrics Sprint 14 định dạng PDF/CSV. Báo cáo bao gồm WIP Run Chart, Phân tích Cycle Time và Danh sách rủi ro luồng.',
-    )
+  const handleExport = async () => {
+    if (!metricsData || metricsResult?.scope !== metricsScope || isExporting) return
+    const sprintName = selectedSprint === 'all'
+      ? 'Tất cả Sprint'
+      : sprints.find(sprint => String(sprint.sprintId) === selectedSprint)?.sprintName ?? `Sprint ${selectedSprint.replace(/^sprint-/, '')}`
+    setIsExporting(true)
+    setExportError(null)
+    try {
+      const { exportFlowMetrics } = await import('./services/exportFlowMetrics')
+      await exportFlowMetrics(metricsData, { projectId: numericProjectId, sprintId: selectedSprint, sprintName })
+    } catch {
+      setExportError('Không thể xuất báo cáo Excel. Vui lòng thử lại.')
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   const handleSaveConfig = (newLimit: number) => {
@@ -98,10 +113,11 @@ export default function FlowMetricsPage() {
             <button
               type="button"
               onClick={handleExport}
-              className="px-3.5 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-lg text-xs font-semibold shadow-2xs transition-colors flex items-center gap-1.5"
+              disabled={isExporting || metricsResult?.scope !== metricsScope}
+              className="px-3.5 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-lg text-xs font-semibold shadow-2xs transition-colors flex items-center gap-1.5 disabled:opacity-50"
             >
               <Icon name="download" size={14} />
-              <span>Xuất báo cáo PDF / CSV</span>
+              <span>{isExporting ? 'Đang xuất Excel...' : 'Xuất báo cáo Excel'}</span>
             </button>
             <button
               type="button"
@@ -114,6 +130,8 @@ export default function FlowMetricsPage() {
           </div>
         </div>
       </div>
+
+      {exportError && <p role="alert" className="text-sm text-danger-700">{exportError}</p>}
 
       {/* Filter Row (S10-01) */}
       <div className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl p-3.5 shadow-2xs space-y-3">

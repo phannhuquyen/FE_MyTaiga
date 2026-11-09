@@ -244,7 +244,7 @@ export function KanbanPage() {
               }}
               leftIcon={<Icon name="plus" size={14} />}
             >
-              + Tạo Task
+              Tạo Task
             </Button>
           </div>
         </div>

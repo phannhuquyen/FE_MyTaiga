@@ -4,7 +4,8 @@ import type {
   ActivityItem,
 } from '../types'
 import { projectService } from '@/features/projects/services/projectService'
-import { api, type NotificationData, type ActivityLogItem } from '@/services/api'
+import { api, type NotificationData } from '@/services/api'
+import { toDateInputValue } from '@/lib/dates'
 
 export function resolveNotificationLink(targetLink?: string): string {
   if (!targetLink) return ''
@@ -566,18 +567,33 @@ class NotificationService {
   /**
    * Tải nhật ký hoạt động của dự án từ API Backend
    */
-  async fetchActivitiesFromApi(projectId: number): Promise<ActivityItem[]> {
+  async fetchActivitiesFromApi(
+    projectId: number,
+    { startDate = '', endDate = '', signal }: { startDate?: string; endDate?: string; signal?: AbortSignal } = {},
+  ): Promise<ActivityItem[]> {
     try {
-      const res = await api.activityLogs.listByProject(projectId, { page: 1, pageSize: 50 })
-      const items = res.data.items || []
-      {
-        this.activities = items.map((a: ActivityLogItem) => {
+      const pageSize = 50
+      const first = await api.activityLogs.listByProject(projectId, { page: 1, pageSize })
+      let rows = first.data.items || []
+      const activities: ActivityItem[] = []
+      const lastPage = startDate || endDate ? Math.ceil(first.data.total / pageSize) : 1
+
+      for (let page = 1; rows.length && !signal?.aborted; page++) {
+        let reachedStart = false
+        for (const a of rows) {
           const dt = new Date(a.createdAt)
+          const dateString = dt.toLocaleDateString('vi-VN')
+          const day = toDateInputValue(dateString)
+          if (startDate && day && day < startDate) {
+            reachedStart = true
+            break
+          }
+          if ((startDate || endDate) && (!day || (endDate && day > endDate))) continue
           const isToday = dt.toDateString() === new Date().toDateString()
-          return {
+          activities.push({
             id: String(a.activityLogId),
-            dateGroup: isToday ? 'HÔM NAY' : dt.toLocaleDateString('vi-VN'),
-            dateString: dt.toLocaleDateString('vi-VN'),
+            dateGroup: isToday ? 'HÔM NAY' : dateString,
+            dateString,
             time: dt.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
             actor: {
               name: a.userName || `Thành viên #${a.userId}`,
@@ -589,11 +605,20 @@ class NotificationService {
             title: a.description || a.action,
             targetCode: a.entityId ? `#${a.entityType}-${a.entityId}` : undefined,
             metaInfo: `Hành động: ${a.action}`,
-          }
-        })
+          })
+        }
+        if (reachedStart || page >= lastPage) break
+        const next = await api.activityLogs.listByProject(projectId, { page: page + 1, pageSize })
+        rows = next.data.items || []
+      }
+      if (signal?.aborted) return []
+      if (!startDate && !endDate) {
+        this.activities = activities
         this.notify()
       }
+      return activities
     } catch (err) {
+      if (signal) throw err
       console.warn('⚠️ [NotificationService] Lỗi gọi API activityLogs:', err)
     }
     return this.activities

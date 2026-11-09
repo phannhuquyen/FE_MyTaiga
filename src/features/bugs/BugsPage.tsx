@@ -234,7 +234,7 @@ export default function BugsPage() {
               className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors flex items-center gap-1.5"
             >
               <Icon name="plus" size={15} />
-              <span>+ Báo cáo Bug</span>
+              <span>Báo cáo Bug</span>
             </button>
           </div>
         </div>

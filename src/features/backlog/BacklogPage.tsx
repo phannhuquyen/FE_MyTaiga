@@ -414,7 +414,7 @@ export default function BacklogPage() {
                   className="flex items-center gap-1.5 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-whiteboard rounded-lg text-body-sm font-semibold shadow-xs transition-colors cursor-pointer shrink-0"
                 >
                   <Icon name="plus" size={16} />
-                  <span>+ Thêm PBI</span>
+                  <span>Thêm PBI</span>
                 </button>
               )}
             </div>

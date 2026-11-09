@@ -1,4 +1,6 @@
 import { useState, useId } from 'react'
+import { DateInput } from '@/components/ui/DateInput'
+import { dateOrderError } from '@/lib/dates'
 import { Modal, Button, Icon } from '@/components/ui'
 import type { CreateSprintPayload } from '../types'
 import { ProfileToast } from '@/features/profile/components/ProfileToast'
@@ -36,7 +38,7 @@ export function CreateSprintModal({
       return
     }
     if (isEndDateInvalid) {
-      setError('Ngày kết thúc không được trước ngày bắt đầu.')
+      setError(dateOrderError)
       return
     }
     if (!startDate || !endDate) { setError('Vui lòng chọn ngày bắt đầu và kết thúc.'); return }
@@ -144,50 +146,33 @@ export function CreateSprintModal({
             <label className="block text-caption font-semibold text-neutral-700 mb-1">
               Ngày bắt đầu <span className="text-red-500">*</span>
             </label>
-            <div className="relative">
-              <input
-                type="date"
-                aria-label="Ngày bắt đầu"
-                className={`w-full pl-9 pr-3 py-2 text-body-sm border rounded-md shadow-xs focus:outline-none ${
-                  'border-neutral-300 bg-white focus:ring-primary-500/20 focus:border-primary-500'
-                }`}
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-              <Icon
-                name="calendar"
-                size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
-              />
-            </div>
+            <DateInput
+              aria-label="Ngày bắt đầu"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              required
+              className="px-3 py-2 text-body-sm bg-white border border-neutral-300 rounded-md shadow-xs focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 aria-invalid:border-danger-500 disabled:bg-neutral-100 disabled:text-neutral-500"
+            />
           </div>
 
           <div>
             <label className="block text-caption font-semibold text-neutral-700 mb-1">
               Ngày kết thúc <span className="text-red-500">*</span>
             </label>
-            <div className="relative">
-              <input
-                type="date"
-                aria-label="Ngày kết thúc"
-                className={`w-full pl-9 pr-3 py-2 text-body-sm border rounded-md shadow-xs focus:outline-none ${
-                  isEndDateInvalid
-                    ? 'border-red-300 bg-red-50/50 text-red-900 focus:ring-red-400'
-                    : 'border-neutral-300 bg-white focus:ring-primary-500/20 focus:border-primary-500'
-                }`}
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-              <Icon
-                name="calendar"
-                size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
-              />
-            </div>
+            <DateInput
+              aria-label="Ngày kết thúc"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              required
+              max="9999-12-30"
+              aria-invalid={isEndDateInvalid}
+              aria-describedby={isEndDateInvalid ? `${formId}-date-error` : undefined}
+              className="px-3 py-2 text-body-sm bg-white border border-neutral-300 rounded-md shadow-xs focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 aria-invalid:border-danger-500 disabled:bg-neutral-100 disabled:text-neutral-500"
+            />
             {isEndDateInvalid && (
-              <p className="text-[12px] text-red-600 mt-1 flex items-center gap-1 font-medium">
+              <p id={`${formId}-date-error`} role="alert" className="text-[12px] text-red-600 mt-1 flex items-center gap-1 font-medium">
                 <Icon name="alert-circle" size={12} />
-                <span>Ngày kết thúc phải sau ngày bắt đầu</span>
+                <span>{dateOrderError}</span>
               </p>
             )}
           </div>

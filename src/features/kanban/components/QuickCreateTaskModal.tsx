@@ -247,7 +247,7 @@ export function QuickCreateTaskModal({
             disabled={isSubmitting || !title.trim()}
             leftIcon={<Icon name="plus" size={14} />}
           >
-            {isSubmitting ? 'Đang tạo...' : '+ Tạo Task'}
+            {isSubmitting ? 'Đang tạo...' : 'Tạo Task'}
           </Button>
         </div>
       </form>

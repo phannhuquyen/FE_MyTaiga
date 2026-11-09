@@ -1,4 +1,6 @@
 import { useState, type FormEvent } from 'react'
+import { DateInput } from '@/components/ui/DateInput'
+import { dateOrderError, toDateInputValue } from '@/lib/dates'
 import { Icon } from '@/components/ui'
 import type { Project, ProjectStatus, UpdateProjectPayload } from '../types'
 
@@ -38,15 +40,18 @@ function EditProjectModalContent({
 }) {
   const [name, setName] = useState(project.name)
   const [description, setDescription] = useState(project.description)
-  const [startDate, setStartDate] = useState(project.startDate)
-  const [endDate, setEndDate] = useState(project.endDate)
+  const [startDate, setStartDate] = useState(() => toDateInputValue(project.startDate))
+  const [endDate, setEndDate] = useState(() => toDateInputValue(project.endDate))
   const [leadName, setLeadName] = useState(project.leadName || 'Nguyễn Minh Quân (Bạn)')
   const [status, setStatus] = useState<ProjectStatus>(project.status)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const isEndDateInvalid = Boolean(startDate && endDate && endDate < startDate)
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    if (isEndDateInvalid) return
     if (!name.trim()) {
       setError('Tên dự án không được để trống.')
       return
@@ -173,36 +178,27 @@ function EditProjectModalContent({
               <label htmlFor="editStartDate" className="block text-body-xs font-semibold text-neutral-800 mb-1.5">
                 Ngày bắt đầu
               </label>
-              <div className="relative">
-                <input
-                  id="editStartDate"
-                  type="text"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full pl-3.5 pr-9 py-2 rounded-lg border border-neutral-300 text-body-sm text-neutral-900 focus:outline-none focus:border-primary-500"
-                />
-                <span className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-neutral-400">
-                  <Icon name="calendar" size={15} />
-                </span>
-              </div>
+              <DateInput
+                id="editStartDate"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="px-3.5 py-2 rounded-lg border border-neutral-300 bg-paper-50 text-body-sm text-neutral-900 focus:outline-none focus:border-primary-500 aria-invalid:border-danger-500"
+              />
             </div>
 
             <div>
               <label htmlFor="editEndDate" className="block text-body-xs font-semibold text-neutral-800 mb-1.5">
                 Ngày kết thúc dự kiến
               </label>
-              <div className="relative">
-                <input
-                  id="editEndDate"
-                  type="text"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full pl-3.5 pr-9 py-2 rounded-lg border border-neutral-300 text-body-sm text-neutral-900 focus:outline-none focus:border-primary-500"
-                />
-                <span className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-neutral-400">
-                  <Icon name="calendar" size={15} />
-                </span>
-              </div>
+              <DateInput
+                id="editEndDate"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                aria-invalid={isEndDateInvalid}
+                aria-describedby={isEndDateInvalid ? 'editEndDate-error' : undefined}
+                className="px-3.5 py-2 rounded-lg border border-neutral-300 bg-paper-50 text-body-sm text-neutral-900 focus:outline-none focus:border-primary-500 aria-invalid:border-danger-500"
+              />
+              {isEndDateInvalid && <p id="editEndDate-error" role="alert" className="mt-1 text-xs text-danger-700">{dateOrderError}</p>}
             </div>
           </div>
 
@@ -256,7 +252,7 @@ function EditProjectModalContent({
             </button>
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || isEndDateInvalid}
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-whiteboard rounded-lg text-body-sm font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
             >
               <Icon name="check" size={15} />

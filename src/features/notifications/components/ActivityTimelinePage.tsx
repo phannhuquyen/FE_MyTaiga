@@ -1,4 +1,5 @@
 import { Avatar } from '@/components/ui/Avatar'
+import { DateInput } from '@/components/ui/DateInput'
 import { useState, useMemo, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Icon } from '@/components/ui'
@@ -6,6 +7,10 @@ import { notificationService } from '../services/notificationService'
 import { projectService } from '@/features/projects/services/projectService'
 import type { ActivityItem } from '../types'
 import { cn } from '@/lib/utils'
+import { dateOrderError } from '@/lib/dates'
+
+const emptyRange = { startDate: '', endDate: '' }
+const dateInputClass = 'px-2 py-2 bg-paper-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-neutral-800 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-primary-500 aria-invalid:border-danger-500'
 
 export function ActivityTimelinePage() {
   const { projectId } = useParams<{ projectId: string }>()
@@ -13,27 +18,34 @@ export function ActivityTimelinePage() {
   const [actionFilter, setActionFilter] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [isExporting, setIsExporting] = useState(false)
-  const [activities, setActivities] = useState<ActivityItem[]>(notificationService.getActivities())
+  const [draftRange, setDraftRange] = useState(emptyRange)
+  const [appliedRange, setAppliedRange] = useState(emptyRange)
+  const [result, setResult] = useState<{ key: string; items: ActivityItem[]; error?: string } | null>(null)
 
   const numericProjectId = projectId ? parseInt(projectId, 10) : (projectService.getActiveProjectId() || 1)
+  const { startDate, endDate } = appliedRange
+  const requestKey = `${numericProjectId}:${startDate}:${endDate}`
+  const currentResult = result?.key === requestKey ? result : null
+  const isDateRangeInvalid = Boolean(draftRange.startDate && draftRange.endDate && draftRange.endDate < draftRange.startDate)
+  const hasDateFilter = Boolean(startDate || endDate)
 
   useEffect(() => {
-    if (numericProjectId > 0) {
-      notificationService.fetchActivitiesFromApi(numericProjectId).then((acts) => {
-        setActivities(acts)
+    const controller = new AbortController()
+    notificationService.fetchActivitiesFromApi(numericProjectId, { ...appliedRange, signal: controller.signal })
+      .then((items) => {
+        if (!controller.signal.aborted) setResult({ key: requestKey, items })
       })
-    }
-    const unsubscribe = notificationService.subscribe(() => {
-      setActivities(notificationService.getActivities())
-    })
-    return unsubscribe
-  }, [numericProjectId])
+      .catch(() => {
+        if (!controller.signal.aborted) setResult({ key: requestKey, items: [], error: 'Không thể tải nhật ký hoạt động. Vui lòng thử lại.' })
+      })
+    return () => controller.abort()
+  }, [numericProjectId, appliedRange, requestKey])
 
   const stats = notificationService.getActivityStats()
 
   // Filter activities
   const filteredActivities = useMemo(() => {
-    return activities.filter((act) => {
+    return (currentResult?.items ?? []).filter((act) => {
       if (actorFilter !== 'all' && act.actor.name !== actorFilter) return false
       if (actionFilter !== 'all' && act.actionType !== actionFilter) return false
       if (searchTerm.trim()) {
@@ -45,7 +57,7 @@ export function ActivityTimelinePage() {
       }
       return true
     })
-  }, [activities, actorFilter, actionFilter, searchTerm])
+  }, [currentResult, actorFilter, actionFilter, searchTerm])
 
   // Group by dateGroup
   const grouped = useMemo(() => {
@@ -66,7 +78,7 @@ export function ActivityTimelinePage() {
     setTimeout(() => {
       const csvContent =
         'data:text/csv;charset=utf-8,Mã,Thời gian,Người thực hiện,Hành động,Chi tiết\n' +
-        activities
+        filteredActivities
           .map(
             (a) =>
               `"${a.targetCode || ''}","${a.dateString} ${a.time}","${a.actor.name}","${a.title}","${a.metaInfo || ''}"`,
@@ -125,7 +137,7 @@ export function ActivityTimelinePage() {
           <button
             type="button"
             onClick={handleExportCsv}
-            disabled={isExporting}
+            disabled={isExporting || !currentResult || Boolean(currentResult.error)}
             className="inline-flex items-center gap-2 px-4 py-2 bg-whiteboard dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 text-xs font-semibold rounded-lg shadow-xs transition-colors cursor-pointer"
           >
             <Icon name="download" size={16} />
@@ -135,7 +147,7 @@ export function ActivityTimelinePage() {
       </div>
 
       {/* Filter toolbar (S12-05) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-whiteboard dark:bg-neutral-900 p-3 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-xs text-xs">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 bg-whiteboard dark:bg-neutral-900 p-3 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-xs text-xs">
         {/* User filter */}
         <div className="relative">
           <select
@@ -180,12 +192,6 @@ export function ActivityTimelinePage() {
           </span>
         </div>
 
-        {/* Date display */}
-        <div className="flex items-center gap-2 px-3 py-2 bg-paper-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-neutral-700 dark:text-neutral-300">
-          <Icon name="calendar" size={14} className="text-neutral-400 shrink-0" />
-          <span className="truncate font-medium">14/10/2024 - 28/10/2024</span>
-        </div>
-
         {/* Search */}
         <div className="relative">
           <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-400">
@@ -199,13 +205,52 @@ export function ActivityTimelinePage() {
             className="w-full pl-8 pr-3 py-2 bg-paper-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-neutral-800 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-primary-500 placeholder:text-neutral-400"
           />
         </div>
+
+        <form
+          className="sm:col-span-2 lg:col-span-3 flex flex-wrap items-end gap-3"
+          onSubmit={(event) => {
+            event.preventDefault()
+            if (!isDateRangeInvalid) {
+              setResult(null)
+              setAppliedRange({ ...draftRange })
+            }
+          }}
+        >
+          <label className="min-w-36 flex-1 sm:flex-none">
+            <span className="mb-1 block font-medium text-neutral-700 dark:text-neutral-300">Ngày bắt đầu</span>
+            <DateInput className={dateInputClass} value={draftRange.startDate}
+              onChange={(event) => setDraftRange({ ...draftRange, startDate: event.target.value })} />
+          </label>
+          <label className="min-w-36 flex-1 sm:flex-none">
+            <span className="mb-1 block font-medium text-neutral-700 dark:text-neutral-300">Ngày kết thúc</span>
+            <DateInput className={dateInputClass} value={draftRange.endDate}
+              aria-invalid={isDateRangeInvalid} aria-describedby={isDateRangeInvalid ? 'activity-date-error' : undefined}
+              onChange={(event) => setDraftRange({ ...draftRange, endDate: event.target.value })} />
+          </label>
+          <button type="submit" disabled={isDateRangeInvalid} className="px-3 py-2 rounded-lg bg-primary-600 text-whiteboard font-semibold hover:bg-primary-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+            Áp dụng
+          </button>
+          {(hasDateFilter || draftRange.startDate || draftRange.endDate) && (
+            <button type="button" className="px-3 py-2 rounded-lg border border-neutral-300 cursor-pointer" onClick={() => {
+              setDraftRange(emptyRange)
+              setAppliedRange(emptyRange)
+            }}>
+              Xóa lọc ngày
+            </button>
+          )}
+          {isDateRangeInvalid && <p id="activity-date-error" role="alert" className="w-full text-danger-700">{dateOrderError}</p>}
+        </form>
       </div>
 
       {/* Main 2-column layout (S12-05) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Activity Feed (2 cols) */}
         <div className="lg:col-span-2 space-y-6">
-          {grouped.length === 0 ? (
+          {!currentResult ? (
+            <p role="status" className="p-4 text-xs text-neutral-500">Đang tải nhật ký hoạt động...</p>
+          ) : currentResult.error ? (
+            <p role="alert" className="p-4 text-xs text-danger-700">{currentResult.error}</p>
+          ) : grouped.length === 0 ? (
             <div className="bg-whiteboard dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-8 text-center text-neutral-400 text-xs">
               <Icon name="clock" size={28} className="mx-auto mb-2 opacity-50" />
               <p>Không có hoạt động nào khớp với bộ lọc</p>
@@ -330,7 +375,7 @@ export function ActivityTimelinePage() {
           )}
 
           {/* Load more button */}
-          <div className="text-center pt-2">
+          {!hasDateFilter && <div className="text-center pt-2">
             <button
               type="button"
               className="px-4 py-2 text-xs font-semibold rounded-lg border border-neutral-300 dark:border-neutral-700 bg-whiteboard dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700 shadow-xs cursor-pointer inline-flex items-center gap-1.5"
@@ -338,7 +383,7 @@ export function ActivityTimelinePage() {
               <Icon name="refresh" size={14} />
               <span>Tải thêm hoạt động cũ hơn</span>
             </button>
-          </div>
+          </div>}
         </div>
 
         {/* Right Column: Statistics & Legend (1 col) (S12-05) */}
