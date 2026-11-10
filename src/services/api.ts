@@ -661,9 +661,9 @@ export interface CycleTimeItem {
   taskId: number
   title: string
   sprintId: number | null
-  startedAt: string
-  completedAt: string
-  cycleTimeDays: number
+  startedAt: string | null
+  completedAt: string | null
+  cycleTimeDays: number | null
 }
 
 export interface CycleTimeAverageData {

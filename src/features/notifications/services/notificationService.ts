@@ -1,3 +1,4 @@
+import { allPages } from '@/lib/allPages'
 import type {
   NotificationItem,
   NotificationFilterOptions,
@@ -483,7 +484,7 @@ const INITIAL_ACTIVITIES: ActivityItem[] = [
 ]
 
 class NotificationService {
-  private notifications: NotificationItem[] = [...INITIAL_NOTIFICATIONS]
+  private notifications: NotificationItem[] = []
   private activities: ActivityItem[] = [...INITIAL_ACTIVITIES]
   private listeners: Array<() => void> = []
 
@@ -503,8 +504,7 @@ class NotificationService {
    */
   async fetchFromApi(): Promise<NotificationItem[]> {
     try {
-      const res = await api.notifications.list({ page: 1, pageSize: 50 })
-      const items = res.data.items || []
+      const items = await allPages(page => api.notifications.list({ page, pageSize: 100 }))
       {
         this.notifications = items.map((n: NotificationData) => {
           let category: NotificationItem['category'] = 'mention'
@@ -576,9 +576,11 @@ class NotificationService {
       const first = await api.activityLogs.listByProject(projectId, { page: 1, pageSize })
       let rows = first.data.items || []
       const activities: ActivityItem[] = []
-      const lastPage = startDate || endDate ? Math.ceil(first.data.total / pageSize) : 1
 
+
+      let fetchedRows = 0
       for (let page = 1; rows.length && !signal?.aborted; page++) {
+        fetchedRows += rows.length
         let reachedStart = false
         for (const a of rows) {
           const dt = new Date(a.createdAt)
@@ -601,13 +603,18 @@ class NotificationService {
               avatarUrl: a.userAvatarUrl,
               role: a.userRole || 'Chưa có thông tin vai trò',
             },
-            actionType: 'task_complete',
+            rawAction: a.action, entityType: a.entityType, actorId: a.userId, createdAt: a.createdAt,
+            actionType: a.action === 'TASK_MOVED' && (a.changes?.status?.to === 'DONE' || /->\s*DONE(?:;|$)/.test(a.description || '')) ? 'task_complete'
+              : a.action === 'BUG_CREATED' ? 'bug_report'
+              : a.action.startsWith('COMMENT_') ? 'mention_comment'
+              : a.action.startsWith('WIP_') ? 'wip_warning'
+              : a.action.includes('LINK') && a.entityType === 'EPIC' ? 'epic_link' : 'other',
             title: a.description || a.action,
             targetCode: a.entityId ? `#${a.entityType}-${a.entityId}` : undefined,
             metaInfo: `Hành động: ${a.action}`,
           })
         }
-        if (reachedStart || page >= lastPage) break
+        if (reachedStart || !Number.isFinite(first.data.total) || fetchedRows >= first.data.total) break
         const next = await api.activityLogs.listByProject(projectId, { page: page + 1, pageSize })
         rows = next.data.items || []
       }
@@ -635,6 +642,12 @@ class NotificationService {
       } else if (options.category === 'deadline_wip') {
         result = result.filter((n) => n.category === 'deadline' || n.category === 'wip_alert')
       }
+    }
+
+    if (options.timeRange && options.timeRange !== 'all') {
+      const days = Number.parseInt(options.timeRange, 10)
+      const cutoff = Date.now() - days * 86400000
+      result = result.filter(item => new Date(item.createdAt).getTime() >= cutoff)
     }
 
     if (options.search?.trim()) {
@@ -715,12 +728,12 @@ class NotificationService {
     return [...this.activities]
   }
 
-  getActivityStats() {
+  getActivityStats(items: ActivityItem[] = this.activities) {
     return {
-      totalEvents: 148,
-      tasksCompleted: 32,
-      newBugs: 9,
-      wipViolations: 3,
+      totalEvents: items.length,
+      tasksCompleted: items.filter(item => item.actionType === 'task_complete').length,
+      newBugs: items.filter(item => item.rawAction === 'BUG_CREATED' || (!item.rawAction && item.actionType === 'bug_report')).length,
+      wipViolations: items.some(item => item.rawAction === 'WIP_LIMIT_EXCEEDED') ? items.filter(item => item.rawAction === 'WIP_LIMIT_EXCEEDED').length : null,
     }
   }
 }

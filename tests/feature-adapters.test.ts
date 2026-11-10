@@ -35,6 +35,7 @@ it('does not convert a mock candidate identifier into a real user ID', async () 
   expect(add).not.toHaveBeenCalled()
 })
 it('maps epic priority/status and progress', async () => {
+  vi.spyOn(api.productBacklog, 'list').mockResolvedValue(paged([]))
   vi.spyOn(api.epics, 'list').mockResolvedValue(paged([{ epicId: 2, title: 'QA Epic', priority: 2, status: 'DONE', description: null }]))
   vi.spyOn(api.epics, 'progress').mockResolvedValue(envelope({ totalPbis: 4, totalTasks: 7, pbiProgressPercent: 50 }))
   expect((await epicService.getEpics())[0]).toMatchObject({ id: '2', priority: 'high', status: 'completed', progressPercent: 50, pbisCount: 4 })
@@ -65,6 +66,9 @@ it('maps null contact/avatar without crashing profile', async () => {
   expect(await profileService.getProfile()).toMatchObject({ id: '7', phone: '', fullName: 'QA User' })
 })
 it('maps metrics numeric responses and task age fields', async () => {
+  vi.spyOn(api.flowMetrics, 'throughputSprints').mockResolvedValue(paged([]))
+  vi.spyOn(api.projectMembers, 'list').mockResolvedValue(paged([]))
+  vi.spyOn(api.tasks, 'list').mockResolvedValue(paged([]))
   vi.spyOn(api.flowMetrics, 'wip').mockResolvedValue(envelope({ wip: 2, inProgress: 1, inReview: 1 }))
   vi.spyOn(api.flowMetrics, 'throughput').mockResolvedValue(envelope({ totalDoneTasks: 3, from: '2026-10-01', to: '2026-10-27' }))
   vi.spyOn(api.flowMetrics, 'cycleTimeAverage').mockResolvedValue(envelope({ averageCycleTimeDays: 1.23 }))

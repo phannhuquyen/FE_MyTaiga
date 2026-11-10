@@ -1,16 +1,45 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { api, type ActivityLogItem } from '@/services/api'
+import { allPages } from '@/lib/allPages'
 import { Icon } from '@/components/ui'
 import { adminService } from '../services/adminService'
 import type { SystemSettings } from '../types'
 
 export function SystemSettingsTab() {
   const [settings, setSettings] = useState<SystemSettings>(() => adminService.getSettings())
+  const [configReady, setConfigReady] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [showAuditModal, setShowAuditModal] = useState(false)
 
+  const dirty = useRef(false)
+  const [audit, setAudit] = useState<ActivityLogItem[]>([])
+  const [auditError, setAuditError] = useState<string | null>(null)
+  const [auditLoading, setAuditLoading] = useState(false)
+  useEffect(() => {
+    const refresh = () => { if (!dirty.current) setSettings(adminService.getSettings()) }
+    const unsubscribe = adminService.subscribe(refresh)
+    void adminService.loadConfig().then(ok => {
+      if (ok === false) setSaveError('Không thể tải cấu hình BE. Các giá trị đang hiện là mặc định; chưa thể lưu.')
+      else { refresh(); setConfigReady(true) }
+    })
+    return unsubscribe
+  }, [])
+  useEffect(() => {
+    if (!showAuditModal) return
+    let cancelled = false
+    setAuditLoading(true)
+    setAuditError(null)
+    allPages(page => api.admin.activityLogs(page, 100)).then(rows => {
+      if (!cancelled) setAudit(rows.filter(row => row.action === 'SYSTEM_CONFIG_UPDATED'))
+    }).catch(() => { if (!cancelled) setAuditError('Không thể tải lịch sử cấu hình.') })
+      .finally(() => { if (!cancelled) setAuditLoading(false) })
+    return () => { cancelled = true }
+  }, [showAuditModal])
+
   const handleChange = <K extends keyof SystemSettings>(field: K, value: SystemSettings[K]) => {
+    dirty.current = true
     setSettings((prev) => ({ ...prev, [field]: value }))
     setIsSaved(false)
   }
@@ -25,6 +54,8 @@ export function SystemSettingsTab() {
         setSaveError(result.error || 'Không thể lưu cấu hình hệ thống.')
         return
       }
+      dirty.current = false
+      setSettings(adminService.getSettings())
       setIsSaved(true)
       setTimeout(() => setIsSaved(false), 3000)
     } catch {
@@ -35,6 +66,7 @@ export function SystemSettingsTab() {
   }
 
   const handleReset = () => {
+    dirty.current = true
     adminService.resetSettings()
     setSettings(adminService.getSettings())
     setIsSaved(false)
@@ -44,6 +76,7 @@ export function SystemSettingsTab() {
 
   return (
     <div className="space-y-6 pb-20">
+      <p className="text-xs text-neutral-500">BE hỗ trợ lưu: cảnh báo hạn, dung lượng tệp, số lần đăng nhập sai và thời hạn JWT. Các mục khác chưa có API lưu.</p>
       {/* Header (S14-07) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -99,7 +132,7 @@ export function SystemSettingsTab() {
               <input
                 type="number"
                 min={1}
-                max={168}
+                max={720}
                 value={settings.dueSoonHours}
                 onChange={(e) => handleChange('dueSoonHours', Number(e.target.value))}
                 className="w-24 px-3 py-1.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-xs text-center font-bold text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -124,6 +157,7 @@ export function SystemSettingsTab() {
                 step="0.5"
                 min={1}
                 max={30}
+                disabled title="BE chưa hỗ trợ cấu hình ngưỡng tuổi việc"
                 value={settings.workAgeThresholdDays}
                 onChange={(e) => handleChange('workAgeThresholdDays', Number(e.target.value))}
                 className="w-24 px-3 py-1.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-xs text-center font-bold text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -161,7 +195,7 @@ export function SystemSettingsTab() {
               <input
                 type="number"
                 min={1}
-                max={100}
+                max={25}
                 value={settings.maxFileSizeMb}
                 onChange={(e) => handleChange('maxFileSizeMb', Number(e.target.value))}
                 className="w-24 px-3 py-1.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-xs text-center font-bold text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -185,6 +219,7 @@ export function SystemSettingsTab() {
                 type="number"
                 min={1}
                 max={50}
+                disabled title="BE chưa hỗ trợ giới hạn số tệp trên thẻ"
                 value={settings.maxAttachmentsPerCard}
                 onChange={(e) => handleChange('maxAttachmentsPerCard', Number(e.target.value))}
                 className="w-24 px-3 py-1.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-xs text-center font-bold text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -215,7 +250,7 @@ export function SystemSettingsTab() {
                 Thời gian hết hạn phiên đăng nhập (Session timeout)
               </h4>
               <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-1 leading-relaxed">
-                Tự động đăng xuất sau khoảng thời gian không có bất kỳ tương tác hoạt động nào từ tài khoản.
+                Thời hạn JWT do máy chủ cấp, tính từ lúc đăng nhập; không phải thời gian không tương tác.
               </p>
             </div>
             <div className="shrink-0">
@@ -224,6 +259,7 @@ export function SystemSettingsTab() {
                 onChange={(e) => handleChange('sessionTimeout', e.target.value)}
                 className="px-4 py-2 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-xs font-semibold text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
               >
+                {!['30 phút', '2 giờ', '8 giờ làm việc', '24 giờ'].includes(settings.sessionTimeout) && <option value={settings.sessionTimeout}>{settings.sessionTimeout}</option>}
                 <option value="30 phút">30 phút</option>
                 <option value="2 giờ">2 giờ</option>
                 <option value="8 giờ làm việc">8 giờ làm việc</option>
@@ -368,7 +404,7 @@ export function SystemSettingsTab() {
           <button
             type="button"
             onClick={handleSave}
-            disabled={isSaving}
+            disabled={isSaving || !configReady}
             className="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-whiteboard flex items-center gap-1.5 shadow-sm cursor-pointer"
           >
             <Icon name="check" size={14} />
@@ -394,24 +430,13 @@ export function SystemSettingsTab() {
               </button>
             </div>
             <div className="space-y-3 text-xs max-h-60 overflow-y-auto">
-              <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
-                <div className="flex justify-between text-neutral-500 text-[11px] mb-1">
-                  <span>14/10/2024 - 15:42</span>
-                  <span className="font-semibold text-neutral-800 dark:text-neutral-200">Nguyễn Quốc Bảo (Admin)</span>
+              {auditLoading ? <p role="status">Đang tải lịch sử...</p> : auditError ? <p role="alert">{auditError}</p> : !audit.length ? <p>Chưa có thay đổi cấu hình.</p> : audit.map(row => (
+                <div key={row.activityLogId} className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
+                  <div className="flex justify-between gap-2 text-neutral-500 mb-1"><span>{new Date(row.createdAt).toLocaleString('vi-VN')}</span><span>{row.userName || `User #${row.userId}`}</span></div>
+                  <p>{row.description || row.action}</p>
+                  {Object.entries(row.changes ?? {}).map(([field, change]) => <p key={field}>{field}: {String(change.from ?? '—')} → {String(change.to ?? '—')}</p>)}
                 </div>
-                <p className="text-neutral-800 dark:text-neutral-200">
-                  Cập nhật dung lượng tệp tối đa từ 15 MB lên 25 MB.
-                </p>
-              </div>
-              <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
-                <div className="flex justify-between text-neutral-500 text-[11px] mb-1">
-                  <span>02/10/2024 - 09:10</span>
-                  <span className="font-semibold text-neutral-800 dark:text-neutral-200">Trần Thanh Trúc (Admin)</span>
-                </div>
-                <p className="text-neutral-800 dark:text-neutral-200">
-                  Bật chính sách phiên đăng nhập 8 giờ làm việc và giới hạn 5 lần đăng nhập sai.
-                </p>
-              </div>
+              ))}
             </div>
             <div className="flex justify-end pt-2">
               <button

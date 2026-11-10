@@ -28,6 +28,9 @@ export async function exportFlowMetrics(
     ['WIP hiện tại', data.wipCurrent, 'Việc'],
     ['Ngưỡng WIP', data.wipTargetMax, 'Việc'],
     ['Throughput', data.throughputCount, 'Việc hoàn thành'],
+    ['Lịch sử Throughput', data.partialHistory ? 'Chưa phủ đầy đủ' : 'Theo dữ liệu máy chủ'],
+    ['Bắt đầu ghi lịch sử', data.throughputHistoryStart ?? null],
+    ['Baseline nhập', data.importedBaselineCount ?? null, 'Task'],
     ['Cycle Time trung bình', data.cycleTimeAvgDays, 'Ngày'],
     ['Tuổi việc trung bình', data.workItemAgeAvgDays, 'Ngày'],
     ['Tuổi việc cao nhất', data.workItemAgeMaxDays, 'Ngày'],
@@ -46,6 +49,10 @@ export async function exportFlowMetrics(
   const risks = reportSheet('Rủi ro', ['Mã Task', 'Tiêu đề', 'Cột hiện tại', 'Người thực hiện', 'Mức độ', 'Mô tả'], [18, 48, 22, 26, 22, 54],
     data.flowRisks.map(item => [item.taskCode, { value: item.taskTitle, wrap: true }, item.currentColumn, item.assigneeName, item.badgeText, { value: item.blockageText, wrap: true }]))
 
+  const throughput = reportSheet('Throughput ngày', ['Ngày UTC', 'Task hoàn thành', 'Lịch sử đầy đủ'], [22, 24, 24],
+    (data.throughputPoints ?? []).map(point => [point.date, point.doneTasks, point.historyComplete ? 'Có' : 'Chưa đầy đủ']))
+  const sprintThroughput = reportSheet('Throughput Sprint', ['Sprint ID', 'Tên', 'Trạng thái', 'Bắt đầu', 'Kết thúc', 'Task hoàn thành'], [16, 40, 20, 24, 24, 24],
+    (data.throughputSprints ?? []).map(item => [item.sprintId, item.sprintName, item.status, item.startDate, item.endDate, item.doneTasks]))
   const fileName = `flow-metrics-${scope.projectId ?? 'demo'}-${scope.sprintId === 'all' ? 'tat-ca-sprint' : scope.sprintId}.xlsx`
-  await writeExcelFile([summary, wip, cycle, age, risks]).toFile(fileName)
+  await writeExcelFile([summary, wip, cycle, age, risks, throughput, sprintThroughput]).toFile(fileName)
 }

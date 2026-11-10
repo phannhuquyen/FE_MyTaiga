@@ -1,4 +1,5 @@
 import type { FlowMetricsData } from '../types'
+import { allPages } from '@/lib/allPages'
 import { api } from '@/services/api'
 
 const SPRINT_14_METRICS: FlowMetricsData = {
@@ -91,99 +92,85 @@ class MetricService {
     projectId?: number,
     sprintId?: string,
     customWipLimit?: number,
+    period: { from?: string; to?: string } = {},
   ): Promise<FlowMetricsData> {
     const limit = customWipLimit ?? this.currentWipLimit
 
     if (projectId) {
       try {
-        const numSprintId = sprintId ? parseInt(sprintId.replace(/\D/g, ''), 10) || undefined : undefined
-        const [wipRes, tpRes, avgCtRes, ctRes, ageRes] = await Promise.all([
+        const numSprintId = sprintId && /^\d+$/.test(sprintId) ? Number(sprintId) : undefined
+        const query = { ...period, sprintId: numSprintId }
+        const [wipRes, tpRes, avgCtRes, cycles, ages, sprintRows, members, tasks] = await Promise.all([
           api.flowMetrics.wip(projectId, numSprintId),
-          api.flowMetrics.throughput(projectId, { sprintId: numSprintId }),
+          api.flowMetrics.throughput(projectId, query),
           api.flowMetrics.cycleTimeAverage(projectId, numSprintId),
-          api.flowMetrics.cycleTime(projectId, { sprintId: numSprintId }),
-          api.flowMetrics.workItemAge(projectId, { sprintId: numSprintId, minAgeDays: 0 }),
+          allPages(page => api.flowMetrics.cycleTime(projectId, { sprintId: numSprintId, page, pageSize: 100 })),
+          allPages(page => api.flowMetrics.workItemAge(projectId, { sprintId: numSprintId, minAgeDays: 0, page, pageSize: 100 })),
+          allPages(page => api.flowMetrics.throughputSprints(projectId, { ...period, page, pageSize: 100 })),
+          allPages(page => api.projectMembers.list(projectId, { page, pageSize: 100 })),
+          allPages(page => api.tasks.list(projectId, { page, pageSize: 100 })),
         ])
-
-        const resData: FlowMetricsData = {
-          ...SPRINT_14_METRICS,
-          wipTargetMax: limit,
-        }
-
-        if (wipRes?.data) {
-          resData.wipCurrent = wipRes.data.wip
-          resData.wipStatusText = `${wipRes.data.inProgress} đang làm • ${wipRes.data.inReview} chờ kiểm duyệt`
-          // Add current WIP point to chart
-          resData.wipRunData = [
-            ...SPRINT_14_METRICS.wipRunData.slice(0, -1),
-            {
-              date: 'Hôm nay',
-              actualWip: wipRes.data.wip,
-              wipLimit: limit,
-              isHighlighted: true,
-            },
-          ]
-        }
-
-        if (tpRes?.data) {
-          resData.throughputCount = tpRes.data.totalDoneTasks
-          resData.dateRangeLabel = `${tpRes.data.from} — ${tpRes.data.to} (UTC)`
-        }
-
-        if (avgCtRes?.data && avgCtRes.data.averageCycleTimeDays !== null) {
-          resData.cycleTimeAvgDays = parseFloat(avgCtRes.data.averageCycleTimeDays.toFixed(1))
-        }
-
-        if (ctRes?.data?.items) {
-          resData.cycleTimeScatterData = ctRes.data.items.map((c) => ({
-            id: `ct-${c.taskId}`,
-            taskCode: `#TASK-${c.taskId}`,
-            taskTitle: c.title,
-            date: new Date(c.completedAt).toLocaleDateString('vi-VN'),
-            cycleTimeDays: parseFloat(c.cycleTimeDays.toFixed(1)),
-            assigneeName: 'Thành viên',
-            isOutlier: c.cycleTimeDays > 5.0,
-            outlierReason: c.cycleTimeDays > 5.0 ? 'Thời gian hoàn thành vượt ngưỡng' : undefined,
-          }))
-        }
-
-        if (ageRes?.data?.items) {
-          resData.workItemAgeChartData = ageRes.data.items.map((item) => ({
-            id: `wia-${item.taskId}`,
-            taskCode: `#TASK-${item.taskId}`,
-            taskTitle: item.title,
-            totalAgeDays: parseFloat(item.workItemAgeDays.toFixed(1)),
-            backlogDays: 0,
-            inProgressDays: parseFloat(item.workItemAgeDays.toFixed(1)),
-            reviewDays: 0,
-            isExceeded: item.workItemAgeDays > 5.0,
-            note: item.workItemAgeDays > 5.0 ? 'Tuổi việc vượt ngưỡng 5 ngày' : undefined,
-          }))
-
-          resData.workItemAgeTableData = ageRes.data.items.map((item) => ({
-            id: `wia-${item.taskId}`,
-            taskCode: `#TASK-${item.taskId}`,
-            taskTitle: item.title,
-            priority: 'Medium',
-            currentColumn: item.status,
-            assigneeName: item.assigneeId ? `User #${item.assigneeId}` : 'Chưa giao',
-            assigneeRole: 'Kỹ sư',
-            ageDays: parseFloat(item.workItemAgeDays.toFixed(1)),
-            statusBadgeText: item.workItemAgeDays > 5.0 ? `Tồn đọng ${item.workItemAgeDays.toFixed(1)} ngày` : `${item.workItemAgeDays.toFixed(1)} ngày`,
-            statusDetailText: `Bắt đầu lúc ${new Date(item.startedAt).toLocaleDateString('vi-VN')}`,
-            canIntervene: item.workItemAgeDays > 5.0,
-            interveneType: 'urge',
-          }))
-
-          if (ageRes.data.items.length > 0) {
-            const sumAge = ageRes.data.items.reduce((acc, cur) => acc + cur.workItemAgeDays, 0)
-            resData.workItemAgeAvgDays = parseFloat((sumAge / ageRes.data.items.length).toFixed(1))
-            resData.workItemAgeMaxDays = parseFloat(Math.max(...ageRes.data.items.map((i) => i.workItemAgeDays)).toFixed(1))
-            resData.workItemAgeWarningCount = ageRes.data.items.filter((i) => i.workItemAgeDays > 5.0).length
+        const taskMap = new Map(tasks.map(task => [task.taskId, task]))
+        const assigneeName = (taskId: number) => { const task = taskMap.get(taskId); return task?.assignee?.fullName || task?.assigneeName || (task?.assigneeId ? `User #${task.assigneeId}` : 'Chưa giao') }
+        const people = new Map(members.map(member => [member.userId, member]))
+        const validCycles = cycles.filter(item => item.cycleTimeDays !== null && Number.isFinite(item.cycleTimeDays) && item.completedAt)
+        const scatter = validCycles.map(item => ({
+          id: String(item.taskId), taskCode: `TASK-${item.taskId}`, taskTitle: item.title,
+          date: new Date(item.completedAt!).toLocaleDateString('vi-VN'),
+          cycleTimeDays: Number(item.cycleTimeDays!.toFixed(1)), assigneeName: assigneeName(item.taskId),
+          isOutlier: item.cycleTimeDays! > 5,
+        }))
+        const ageRows = ages.map(item => {
+          const member = item.assigneeId ? people.get(item.assigneeId) : undefined
+          return {
+            id: String(item.taskId), taskCode: `TASK-${item.taskId}`, taskTitle: item.title,
+            priority: ({ CRITICAL: 'Critical', HIGH: 'High', MEDIUM: 'Medium', LOW: 'Low', '': undefined } as const)[taskMap.get(item.taskId)?.priority ?? ''], currentColumn: item.status,
+            assigneeName: member?.fullName || (item.assigneeId ? `User #${item.assigneeId}` : 'Chưa giao'),
+            assigneeRole: member?.projectRole || 'Chưa có thông tin',
+            ageDays: Number(item.workItemAgeDays.toFixed(1)),
+            statusBadgeText: `${item.workItemAgeDays.toFixed(1)} ngày`,
+            statusDetailText: `Bắt đầu lúc ${new Date(item.startedAt).toLocaleString('vi-VN')}`,
           }
+        })
+        const asOf = tpRes.data.asOfUtc || wipRes.data.asOfUtc
+        return {
+          ...SPRINT_14_METRICS,
+          source: 'api',
+          wipRunData: [],
+          sprintId: sprintId || 'all',
+          sprintName: numSprintId ? sprintRows.find(item => item.sprintId === numSprintId)?.sprintName || `Sprint #${numSprintId}` : 'Tất cả Sprint',
+          isEmpty: false,
+          wipCurrent: wipRes.data.wip ?? null,
+          wipTargetMax: limit,
+          wipStatusText: `${wipRes.data.inProgress ?? 0} đang làm • ${wipRes.data.inReview ?? 0} chờ kiểm duyệt`,
+          throughputCount: tpRes.data.totalDoneTasks ?? 0,
+          throughputPoints: tpRes.data.points || [],
+          throughputSprints: sprintRows,
+          partialHistory: tpRes.data.hasPartialHistoricalCoverage,
+          throughputHistoryStart: tpRes.data.historyTrackingStartedAtUtc,
+          importedBaselineCount: tpRes.data.importedBaselineCount,
+          dateRangeLabel: `${tpRes.data.from || '—'} — ${tpRes.data.to || '—'} (UTC)`,
+          lastSyncTime: asOf ? new Date(asOf).toLocaleString('vi-VN') : 'Chưa có thời điểm đồng bộ',
+          throughputTrendText: tpRes.data.hasPartialHistoricalCoverage ? 'Lịch sử chưa phủ đầy đủ khoảng ngày' : tpRes.data.definition || 'Theo lịch sử hoàn thành từ máy chủ',
+          cycleTimeNote: `${avgCtRes.data.validTasks ?? 0} Task hợp lệ • ${avgCtRes.data.skippedInvalidTasks ?? 0} Task thiếu mốc thời gian bị bỏ qua`,
+          cycleTimeAvgDays: avgCtRes.data.averageCycleTimeDays == null ? null : Number(avgCtRes.data.averageCycleTimeDays.toFixed(1)),
+          cycleTimeScatterData: scatter,
+          slowestTasks: [...validCycles].sort((a, b) => b.cycleTimeDays! - a.cycleTimeDays!).slice(0, 5).map(item => ({
+            id: String(item.taskId), taskCode: `TASK-${item.taskId}`, taskTitle: item.title,
+            assigneeName: assigneeName(item.taskId), startDate: item.startedAt ? new Date(item.startedAt).toLocaleDateString('vi-VN') : 'Chưa có',
+            completedDate: new Date(item.completedAt!).toLocaleDateString('vi-VN'),
+            cycleTimeDays: Number(item.cycleTimeDays!.toFixed(1)), isExceeded: item.cycleTimeDays! > 5,
+          })),
+          workItemAgeAvgDays: ages.length ? Number((ages.reduce((sum, item) => sum + item.workItemAgeDays, 0) / ages.length).toFixed(1)) : null,
+          workItemAgeMaxDays: ages.length ? Math.max(...ages.map(item => item.workItemAgeDays)) : 0,
+          workItemAgeWarningCount: ages.filter(item => item.workItemAgeDays > 5).length,
+          workItemAgeTableData: ageRows,
+          workItemAgeChartData: ages.map(item => ({
+            id: String(item.taskId), taskCode: `TASK-${item.taskId}`, taskTitle: item.title,
+            totalAgeDays: item.workItemAgeDays, backlogDays: 0, inProgressDays: item.workItemAgeDays, reviewDays: 0,
+            isExceeded: item.workItemAgeDays > 5, note: 'Tổng tuổi việc. Chưa có thời gian từng trạng thái.',
+          })),
         }
-
-        return resData
       } catch (err) {
         const status = (err as { response?: { status?: number } }).response?.status
         throw new Error(status === 403 ? 'Bạn không có quyền xem Flow Metrics của dự án này.' : 'Không thể tải Flow Metrics. Vui lòng thử lại.')

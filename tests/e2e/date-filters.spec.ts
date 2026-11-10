@@ -5,6 +5,7 @@ test.use({ timezoneId: 'Asia/Bangkok' })
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('mytaiga_access_token', 'mock-only')
+    localStorage.setItem('mytaiga_active_project_id', '1')
     localStorage.setItem('mytaiga_user_info', JSON.stringify({ userId: 2, fullName: 'QA', email: 'qa@example.test', systemRole: 'USER' }))
   })
   await page.route('**/api/**', route => {

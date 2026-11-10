@@ -190,47 +190,55 @@ export const kanbanService = {
     },
   ): Promise<KanbanTask[]> {
     if (projectId) {
-      try {
-        const res = await api.board.get(projectId, { keyword: filters?.search })
-        const beCols = res.data.columns || []
-        const fetchedTasks: KanbanTask[] = []
+      const res = await api.board.get(projectId, { keyword: filters?.search, page: 1, pageSize: 100 })
+      const beCols = (res.data.columns || []).map(column => ({ ...column, tasks: [...(column.tasks || [])] }))
+      let hasMore = beCols.some(column => column.hasMore)
+      for (let page = 2; hasMore; page++) {
+        const next = await api.board.get(projectId, { keyword: filters?.search, page, pageSize: 100 })
+        hasMore = next.data.columns.some(column => column.hasMore)
+        if (!next.data.columns.some(column => column.tasks.length)) break
+        for (const column of next.data.columns) {
+          const existing = beCols.find(item => item.boardColumnId === column.boardColumnId)
+          if (existing) existing.tasks.push(...column.tasks)
+          else beCols.push({ ...column, tasks: [...column.tasks] })
+        }
+      }
+      const fetchedTasks: KanbanTask[] = []
 
-        beCols.forEach((col) => {
-          const colId = statusToColumnId(col.columnName)
-          ;(col.tasks || []).forEach((t: BoardTaskCard, idx: number) => {
-            const isOverdue = t.deadline ? new Date(t.deadline).getTime() < Date.now() : false
-            fetchedTasks.push({
-              id: String(t.taskId),
-              code: `TASK-${t.taskId}`,
-              title: t.title,
-              columnId: colId,
-              priority: mapPriorityFromBe(t.priority),
-              deadline: t.deadline ? new Date(t.deadline).toLocaleDateString('vi-VN') : undefined,
-              daysRemainingText: computeRemainingDays(t.deadline),
-              isOverdue,
-              assignee: {
-                id: t.assigneeId || undefined,
-                name: t.assigneeName || (t.assigneeId ? `Thành viên #${t.assigneeId}` : 'Chưa giao'),
-                avatarCode: t.assigneeAvatarCode || 'NA',
-                avatarUrl: t.assignee?.avatarUrl || t.assigneeAvatarUrl,
-                role: t.assigneeRole || undefined,
-              },
-              storyPoints: t.storyPoints ?? undefined,
-              tags: t.tags,
-              epicName: t.epicTitle || undefined,
-              epicColor: t.epicColor || undefined,
-              pbiCode: t.parentTaskId ? `#TASK-${t.parentTaskId}` : undefined,
-              subtasks: [],
-              order: t.position ?? idx,
-            })
+      beCols.forEach((col) => {
+        const colId = statusToColumnId(col.columnName)
+        ;(col.tasks || []).forEach((t: BoardTaskCard, idx: number) => {
+          const isOverdue = t.deadline ? new Date(t.deadline).getTime() < Date.now() : false
+          fetchedTasks.push({
+            id: String(t.taskId),
+            sprintId: t.sprintId,
+            code: `TASK-${t.taskId}`,
+            title: t.title,
+            columnId: colId,
+            priority: mapPriorityFromBe(t.priority),
+            deadline: t.deadline ? new Date(t.deadline).toLocaleDateString('vi-VN') : undefined,
+            daysRemainingText: computeRemainingDays(t.deadline),
+            isOverdue,
+            assignee: {
+              id: t.assigneeId || undefined,
+              name: t.assigneeName || (t.assigneeId ? `Thành viên #${t.assigneeId}` : 'Chưa giao'),
+              avatarCode: t.assigneeAvatarCode || 'NA',
+              avatarUrl: t.assignee?.avatarUrl || t.assigneeAvatarUrl,
+              role: t.assigneeRole || undefined,
+            },
+            storyPoints: t.storyPoints ?? undefined,
+            tags: t.tags,
+            epicName: t.epicTitle || undefined,
+            epicColor: t.epicColor || undefined,
+            pbiCode: t.parentTaskId ? `#TASK-${t.parentTaskId}` : undefined,
+            subtasks: [],
+            order: t.position ?? idx,
           })
         })
+      })
 
-        tasksState = fetchedTasks
-        return fetchedTasks
-      } catch (err) {
-        console.warn('⚠️ [KanbanService] Lỗi tải tasks từ Board API:', err)
-      }
+      tasksState = fetchedTasks
+      return fetchedTasks
     }
 
     return tasksState
@@ -245,6 +253,7 @@ export const kanbanService = {
         const subtasks = res.data.subtasks || []
         return {
           id: String(t.taskId),
+            sprintId: t.sprintId,
           code: `TASK-${t.taskId}`,
           title: t.title,
           description: t.description || undefined,
@@ -306,6 +315,7 @@ export const kanbanService = {
         }
         const newTask: KanbanTask = {
           id: String(t.taskId),
+            sprintId: t.sprintId,
           code: `TASK-${t.taskId}`,
           title: t.title,
           description: t.description || undefined,

@@ -1,3 +1,4 @@
+import { useProjectName } from '@/features/projects/useProjectName'
 import { Avatar } from '@/components/ui/Avatar'
 import { DateInput } from '@/components/ui/DateInput'
 import { useState, useMemo, useEffect } from 'react'
@@ -22,7 +23,8 @@ export function ActivityTimelinePage() {
   const [appliedRange, setAppliedRange] = useState(emptyRange)
   const [result, setResult] = useState<{ key: string; items: ActivityItem[]; error?: string } | null>(null)
 
-  const numericProjectId = projectId ? parseInt(projectId, 10) : (projectService.getActiveProjectId() || 1)
+  const numericProjectId = projectId ? parseInt(projectId, 10) : (projectService.getActiveProjectId() ?? undefined)
+  const projectName = useProjectName(numericProjectId)
   const { startDate, endDate } = appliedRange
   const requestKey = `${numericProjectId}:${startDate}:${endDate}`
   const currentResult = result?.key === requestKey ? result : null
@@ -30,6 +32,7 @@ export function ActivityTimelinePage() {
   const hasDateFilter = Boolean(startDate || endDate)
 
   useEffect(() => {
+    if (!numericProjectId) return
     const controller = new AbortController()
     notificationService.fetchActivitiesFromApi(numericProjectId, { ...appliedRange, signal: controller.signal })
       .then((items) => {
@@ -41,7 +44,6 @@ export function ActivityTimelinePage() {
     return () => controller.abort()
   }, [numericProjectId, appliedRange, requestKey])
 
-  const stats = notificationService.getActivityStats()
 
   // Filter activities
   const filteredActivities = useMemo(() => {
@@ -58,6 +60,8 @@ export function ActivityTimelinePage() {
       return true
     })
   }, [currentResult, actorFilter, actionFilter, searchTerm])
+
+  const stats = notificationService.getActivityStats(filteredActivities)
 
   // Group by dateGroup
   const grouped = useMemo(() => {
@@ -113,13 +117,15 @@ export function ActivityTimelinePage() {
     }
   }
 
+  if (!numericProjectId) return <p role="status" className="p-6">Vui lòng chọn dự án để xem hoạt động.</p>
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 animate-in fade-in duration-200">
       {/* Header (S12-05) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-xs text-neutral-500 mb-1">
-            <span>ScrumBan Core Platform</span>
+            <span>{projectName}</span>
             <span>/</span>
             <span className="font-semibold text-neutral-800 dark:text-neutral-200">
               Nhật ký hoạt động
@@ -156,11 +162,7 @@ export function ActivityTimelinePage() {
             className="w-full pl-8 pr-7 py-2 bg-paper-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-neutral-700 dark:text-neutral-300 appearance-none focus:outline-none focus:ring-1 focus:ring-primary-500 cursor-pointer"
           >
             <option value="all">Người thực hiện: Tất cả thành viên</option>
-            <option value="Minh Quân">Minh Quân</option>
-            <option value="Thu Hà">Thu Hà</option>
-            <option value="Thùy Trang">Thùy Trang</option>
-            <option value="Tuấn Kiệt">Tuấn Kiệt</option>
-            <option value="Hệ thống">Hệ thống</option>
+            {Array.from(new Set((currentResult?.items ?? []).map(item => item.actor.name))).map(name => <option key={name} value={name}>{name}</option>)}
           </select>
           <span className="absolute left-2.5 top-2.5 text-neutral-400 pointer-events-none">
             <Icon name="user" size={14} />
@@ -183,6 +185,7 @@ export function ActivityTimelinePage() {
             <option value="wip_warning">Giới hạn WIP</option>
             <option value="bug_report">Báo cáo lỗi</option>
             <option value="epic_link">Liên kết Epic</option>
+            <option value="other">Hoạt động khác</option>
           </select>
           <span className="absolute left-2.5 top-2.5 text-neutral-400 pointer-events-none">
             <Icon name="filter" size={14} />
@@ -391,7 +394,7 @@ export function ActivityTimelinePage() {
           {/* 14 Days Stats Card */}
           <div className="bg-whiteboard dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-4 shadow-xs">
             <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">
-              Thống kê 14 ngày qua
+              Thống kê theo bộ lọc
             </h3>
             <div className="space-y-2.5 text-xs">
               <div className="flex items-center justify-between">
@@ -410,7 +413,7 @@ export function ActivityTimelinePage() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-neutral-600 dark:text-neutral-400">Lần chạm ngưỡng WIP</span>
-                <span className="font-bold text-amber-600 font-mono">{stats.wipViolations}</span>
+                <span className="font-bold text-amber-600 font-mono">{stats.wipViolations ?? '—'}</span>
               </div>
             </div>
           </div>
@@ -448,7 +451,7 @@ export function ActivityTimelinePage() {
           <div className="p-3.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-800 text-[11px] text-neutral-500 dark:text-neutral-400 leading-relaxed flex items-start gap-2.5">
             <Icon name="info" size={16} className="text-neutral-400 shrink-0 mt-0.5" />
             <p>
-              Nhật ký được lưu trữ bảo toàn 180 ngày phục vụ công tác Retrospective và đối soát tiến độ của đội ngũ.
+              Nhật ký lấy từ máy chủ theo dự án và khoảng ngày đã chọn. BE chưa công bố thời hạn lưu trữ.
             </p>
           </div>
         </div>

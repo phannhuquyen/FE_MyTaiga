@@ -8,7 +8,7 @@ interface WipRunChartProps {
 }
 
 export function WipRunChart({ data, wipLimit = 8 }: WipRunChartProps) {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(7) // default highlight 21/10
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   const chartHeight = 220
   const chartWidth = 740
@@ -20,7 +20,7 @@ export function WipRunChart({ data, wipLimit = 8 }: WipRunChartProps) {
   const innerWidth = chartWidth - paddingLeft - paddingRight
   const innerHeight = chartHeight - paddingTop - paddingBottom
 
-  const maxY = 10
+  const maxY = Math.max(10, wipLimit, ...data.map(item => item.actualWip))
   const minY = 0
 
   const getX = (index: number) => {
@@ -47,7 +47,7 @@ export function WipRunChart({ data, wipLimit = 8 }: WipRunChartProps) {
             Xu hướng số lượng việc dở dang (WIP Run Chart)
           </h3>
           <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-            Chuỗi 14 ngày làm việc từ 14/10 đến 28/10/2024
+            {data.length ? 'Lịch sử WIP theo dữ liệu được cung cấp' : 'BE chưa có dữ liệu lịch sử WIP'}
           </p>
         </div>
 
@@ -203,9 +203,7 @@ export function WipRunChart({ data, wipLimit = 8 }: WipRunChartProps) {
       <div className="p-3 bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 rounded-xl flex items-center gap-2.5 text-xs text-emerald-900 dark:text-emerald-200">
         <Icon name="check-circle" size={16} className="text-emerald-600 shrink-0" />
         <div>
-          <strong>Đánh giá điều phối:</strong> Luồng công việc duy trì ổn định dưới ngưỡng WIP trần
-          (&le; {wipLimit} thẻ), không phát hiện tắc nghẽn (bottleneck) nghiêm trọng nào trong chu kỳ
-          Sprint 14.
+          <strong>Đánh giá điều phối:</strong> BE chưa cung cấp lịch sử WIP để đánh giá xu hướng và nút thắt trong kỳ.
         </div>
       </div>
     </div>

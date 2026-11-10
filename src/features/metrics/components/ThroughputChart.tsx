@@ -1,99 +1,46 @@
-import { Icon } from '@/components/ui'
+import type { FlowMetricsData } from '../types'
 
-export function ThroughputChart() {
-  const sprintData = [
-    { name: 'Sprint 12 (Fintech Core)', cards: 14, sp: 28, efficiency: 72 },
-    { name: 'Sprint 13 (Gateway Staging)', cards: 15, sp: 31, efficiency: 74 },
-    { name: 'Sprint 14 (Tối ưu luồng - Hiện tại)', cards: 18, sp: 36, efficiency: 78, isCurrent: true },
-  ]
-
-  const maxCards = 22
-
+export function ThroughputChart({ data }: { data: FlowMetricsData }) {
+  const rows = data.throughputSprints ?? []
+  const max = Math.max(1, ...rows.map(row => row.doneTasks))
+  const days = data.throughputPoints?.length ?? 0
   return (
     <div className="space-y-6">
-      {/* Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl p-4 shadow-2xs">
-          <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider mb-1">
-            TỔNG SẢN LƯỢNG BÀN GIAO
+        {[
+          ['TỔNG SẢN LƯỢNG BÀN GIAO', `${data.throughputCount ?? '—'} thẻ`, data.dateRangeLabel],
+          ['FLOW EFFICIENCY (HIỆU SUẤT LUỒNG)', '—', 'BE chưa cung cấp thời gian thực hiện và chờ'],
+          ['TỐC ĐỘ BÀN GIAO TRUNG BÌNH', days ? `${((data.throughputCount ?? 0) / days).toFixed(2)} thẻ / ngày` : '—', `${days} ngày trong khoảng đã chọn (UTC)`],
+        ].map(([label, value, note]) => (
+          <div key={label} className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl p-4 shadow-2xs">
+            <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider mb-1">{label}</div>
+            <div className="text-2xl font-extrabold text-neutral-900 dark:text-neutral-100">{value}</div>
+            <div className="text-xs text-neutral-500 mt-1">{note}</div>
           </div>
-          <div className="text-2xl font-extrabold text-neutral-900 dark:text-neutral-100">
-            18 <span className="text-xs font-normal text-neutral-500">thẻ / 14 ngày</span>
-          </div>
-          <div className="text-xs text-emerald-600 font-semibold mt-1 flex items-center gap-1">
-            <Icon name="chevron-up" size={14} />
-            +3 thẻ so với Sprint 13
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl p-4 shadow-2xs">
-          <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider mb-1">
-            FLOW EFFICIENCY (HIỆU SUẤT LUỒNG)
-          </div>
-          <div className="text-2xl font-extrabold text-teal-600 dark:text-teal-400">
-            78.2%
-          </div>
-          <div className="text-xs text-neutral-500 mt-1">
-            Thời gian chủ động thực hiện vs thời gian chờ
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl p-4 shadow-2xs">
-          <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider mb-1">
-            TỐC ĐỘ BÀN GIAO TRUNG BÌNH
-          </div>
-          <div className="text-2xl font-extrabold text-neutral-900 dark:text-neutral-100">
-            1.28 <span className="text-xs font-normal text-neutral-500">thẻ / ngày</span>
-          </div>
-          <div className="text-xs text-neutral-500 mt-1">
-            Duy trì ổn định trong 3 chu kỳ liên tiếp
-          </div>
-        </div>
+        ))}
       </div>
-
-      {/* Historical Sprints Comparison Bar Chart */}
+      <p className="text-xs text-neutral-500">Bắt đầu ghi lịch sử: {data.throughputHistoryStart ? new Date(data.throughputHistoryStart).toLocaleString('vi-VN') : 'Chưa có mốc'} · Baseline nhập: {data.importedBaselineCount ?? '—'} Task</p>
+      {data.partialHistory && <p role="status" className="text-sm text-warning-700">Lịch sử chưa phủ đầy đủ khoảng ngày; sản lượng có thể chưa đầy đủ.</p>}
       <div className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl p-5 shadow-2xs space-y-4">
-        <div>
-          <h4 className="text-sm font-bold text-neutral-900 dark:text-neutral-100">
-            So sánh Throughput qua các chu kỳ Sprint gần nhất
-          </h4>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400">
-            Số lượng thẻ đã di chuyển vào cột Hoàn thành (Done) trong mỗi chu kỳ 14 ngày
-          </p>
-        </div>
-
-        <div className="space-y-4 pt-2">
-          {sprintData.map((sp) => {
-            const barWidth = (sp.cards / maxCards) * 100
-            return (
-              <div key={sp.name} className="space-y-1.5 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-neutral-800 dark:text-neutral-200 flex items-center gap-1.5">
-                    {sp.name}
-                    {sp.isCurrent && (
-                      <span className="text-[10px] px-1.5 py-0.2 bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300 rounded font-bold">
-                        Đang diễn ra
-                      </span>
-                    )}
-                  </span>
-                  <span className="font-bold text-neutral-900 dark:text-neutral-100">
-                    {sp.cards} thẻ ({sp.sp} Story Points)
-                  </span>
-                </div>
-                <div className="w-full bg-neutral-100 dark:bg-neutral-900 h-6 rounded-md overflow-hidden flex items-center p-0.5">
-                  <div
-                    style={{ width: `${barWidth}%` }}
-                    className={`h-full rounded-sm transition-all flex items-center justify-end px-2 text-[11px] font-bold text-white ${
-                      sp.isCurrent ? 'bg-primary-600' : 'bg-neutral-400 dark:bg-neutral-600'
-                    }`}
-                  >
-                    {sp.cards}
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
+        <h4 className="text-sm font-bold text-neutral-900 dark:text-neutral-100">So sánh Throughput qua các Sprint</h4>
+        <p className="text-xs text-neutral-500">Số Task hoàn thành trong khoảng ngày đã chọn (UTC).</p>
+        {!rows.length && <p className="text-sm text-neutral-500">Chưa có dữ liệu Sprint trong khoảng ngày này.</p>}
+        {rows.map(row => (
+          <div key={row.sprintId} className="space-y-1.5 text-xs">
+            <div className="flex justify-between gap-2"><span>{row.sprintName} · {row.status}</span><strong>{row.doneTasks} thẻ</strong></div>
+            <div className="bg-neutral-100 dark:bg-neutral-900 h-6 rounded-md overflow-hidden">
+              <div style={{ width: `${row.doneTasks / max * 100}%` }} className="h-full bg-primary-600 rounded-sm" />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl p-5 shadow-2xs overflow-x-auto">
+        <h4 className="text-sm font-bold mb-3">Sản lượng theo ngày (UTC)</h4>
+        <table className="w-full text-xs text-left">
+          <thead><tr><th className="py-2">Ngày</th><th>Task hoàn thành</th><th>Lịch sử</th></tr></thead>
+          <tbody>{(data.throughputPoints ?? []).map(point => <tr key={point.date} className="border-t border-neutral-100 dark:border-neutral-700"><td className="py-2">{point.date}</td><td>{point.doneTasks}</td><td>{point.historyComplete ? 'Đầy đủ' : 'Chưa đầy đủ'}</td></tr>)}</tbody>
+        </table>
+        {!days && <p className="text-xs text-neutral-500 py-3">Chưa có dữ liệu theo ngày.</p>}
       </div>
     </div>
   )

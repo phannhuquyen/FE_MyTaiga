@@ -1,22 +1,27 @@
+import { useProjectContext } from '@/features/projects/projectContext'
 import { useState, useEffect, useCallback } from 'react'
 import { useQuickCreate } from '@/hooks/useQuickCreate'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { Icon } from '@/components/ui'
 import type { BugItem, BugSeverity, BugStatus, CreateBugPayload } from './types'
-import { bugService, AVAILABLE_ASSIGNEES } from './services/bugService'
+import { useProjectMembers } from '@/features/projects/useProjectMembers'
+import { bugService } from './services/bugService'
 import { BugDetailView } from './components/BugDetailView'
 import { CreateBugModal } from './components/CreateBugModal'
 
 export default function BugsPage() {
+  const project = useProjectContext()
   const { projectId } = useParams<{ projectId: string }>()
   const numericProjectId = projectId ? parseInt(projectId, 10) : undefined
+  const members = useProjectMembers(numericProjectId)
 
   const [searchParams, setSearchParams] = useSearchParams()
   const bugIdParam = searchParams.get('id')
 
   // List state
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [bugs, setBugs] = useState<BugItem[]>([])
-  const [totalCount, setTotalCount] = useState(14)
+  const [totalCount, setTotalCount] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 7
   const [searchTerm, setSearchTerm] = useState('')
@@ -25,10 +30,10 @@ export default function BugsPage() {
   const [assigneeFilter, setAssigneeFilter] = useState<string>('all')
 
   const [stats, setStats] = useState({
-    totalOpen: 14,
-    blockerCount: 3,
-    majorCount: 5,
-    mediumMinorCount: 6,
+    totalOpen: 0,
+    blockerCount: 0,
+    majorCount: 0,
+    mediumMinorCount: 0,
   })
 
   // Selected bug for detail view
@@ -41,6 +46,7 @@ export default function BugsPage() {
   const loadBugs = useCallback(async () => {
     try {
       setIsLoading(true)
+      setLoadError(null)
       const res = await bugService.getBugs({
         search: searchTerm,
         status: statusFilter,
@@ -60,6 +66,8 @@ export default function BugsPage() {
           setSelectedBug(found)
         }
       }
+    } catch {
+      setLoadError('Không thể tải dữ liệu lỗi. Vui lòng thử lại.')
     } finally {
       setIsLoading(false)
     }
@@ -197,12 +205,13 @@ export default function BugsPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
+      {loadError && <p role="alert" className="text-sm text-danger-700">{loadError}</p>}
       {/* Breadcrumb & Header (S11-01) */}
       <div>
         <div className="text-xs text-neutral-500 dark:text-neutral-400 mb-1 flex items-center gap-1.5">
           <span>Dự án</span>
           <span>&gt;</span>
-          <span>ScrumBan Core Platform</span>
+          <span>{project?.projectName ?? 'Dự án'}</span>
           <span>&gt;</span>
           <span className="font-semibold text-neutral-800 dark:text-neutral-200">
             Danh sách Lỗi (Bugs)
@@ -215,7 +224,7 @@ export default function BugsPage() {
               Quản lý Lỗi (Bugs)
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-danger-50 text-danger-700 border border-danger-200 dark:bg-danger-950/60 dark:text-danger-300">
-              {stats.totalOpen} lỗi đang mở
+              {stats.totalOpen} lỗi đang mở trên trang này
             </span>
           </div>
 
@@ -306,9 +315,9 @@ export default function BugsPage() {
               className="text-xs rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-1.5 text-neutral-700 dark:text-neutral-300 focus:outline-none focus:ring-1 focus:ring-primary-500"
             >
               <option value="all">Người xử lý: Tất cả</option>
-              {AVAILABLE_ASSIGNEES.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.name}
+              {members.map((a) => (
+                <option key={a.userId} value={a.userId}>
+                  {a.fullName}
                 </option>
               ))}
               <option value="unassigned">Chưa gán</option>
@@ -324,8 +333,9 @@ export default function BugsPage() {
             </button>
           </div>
 
-          {/* Severity Counts Dots (S11-01) */}
-          <div className="flex items-center gap-3 text-xs text-neutral-600 dark:text-neutral-400 shrink-0 self-end lg:self-center">
+          {/* Counts apply to the displayed server page. */}
+          <div title="Thống kê các Bug trên trang hiện tại" className="flex items-center gap-3 text-xs text-neutral-600 dark:text-neutral-400 shrink-0 self-end lg:self-center">
+            <span>Trang này:</span>
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-danger-500" />
               <strong className="text-neutral-900 dark:text-neutral-100">{stats.blockerCount}</strong> Chặn

@@ -1,4 +1,5 @@
 import { api, type ProjectData, type ProjectRequest } from '@/services/api'
+import { allPages } from '@/lib/allPages'
 import type {
   CreateProjectPayload,
   Project,
@@ -50,12 +51,10 @@ function mapBeProjectToFe(data: ProjectData): Project {
     startDate: formatDate(data.startDate),
     endDate: formatDate(data.endDate),
     methodology: 'scrumban',
-    leadName: data.projectRole === 'MANAGER' ? 'Bạn (Manager)' : 'Quản lý dự án',
-    leadAvatar: 'PM',
-    members: [
-      { name: 'Thành viên dự án', avatarCode: 'TV', bgColor: 'bg-primary-700' },
-    ],
-    totalMembersCount: 1,
+    leadName: 'Chưa tải được quản lý dự án',
+    leadAvatar: '—',
+    members: [],
+    totalMembersCount: null,
     status: (isActive ? 'active' : 'closed') as ProjectStatus,
     statusText: isActive ? 'Đang thực hiện' : 'Đã đóng',
     colorClass: isActive ? 'bg-primary-50 text-primary-700' : 'bg-neutral-100 text-neutral-600',
@@ -65,6 +64,23 @@ function mapBeProjectToFe(data: ProjectData): Project {
 
 class ProjectService {
   private cachedProjects: Project[] = []
+
+  private async withMembers(project: Project): Promise<Project> {
+    try {
+      const members = await allPages(page => api.projectMembers.list(Number(project.id), { page, pageSize: 100 }))
+      const initials = (name: string) => name.trim().split(/\s+/).slice(-2).map(part => part[0]).join('').toUpperCase()
+      const managers = members.filter(member => member.projectRole === 'MANAGER')
+      return {
+        ...project,
+        members: members.map(member => ({ id: member.userId, name: member.fullName, avatarCode: initials(member.fullName), avatarUrl: member.avatar })),
+        totalMembersCount: members.length,
+        leadName: managers.map(member => member.fullName).join(', ') || 'Chưa có quản lý',
+        leadAvatar: managers[0] ? initials(managers[0].fullName) : '—',
+      }
+    } catch {
+      return project
+    }
+  }
 
   getActiveProjectId(): number | null {
     const stored = localStorage.getItem(ACTIVE_PROJECT_KEY)
@@ -86,14 +102,14 @@ class ProjectService {
   async getProjects(status?: ProjectStatus, search?: string): Promise<Project[]> {
     try {
       const beStatus = status ? (status.toUpperCase() as 'ACTIVE' | 'CLOSED') : undefined
-      const res = await api.projects.list({
+      const rows = await allPages(page => api.projects.list({
         status: beStatus,
         keyword: search?.trim() || undefined,
-        page: 1,
+        page,
         pageSize: 100,
-      })
+      }))
 
-      const list = res.data.items.map(mapBeProjectToFe)
+      const list = await Promise.all(rows.map(item => this.withMembers(mapBeProjectToFe(item))))
       this.cachedProjects = list
       if (list.length > 0 && !localStorage.getItem(ACTIVE_PROJECT_KEY)) {
         localStorage.setItem(ACTIVE_PROJECT_KEY, list[0].id)
@@ -117,23 +133,27 @@ class ProjectService {
 
     try {
       const res = await api.projects.get(numericId)
-      return mapBeProjectToFe(res.data)
+      return this.withMembers(mapBeProjectToFe(res.data))
     } catch (error) {
       console.warn(`⚠️ [ProjectService] Lỗi khi lấy chi tiết dự án ID ${numericId}:`, error)
       return this.cachedProjects.find((p) => p.id === String(id)) ?? null
     }
   }
 
-  async getProjectCounts(): Promise<{ activeCount: number; closedCount: number; totalMembers: number }> {
+  async getProjectCounts(): Promise<{ activeCount: number; closedCount: number; totalMembers: number | null }> {
     try {
       const [activeRes, closedRes] = await Promise.all([
         api.projects.list({ status: 'ACTIVE', page: 1, pageSize: 1 }),
         api.projects.list({ status: 'CLOSED', page: 1, pageSize: 1 }),
       ])
+      const projects = await allPages(page => api.projects.list({ page, pageSize: 100 }))
+      const memberships = await Promise.allSettled(projects.map(project => allPages(page => api.projectMembers.list(project.projectId, { page, pageSize: 100 }))))
+      const complete = memberships.every(result => result.status === 'fulfilled')
+      const ids = new Set(memberships.flatMap(result => result.status === 'fulfilled' ? result.value.map(member => member.userId) : []))
       return {
         activeCount: activeRes.data.total,
         closedCount: closedRes.data.total,
-        totalMembers: activeRes.data.total + closedRes.data.total,
+        totalMembers: complete ? ids.size : null,
       }
     } catch {
       const active = this.cachedProjects.filter((p) => p.status === 'active')
@@ -141,7 +161,7 @@ class ProjectService {
       return {
         activeCount: active.length,
         closedCount: closed.length,
-        totalMembers: this.cachedProjects.length,
+        totalMembers: null,
       }
     }
   }

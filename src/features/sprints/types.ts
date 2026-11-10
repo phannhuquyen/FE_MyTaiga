@@ -52,6 +52,7 @@ export interface Sprint {
   leadTimeAvgDays?: number
   membersCount: number
   items: SprintWorkItem[]
+  burndownNote?: string
   burndownPoints?: BurndownDataPoint[]
   scoreAdjustments?: ScoreAdjustmentEvent[]
 }

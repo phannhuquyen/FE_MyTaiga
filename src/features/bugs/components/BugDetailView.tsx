@@ -163,7 +163,7 @@ export function BugDetailView({
             <span>Danh sách Lỗi & Bugs</span>
           </button>
           <span>/</span>
-          <span>{bug.sprintName || 'Sprint 14'}</span>
+          <span>{bug.sprintName || 'Chưa tải thông tin Sprint của Task'}</span>
           <span>/</span>
           <span className="font-semibold text-neutral-800 dark:text-neutral-200">{bug.code}</span>
         </div>
@@ -784,7 +784,7 @@ export function BugDetailView({
                 <span className="text-neutral-400 text-[11px] block mb-0.5">Sprint liên kết</span>
                 <span className="font-medium text-neutral-800 dark:text-neutral-200 flex items-center gap-1">
                   <Icon name="sprint" size={13} className="text-neutral-400" />
-                  {bug.sprintName || 'Sprint 14: Tối ưu luồng'}
+                  {bug.sprintName || 'Chưa có thông tin Sprint'}
                 </span>
               </div>
             </div>
@@ -832,7 +832,7 @@ export function BugDetailView({
             <Icon name="info" size={14} className="text-primary-600 shrink-0 mt-0.5" />
             <span>
               Mọi thay đổi trên thẻ này sẽ được đồng bộ hóa tức thì tới toàn bộ thành viên trong{' '}
-              {bug.sprintName || 'Sprint 14'} qua engine ScrumBan Flow.
+              {bug.sprintName || 'Chưa có thông tin Sprint'} qua engine ScrumBan Flow.
             </span>
           </div>
         </div>

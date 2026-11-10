@@ -28,6 +28,7 @@ export interface KanbanComment {
 
 export interface KanbanTask {
   id: string
+  sprintId?: number | null
   code: string // e.g. "TASK-241", "CORE-201", "SCRUM-142"
   title: string
   description?: string

@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+import { memberService } from '../services/memberService'
 import { Avatar } from '@/components/ui/Avatar'
 import { Icon } from '@/components/ui'
 import type { Member } from '../types'
@@ -19,9 +21,20 @@ export function MemberDetailDrawer({
   onOpenRemove,
   isReadOnly = false,
 }: MemberDetailDrawerProps) {
+  const [result, setResult] = useState<{ id: string; tasks: NonNullable<Member['assignedTasks']>; error?: string } | null>(null)
+  useEffect(() => {
+    if (!isOpen || !member) return
+    let cancelled = false
+    memberService.getMemberTasks(member.id).then(tasks => {
+      if (!cancelled) setResult({ id: member.id, tasks })
+    }).catch(() => {
+      if (!cancelled) setResult({ id: member.id, tasks: [], error: 'Không thể tải công việc thành viên.' })
+    })
+    return () => { cancelled = true }
+  }, [isOpen, member])
   if (!isOpen || !member) return null
-
-  const tasks = member.assignedTasks || []
+  const current = result?.id === member.id ? result : null
+  const tasks = current?.tasks ?? []
   const files = member.sharedFiles || [
     { name: 'swagger_spec.yaml', size: '142 KB', time: '10:18', type: 'spec' as const },
     { name: 'k6_test_report.pdf', size: '2.4 MB', time: '10:42', type: 'report' as const },
@@ -134,10 +147,10 @@ export function MemberDetailDrawer({
               <div className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
                 CÔNG VIỆC PHỤ TRÁCH ({tasks.length})
               </div>
-              <span className="text-xs text-primary-600 font-medium">Sprint 14</span>
+              <span className="text-xs text-primary-600 font-medium">Trong dự án</span>
             </div>
 
-            {tasks.length > 0 ? (
+            {!current ? <p role="status" className="text-xs">Đang tải công việc...</p> : current.error ? <p role="alert" className="text-xs text-danger-700">{current.error}</p> : tasks.length > 0 ? (
               <div className="space-y-2">
                 {tasks.map((task) => (
                   <div
@@ -156,7 +169,7 @@ export function MemberDetailDrawer({
               </div>
             ) : (
               <div className="p-3 rounded-lg border border-neutral-200 bg-neutral-50 text-center text-xs text-neutral-500">
-                Chưa có thẻ công việc nào được gán cho thành viên này trong Sprint hiện tại.
+                Chưa có thẻ công việc nào được gán cho thành viên này trong dự án.
               </div>
             )}
           </div>

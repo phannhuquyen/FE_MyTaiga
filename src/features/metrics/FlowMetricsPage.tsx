@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
+import { useProjectContext } from '@/features/projects/projectContext'
+import { allPages } from '@/lib/allPages'
 import { Icon } from '@/components/ui'
 import type { MetricTabId, FlowMetricsData } from './types'
 import { metricService } from './services/metricService'
@@ -14,6 +16,7 @@ import { ConfigAlertModal } from './components/ConfigAlertModal'
 import { api, type SprintData } from '@/services/api'
 
 export default function FlowMetricsPage() {
+  const project = useProjectContext()
   const { projectId } = useParams<{ projectId: string }>()
   const numericProjectId = projectId ? parseInt(projectId, 10) : undefined
 
@@ -28,12 +31,19 @@ export default function FlowMetricsPage() {
   const [error, setError] = useState<string | null>(null)
   const [isExporting, setIsExporting] = useState(false)
   const [exportError, setExportError] = useState<string | null>(null)
-  const metricsScope = `${numericProjectId}:${selectedSprint}:${wipLimit}`
+  const [periodEnd] = useState(() => new Date().toISOString())
+  const period = useMemo(() => {
+    const to = new Date(periodEnd)
+    const from = new Date(to)
+    from.setUTCDate(from.getUTCDate() - (selectedRange === 'last30' ? 29 : selectedRange === 'last7' ? 6 : 13))
+    return { from: from.toISOString().slice(0, 10), to: to.toISOString().slice(0, 10) }
+  }, [selectedRange, periodEnd])
+  const metricsScope = `${numericProjectId}:${selectedSprint}:${wipLimit}:${selectedRange}`
   const metricsData = metricsResult?.data
 
   useEffect(() => {
     let cancelled = false
-    metricService.getMetricsData(numericProjectId, selectedSprint, wipLimit).then(data => {
+    metricService.getMetricsData(numericProjectId, selectedSprint, wipLimit, period).then(data => {
       if (!cancelled) {
         setMetricsResult({ data, scope: metricsScope })
         setError(null)
@@ -42,13 +52,13 @@ export default function FlowMetricsPage() {
       if (!cancelled) setError(err instanceof Error ? err.message : 'Không thể tải Flow Metrics.')
     })
     return () => { cancelled = true }
-  }, [numericProjectId, selectedSprint, wipLimit, metricsScope])
+  }, [numericProjectId, selectedSprint, wipLimit, metricsScope, period])
 
   useEffect(() => {
     if (!numericProjectId) return
     let cancelled = false
-    api.sprints.list({ projectId: numericProjectId, pageSize: 100 }).then(res => {
-      if (!cancelled) setSprints(res.data.items)
+    allPages(page => api.sprints.list({ projectId: numericProjectId, page, pageSize: 100 })).then(rows => {
+      if (!cancelled) setSprints(rows)
     }).catch(() => { if (!cancelled) setSprints([]) })
     return () => { cancelled = true }
   }, [numericProjectId])
@@ -86,14 +96,14 @@ export default function FlowMetricsPage() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
       <p className="text-xs text-neutral-500" title="Một số biểu đồ lịch sử và mục tiêu chưa có nguồn dữ liệu API đầy đủ">
-        WIP lịch sử và một số mục tiêu/ngưỡng còn dùng dữ liệu minh họa; không dùng làm báo cáo nghiệp vụ.
+        BE chưa cung cấp WIP lịch sử. Ngưỡng WIP và tuổi việc là cấu hình FE; chưa đồng bộ cấu hình BE.
       </p>
       {/* Header & Breadcrumb (S10-01) */}
       <div>
         <div className="text-xs text-neutral-500 dark:text-neutral-400 mb-1 flex items-center gap-1.5">
           <span>Dự án</span>
           <span>/</span>
-          <span>ScrumBan Core Platform</span>
+          <span>{project?.projectName ?? 'Dự án'}</span>
           <span>/</span>
           <span className="font-semibold text-neutral-800 dark:text-neutral-200">Flow Metrics</span>
         </div>
@@ -152,14 +162,14 @@ export default function FlowMetricsPage() {
 
             {/* Date range */}
             <div className="flex items-center gap-2">
-              <span className="text-neutral-500 font-medium">Khoảng ngày:</span>
+              <span className="text-neutral-500 font-medium">Khoảng ngày Throughput:</span>
               <select
                 value={selectedRange}
                 onChange={(e) => setSelectedRange(e.target.value)}
                 className="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 px-3 py-1.5 text-neutral-800 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-primary-500"
               >
-                <option value="current">14/10/2024 - 28/10/2024 (14 ngày qua)</option>
-                <option value="future">01/11/2024 - 15/11/2024 (Sprint 16)</option>
+                <option value="current">14 ngày gần nhất (UTC)</option>
+                <option value="last7">7 ngày gần nhất (UTC)</option>
                 <option value="last30">30 ngày gần nhất</option>
               </select>
             </div>
@@ -173,8 +183,8 @@ export default function FlowMetricsPage() {
                 className="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 px-3 py-1.5 text-neutral-800 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-primary-500"
               >
                 <option value="all">Tất cả hạng mục</option>
-                <option value="payment">Cổng Thanh Toán v2.0</option>
-                <option value="core">Core Platform</option>
+                <option disabled>BE chưa hỗ trợ lọc Epic</option>
+
               </select>
             </div>
           </div>
@@ -193,7 +203,7 @@ export default function FlowMetricsPage() {
           <FlowMetricKpiCards data={metricsData} />
           <EmptyMetricsState
             onSwitchToSprint14={() => {
-              setSelectedSprint('sprint-14')
+              setSelectedSprint('all')
               setSelectedRange('current')
             }}
           />
@@ -236,12 +246,13 @@ export default function FlowMetricsPage() {
               <WipRunChart data={metricsData.wipRunData} wipLimit={wipLimit} />
             )}
 
-            {activeTab === 'throughput' && <ThroughputChart />}
+            {activeTab === 'throughput' && <ThroughputChart data={metricsData} />}
 
             {activeTab === 'cycletime' && (
               <CycleTimeScatterplot
                 scatterData={metricsData.cycleTimeScatterData}
                 slowestTasks={metricsData.slowestTasks}
+                averageDays={metricsData.cycleTimeAvgDays}
               />
             )}
 

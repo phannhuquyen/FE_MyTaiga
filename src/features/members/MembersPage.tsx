@@ -1,3 +1,4 @@
+import { useProjectContext } from '@/features/projects/projectContext'
 import { Avatar } from '@/components/ui/Avatar'
 import { useState, useEffect, useMemo, useId } from 'react'
 import { Link } from 'react-router-dom'
@@ -16,6 +17,7 @@ import { MemberRowActions } from './components/MemberRowActions'
 const ITEMS_PER_PAGE = 5
 
 export default function MembersPage() {
+  const project = useProjectContext()
   const [departments, setDepartments] = useState<Department[]>([])
   const [members, setMembers] = useState<Member[]>([])
   const [candidates, setCandidates] = useState<Candidate[]>([])
@@ -244,7 +246,7 @@ export default function MembersPage() {
           Dự án
         </Link>
         <span>&rsaquo;</span>
-        <span className="text-neutral-700 font-medium">ScrumBan Core Platform</span>
+        <span className="text-neutral-700 font-medium">{project?.projectName ?? 'Dự án'}</span>
         <span>&rsaquo;</span>
         <span className="text-neutral-900 font-semibold">Thành viên</span>
       </nav>
@@ -293,7 +295,7 @@ export default function MembersPage() {
             </span>
           </div>
           <p className="text-body-sm text-neutral-600 mt-1">
-            Quản lý nhân sự và cơ cấu phòng ban trực thuộc dự án ScrumBan Core Platform
+            Quản lý nhân sự và cơ cấu phòng ban trực thuộc dự án {project?.projectName ?? 'Dự án'}
           </p>
         </div>
 

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { Icon } from '@/components/ui'
 import { chatService } from '../services/chatService'
 import type { ChatMessage } from '../types'
@@ -16,12 +16,22 @@ export function ChatSearchDrawer({
   onSelectResult,
   currentConversationId,
 }: ChatSearchDrawerProps) {
-  const [keyword, setKeyword] = useState('webhook')
-  const [selectedIdx, setSelectedIdx] = useState(2) // 3rd match by default like S13-05
+  const [keyword, setKeyword] = useState('')
+  const [selectedIdx, setSelectedIdx] = useState(0)
 
-  const searchResults = useMemo(() => {
-    return chatService.searchMessages(keyword, currentConversationId)
-  }, [keyword, currentConversationId])
+  const [result, setResult] = useState<{ scope: string; items: Awaited<ReturnType<typeof chatService.searchMessagesFromApi>>; error?: string } | null>(null)
+  const scope = `${currentConversationId}:${keyword.trim()}`
+  const searchResults = result?.scope === scope ? result.items : []
+  useEffect(() => {
+    if (!isOpen || !keyword.trim()) return
+    let cancelled = false
+    const timer = window.setTimeout(() => {
+      chatService.searchMessagesFromApi(keyword, currentConversationId).then(items => {
+        if (!cancelled) { setResult({ scope, items }); setSelectedIdx(0) }
+      }).catch(() => { if (!cancelled) setResult({ scope, items: [], error: 'Không thể tìm tin nhắn. Vui lòng thử lại.' }) })
+    }, 300)
+    return () => { cancelled = true; window.clearTimeout(timer) }
+  }, [keyword, currentConversationId, isOpen, scope])
 
   if (!isOpen) return null
 
@@ -39,6 +49,7 @@ export function ChatSearchDrawer({
 
   return (
     <>
+      {result?.scope === scope && result.error && <p role="alert" className="absolute top-14 right-2 z-40 text-xs text-danger-700">{result.error}</p>}
       {/* Top Search Bar (S13-05) */}
       <div className="absolute top-0 inset-x-0 bg-whiteboard dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 p-2.5 z-30 shadow-md flex items-center justify-between gap-3 animate-in slide-in-from-top-2 duration-150">
         <div className="flex items-center gap-2 flex-1 max-w-xl">
@@ -59,7 +70,7 @@ export function ChatSearchDrawer({
             />
             {searchResults.length > 0 && (
               <span className="absolute right-3 top-2 text-[11px] font-mono font-medium text-neutral-500">
-                {selectedIdx + 1} / {searchResults.length} kết quả
+                {selectedIdx + 1} / {keyword.trim() && result?.scope !== scope ? 'Đang tìm...' : `${searchResults.length} kết quả`}
               </span>
             )}
           </div>
@@ -147,7 +158,7 @@ export function ChatSearchDrawer({
                   </div>
 
                   <p className="text-neutral-700 dark:text-neutral-300 line-clamp-2 leading-relaxed">
-                    {message.content.split(new RegExp(`(${keyword})`, 'gi')).map((part, i) =>
+                    {splitSearchText(message.content, keyword).map((part, i) =>
                       part.toLowerCase() === keyword.toLowerCase() ? (
                         <mark
                           key={i}
@@ -179,4 +190,17 @@ export function ChatSearchDrawer({
       </div>
     </>
   )
+}
+function splitSearchText(content: string, keyword: string) {
+  if (!keyword) return [content]
+  const parts: string[] = []
+  const lower = content.toLowerCase()
+  const search = keyword.toLowerCase()
+  let position = 0
+  for (;;) {
+    const index = lower.indexOf(search, position)
+    if (index < 0) { parts.push(content.slice(position)); return parts }
+    parts.push(content.slice(position, index), content.slice(index, index + keyword.length))
+    position = index + keyword.length
+  }
 }

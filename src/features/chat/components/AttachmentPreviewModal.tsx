@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { api } from '@/services/api'
 import { Icon } from '@/components/ui'
 import type { ChatAttachment } from '../types'
 import { refreshChatAttachment } from '../services/attachmentService'
@@ -14,10 +15,30 @@ export function AttachmentPreviewModal({
   onClose,
   attachment,
 }: AttachmentPreviewModalProps) {
+  const [downloadError, setDownloadError] = useState<string | null>(null)
+  const [isDownloading, setIsDownloading] = useState(false)
   const [zoom, setZoom] = useState(100)
-  const [currentPage, setCurrentPage] = useState(1)
-  const totalPages = 8
+
   const [media, setMedia] = useState<{ source: ChatAttachment; fresh?: ChatAttachment; error?: string } | null>(null)
+  const [documentPreview, setDocumentPreview] = useState<{ source: ChatAttachment; url?: string; text?: string; error?: string } | null>(null)
+  useEffect(() => {
+    if (!isOpen || !attachment || attachment.type === 'image') return
+    let cancelled = false
+    let objectUrl: string | undefined
+    const supported = /\.(pdf|txt)$/i.test(attachment.name)
+    if (!supported || !/^[1-9]\d*$/.test(attachment.id)) return
+    api.chat.previewAttachmentBlob(Number(attachment.id)).then(async blob => {
+      if (/\.pdf$/i.test(attachment.name)) {
+        objectUrl = URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }))
+        if (cancelled) URL.revokeObjectURL(objectUrl)
+        else setDocumentPreview({ source: attachment, url: objectUrl })
+      } else {
+        const content = await blob.text()
+        if (!cancelled) setDocumentPreview({ source: attachment, text: content })
+      }
+    }).catch(() => { if (!cancelled) setDocumentPreview({ source: attachment, error: 'Không thể tải nội dung xem trước. Bạn có thể thử tải xuống.' }) })
+    return () => { cancelled = true; if (objectUrl) URL.revokeObjectURL(objectUrl) }
+  }, [isOpen, attachment])
   const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null)
   useEffect(() => {
     if (!isOpen || !attachment) return
@@ -52,14 +73,26 @@ export function AttachmentPreviewModal({
 
   if (!isOpen || !attachment) return null
 
-  const handleDownload = () => {
-    if (!fresh?.url) return
-    const link = document.createElement('a')
-    link.href = fresh.url
-    link.target = '_blank'
-    link.rel = 'noopener noreferrer'
-    link.download = attachment.name
-    link.click()
+  const handleDownload = async () => {
+    if (!fresh?.url || isDownloading) return
+    setDownloadError(null)
+    setIsDownloading(true)
+    let objectUrl: string | undefined
+    try {
+      const needsAuth = !/^https?:\/\//i.test(fresh.url) && /^[1-9]\d*$/.test(attachment.id)
+      const href = needsAuth ? (objectUrl = URL.createObjectURL(await api.chat.downloadAttachmentBlob(Number(attachment.id)))) : fresh.url
+      const link = document.createElement('a')
+      link.href = href
+      link.target = '_blank'
+      link.rel = 'noopener noreferrer'
+      link.download = attachment.name
+      link.click()
+    } catch {
+      setDownloadError('Không thể tải tệp. Vui lòng thử lại.')
+    } finally {
+      if (objectUrl) { const url = objectUrl; window.setTimeout(() => URL.revokeObjectURL(url), 1000) }
+      setIsDownloading(false)
+    }
   }
 
   return (
@@ -86,7 +119,7 @@ export function AttachmentPreviewModal({
                 </span>
               </div>
               <p className="text-[11px] text-neutral-500 truncate">
-                Đăng bởi {attachment.uploadedBy || 'Hoàng Long'} lúc 10:45 • Bản sửa đổi lần 3
+                Đăng bởi {attachment.uploadedBy || 'Chưa có thông tin'} · {attachment.uploadedAt ? new Date(attachment.uploadedAt).toLocaleString('vi-VN') : 'Chưa có thời gian tải lên'}
               </p>
             </div>
           </div>
@@ -112,28 +145,6 @@ export function AttachmentPreviewModal({
               >
                 +
               </button>
-              <span className="text-neutral-300 mx-1">|</span>
-              <button
-                type="button"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage <= 1}
-                className="px-1 hover:text-neutral-900 disabled:opacity-40 cursor-pointer"
-                title="Trang trước"
-              >
-                ‹
-              </button>
-              <span className="font-mono text-neutral-500">
-                {currentPage} / {totalPages}
-              </span>
-              <button
-                type="button"
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage >= totalPages}
-                className="px-1 hover:text-neutral-900 disabled:opacity-40 cursor-pointer"
-                title="Trang sau"
-              >
-                ›
-              </button>
             </div>
 
             {/* Print button */}
@@ -150,7 +161,7 @@ export function AttachmentPreviewModal({
             <button
               type="button"
               onClick={handleDownload}
-              disabled={!fresh?.url}
+              disabled={!fresh?.url || isDownloading}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-whiteboard text-xs font-semibold shadow-xs cursor-pointer"
             >
               <Icon name="download" size={14} />
@@ -168,6 +179,7 @@ export function AttachmentPreviewModal({
           </div>
         </div>
 
+        {downloadError && <p role="alert" className="px-5 py-2 text-danger-700 text-xs">{downloadError}</p>}
         {/* Document Content Viewport (S13-11) */}
         <div className="flex-1 overflow-auto bg-neutral-200/50 dark:bg-neutral-950 p-4 sm:p-8 flex justify-center">
           {attachment.type === 'image' ? (
@@ -176,142 +188,12 @@ export function AttachmentPreviewModal({
                 style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}
                 className="max-w-full object-contain self-start" />
             ) : <p role="status">{media?.source === attachment && media.error ? media.error : imageUrl ? 'Không tải được ảnh. Vui lòng mở lại bản xem trước.' : 'Đang lấy liên kết xem trước ảnh...'}</p>
-          ) : (
-          <div
-            style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}
-            className="w-full max-w-3xl bg-whiteboard text-neutral-900 p-8 sm:p-10 rounded-xl shadow-lg border border-neutral-300 space-y-6 transition-transform duration-150"
-          >
-            {/* Document Header */}
-            <div className="flex items-start justify-between border-b pb-4">
-              <div>
-                <div className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                  <Icon name="check-circle" size={14} className="text-emerald-600" />
-                  <span>SCRUMBAN CORE PLATFORM • PERFORMANCE BENCHMARK</span>
-                </div>
-                <h1 className="text-xl font-bold text-neutral-900">
-                  K6 Load Test Benchmark SLA Report
-                </h1>
-                <p className="text-xs text-neutral-500 mt-0.5">
-                  Mã kịch bản: <span className="font-mono font-semibold">STRESS_TEST_SP14_CONCURRENCY_5000</span>
-                </p>
-              </div>
-              <div className="text-right">
-                <span className="px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                  Hoàn thành (Passed)
-                </span>
-                <p className="text-[11px] text-neutral-400 mt-1">Ngày thực thi: 24/10/2024</p>
-              </div>
-            </div>
-
-            {/* 4 Metric Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-              <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200">
-                <span className="text-neutral-500 text-[11px]">Peak VUs</span>
-                <div className="text-lg font-bold font-mono mt-0.5">5,000</div>
-                <span className="text-[10px] text-emerald-600 font-semibold">→ 100% mục tiêu</span>
-              </div>
-              <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200">
-                <span className="text-neutral-500 text-[11px]">Độ trễ P95</span>
-                <div className="text-lg font-bold font-mono text-emerald-700 mt-0.5">164 ms</div>
-                <span className="text-[10px] text-emerald-600 font-semibold">✓ SLA &lt; 200 ms</span>
-              </div>
-              <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200">
-                <span className="text-neutral-500 text-[11px]">Throughput</span>
-                <div className="text-lg font-bold font-mono mt-0.5">3,420 rps</div>
-                <span className="text-[10px] text-neutral-500">Tổng 2,052,000 req</span>
-              </div>
-              <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200">
-                <span className="text-neutral-500 text-[11px]">Tỷ lệ lỗi (Error Rate)</span>
-                <div className="text-lg font-bold font-mono text-rose-600 mt-0.5">0.14 %</div>
-                <span className="text-[10px] text-rose-600 font-semibold">⚠ 504 Gateway (Nginx)</span>
-              </div>
-            </div>
-
-            {/* SVG Curve Chart */}
-            <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-200 space-y-2">
-              <div className="flex items-center justify-between text-xs font-semibold">
-                <span>Biểu đồ phân phối thời gian phản hồi (Response Time Duration)</span>
-                <div className="flex items-center gap-3 text-[11px] text-neutral-500">
-                  <span className="flex items-center gap-1">
-                    <span className="w-3 h-0.5 bg-emerald-700 inline-block" /> P95 (164ms)
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="w-3 h-0.5 bg-rose-700 inline-block border-dashed" /> Ngưỡng SLA (200ms)
-                  </span>
-                </div>
-              </div>
-
-              <div className="h-28 w-full">
-                <svg className="w-full h-full" viewBox="0 0 500 100" preserveAspectRatio="none">
-                  {/* SLA line */}
-                  <line x1="0" y1="30" x2="500" y2="30" stroke="#b91c1c" strokeWidth="1.5" strokeDasharray="4 4" />
-                  <text x="430" y="25" fill="#b91c1c" fontSize="9" fontWeight="bold">SLA Limit: 200ms</text>
-                  {/* Curve */}
-                  <path
-                    d="M 0,85 Q 150,80 250,55 T 450,40 L 500,38"
-                    fill="none"
-                    stroke="#047857"
-                    strokeWidth="2.5"
-                  />
-                  {/* Dot */}
-                  <circle cx="430" cy="41" r="4" fill="#047857" />
-                  <text x="415" y="55" fill="#047857" fontSize="9" fontWeight="bold">164ms</text>
-                </svg>
-              </div>
-            </div>
-
-            {/* Endpoint Table */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-bold text-neutral-700">
-                Chi tiết kịch bản kiểm thử theo Endpoint
-              </h4>
-              <div className="overflow-x-auto border border-neutral-200 rounded-xl">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-neutral-100 text-neutral-600 font-semibold border-b">
-                    <tr>
-                      <th className="py-2 px-3">HTTP Endpoint</th>
-                      <th className="py-2 px-3">Số lượng Req</th>
-                      <th className="py-2 px-3">Med (ms)</th>
-                      <th className="py-2 px-3">P95 (ms)</th>
-                      <th className="py-2 px-3">Trạng thái</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-100 font-mono">
-                    <tr>
-                      <td className="py-2 px-3 text-emerald-800">POST /api/v1/auth/token</td>
-                      <td className="py-2 px-3">412,040</td>
-                      <td className="py-2 px-3">42</td>
-                      <td className="py-2 px-3">88</td>
-                      <td className="py-2 px-3 text-emerald-600 font-sans font-semibold">● Đạt SLA</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2 px-3 text-emerald-800">GET /api/v1/backlog/items</td>
-                      <td className="py-2 px-3">1,120,400</td>
-                      <td className="py-2 px-3">78</td>
-                      <td className="py-2 px-3">142</td>
-                      <td className="py-2 px-3 text-emerald-600 font-sans font-semibold">● Đạt SLA</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2 px-3 text-emerald-800">POST /api/v1/tasks/reorder</td>
-                      <td className="py-2 px-3">519,560</td>
-                      <td className="py-2 px-3">115</td>
-                      <td className="py-2 px-3 text-rose-700 font-bold">224</td>
-                      <td className="py-2 px-3 text-amber-600 font-sans font-semibold">● Cảnh báo</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* QA Conclusion */}
-            <div className="p-3.5 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-900 leading-relaxed">
-              <span className="font-bold">ⓘ Kết luận từ QA Lead:</span>
-              <p className="mt-1 text-neutral-700">
-                Hệ thống duy trì trạng thái ổn định với 99.86% cuộc gọi thành công. 0.14% lỗi phát sinh hoàn toàn từ mã lỗi 504 khi ghi nhận đồng thời hơn 4,800 kết nối đồng thời trên một Ingress Pod. Đề nghị DevOps cấu hình tăng HPA (Horizontal Pod Autoscaler) và tối ưu keep-alive timeout.
-              </p>
-            </div>
-          </div>
-          )}
+          ) : documentPreview?.source === attachment && documentPreview.error ? <p role="alert">{documentPreview.error}</p>
+            : documentPreview?.source === attachment && documentPreview.url ? <iframe title={attachment.name} src={documentPreview.url} className="w-full h-full min-h-80 bg-whiteboard" />
+            : documentPreview?.source === attachment && documentPreview.text !== undefined ? <pre className="whitespace-pre-wrap break-all text-sm bg-whiteboard text-neutral-900 p-6 w-full">{documentPreview.text}</pre>
+            : /\.(pdf|txt)$/i.test(attachment.name) && /^[1-9]\d*$/.test(attachment.id) ? <p role="status">Đang tải nội dung tệp...</p>
+            : <p>Định dạng này chưa hỗ trợ xem trước. Hãy tải tệp để xem.</p>
+          }
         </div>
 
         {/* Footer info (S13-11) */}
@@ -321,7 +203,7 @@ export function AttachmentPreviewModal({
             <span>Nhấn phím Esc để đóng bản xem trước</span>
           </div>
           <div>
-            <span>Xem bởi: Hoàng Long, Minh Quân, Trần Linh</span>
+            <span>Chưa có dữ liệu lượt xem</span>
           </div>
         </div>
       </div>

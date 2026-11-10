@@ -37,6 +37,15 @@ function DrawerInner({
   onAddComment,
 }: DrawerInnerProps) {
   const { projectId } = useParams()
+  const [sprint, setSprint] = useState<{ id: number; name: string } | null>(null)
+  useEffect(() => {
+    if (!task.sprintId) return
+    let cancelled = false
+    api.sprints.get(task.sprintId).then(response => {
+      if (!cancelled) setSprint({ id: response.data.sprintId, name: response.data.sprintName })
+    }).catch(() => { if (!cancelled) setSprint(null) })
+    return () => { cancelled = true }
+  }, [task.sprintId])
   const [members, setMembers] = useState<{ userId: number; fullName: string; projectRole: string; avatar?: string | null }[]>([])
   useEffect(() => {
     let cancelled = false
@@ -503,7 +512,7 @@ function DrawerInner({
             <div className="space-y-1">
               <span className="text-neutral-500 font-medium">Sprint liên kết</span>
               <div className="flex items-center gap-2 font-semibold text-neutral-800">
-                <span>Sprint 14</span>
+                <span>{task.sprintId ? sprint?.id === task.sprintId ? sprint.name : `Sprint #${task.sprintId}` : 'Chưa gán Sprint'}</span>
                 <span className="text-[11px] bg-neutral-200 text-neutral-700 px-1.5 py-0.2 rounded font-bold">
                   {task.storyPoints || 3} SP
                 </span>

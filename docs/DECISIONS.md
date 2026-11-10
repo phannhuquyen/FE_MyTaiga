@@ -20,6 +20,10 @@
 | 2026-11-02 | Làm mới bảng màu teal/coral và thêm motion layer lấy cảm hứng từ animate-ui | Yêu cầu làm UI tươi, rõ màu hơn nhưng giữ layout và không thay đổi data/BE | Cài toàn bộ primitive animate-ui/Motion (không phù hợp kiến trúc hiện tại, tăng dependency) | Chỉ thay token màu và presentation: route/modal/button/surface transitions; có `prefers-reduced-motion`; không đổi kích thước/layout hay service |
 | 2026-11-05 | Dùng lịch gốc của trình duyệt cho ô ngày. Hai mốc lọc Hoạt động nằm cùng hàng khi đủ chỗ và tự xuống hàng trên màn hình hẹp | Yêu cầu chọn ngày từ icon lịch. Bố cục responsive suy luận từ toolbar hiện có | Lịch tự dựng | So sánh theo ngày địa phương và gồm cả hai mốc. FE đọc thêm trang nhật ký khi áp dụng khoảng ngày |
 
+| 2026-11-10 | Tổng nhân sự trên danh sách dự án là số userId duy nhất trong các dự án được phép đọc | Tránh đếm trùng người tham gia nhiều dự án; label nói rõ không trùng lặp | Cộng tổng membership | Nếu một danh sách thành viên tải lỗi, hiển thị tổng chưa xác định |
+| 2026-11-10 | Khoảng 7/14/30 ngày dùng ngày UTC, gồm hai mốc, chỉ áp dụng Throughput | Contract Flow Metrics chỉ hỗ trợ from/to ở Throughput và so sánh Sprint | Áp ngày cho mọi KPI khi BE không hỗ trợ | Chu kỳ Sprint vẫn lọc WIP/Cycle Time/tuổi việc; không bật lọc Epic chưa có contract |
+| 2026-11-10 | Session timeout trong Admin ánh xạ JWT_EXPIRE_MINUTES | BE quy định tuổi thọ JWT từ lúc cấp, không phải thời gian không tương tác | Đồng nhất hai ý nghĩa | Giữ phút tùy chỉnh do BE trả, chỉ lưu bốn khóa đã có input và contract |
+
 Rules:
 - Record assumptions that affect implementation.
 - Distinguish verified Figma requirement from inference.

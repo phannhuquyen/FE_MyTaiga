@@ -3,6 +3,7 @@ import {
   type BacklogRequest,
   type ProductBacklogItemData,
 } from '@/services/api'
+import { allPages } from '@/lib/allPages'
 import { projectService } from '@/features/projects/services/projectService'
 import type {
   PBI,
@@ -101,8 +102,8 @@ let cachedSprints: SprintSummary[] = []
 
 async function resolveSprintLinks(items: PBI[], projectId: number) {
   if (!items.some(item => item.status === 'in_progress')) return
-  const sprints = await api.sprints.list({ projectId, page: 1, pageSize: 100 })
-  await Promise.all(sprints.data.items.filter(sprint => sprint.status !== 'CLOSED').map(async sprint => {
+  const sprints = await allPages(page => api.sprints.list({ projectId, page, pageSize: 100 }))
+  await Promise.all(sprints.filter(sprint => sprint.status !== 'CLOSED').map(async sprint => {
     const progress = await api.sprints.progress(sprint.sprintId)
     for (const linked of progress.data.items) {
       const item = items.find(row => row.id === String(linked.pbiId) && row.status === 'in_progress')
@@ -123,9 +124,9 @@ export const backlogService = {
     if (!projectId) return cachedPBIs
 
     try {
-      const epicsRes = await api.epics.list(projectId, { page: 1, pageSize: 100 })
+      const epics = await allPages(page => api.epics.list(projectId, { page, pageSize: 100 }))
       const epicMap = new Map<number, string>()
-      epicsRes.data.items.forEach((e) => epicMap.set(e.epicId, e.title))
+      epics.forEach((e) => epicMap.set(e.epicId, e.title))
 
       const numericEpicId =
         filters?.epicId && filters.epicId !== 'all'
@@ -137,16 +138,16 @@ export const backlogService = {
           ? statusToBe(filters.status as PBIStatus)
           : undefined
 
-      const res = await api.productBacklog.list({
+      const rows = await allPages(page => api.productBacklog.list({
         projectId,
         epicId: numericEpicId && numericEpicId > 0 ? numericEpicId : undefined,
         status: beStatus,
         keyword: filters?.search?.trim() || undefined,
-        page: 1,
+        page,
         pageSize: 100,
-      })
+      }))
 
-      let list = res.data.items.map((item) => mapBePbiToFe(item, epicMap))
+      let list = rows.map((item) => ({ ...mapBePbiToFe(item, epicMap), epicColor: epics.find(epic => epic.epicId === item.epicId)?.color || '#0284c7' }))
       await resolveSprintLinks(list, projectId)
 
       if (filters?.priority && filters.priority !== 'all') {
@@ -166,7 +167,8 @@ export const backlogService = {
     if (numericId > 0) {
       try {
         const res = await api.productBacklog.get(numericId)
-        const item = mapBePbiToFe(res.data, new Map())
+        const epic = await api.epics.get(res.data.epicId)
+        const item = { ...mapBePbiToFe(res.data, new Map([[epic.data.epicId, epic.data.title]])), epicColor: epic.data.color || '#0284c7' }
         const projectId = projectService.getActiveProjectId()
         if (projectId) await resolveSprintLinks([item], projectId)
         return item
@@ -182,13 +184,14 @@ export const backlogService = {
     if (!projectId) return cachedEpics
 
     try {
-      const res = await api.epics.list(projectId, { page: 1, pageSize: 100 })
-      cachedEpics = res.data.items.map((e) => ({
+      const epics = await allPages(page => api.epics.list(projectId, { page, pageSize: 100 }))
+      const pbis = await allPages(page => api.productBacklog.list({ projectId, page, pageSize: 100 }))
+      cachedEpics = epics.map((e) => ({
         id: String(e.epicId),
         name: e.title,
-        color: '#0284c7',
+        color: e.color || '#0284c7',
         description: e.description || '',
-        pbiCount: 0,
+        pbiCount: pbis.filter(item => item.epicId === e.epicId).length,
       }))
       return cachedEpics
     } catch {
@@ -201,16 +204,18 @@ export const backlogService = {
     if (!projectId) return cachedSprints
 
     try {
-      const res = await api.sprints.list({ projectId, page: 1, pageSize: 100 })
-      cachedSprints = res.data.items.map((s) => ({
+      const sprints = await allPages(page => api.sprints.list({ projectId, page, pageSize: 100 }))
+      cachedSprints = await Promise.all(sprints.map(async (s) => {
+        const progress = await api.sprints.progress(s.sprintId)
+        return ({
         id: String(s.sprintId),
         name: s.sprintName,
         status: s.status.toLowerCase() as 'active' | 'planned' | 'draft' | 'closed',
         dateRange: `${formatDate(s.startDate)} - ${formatDate(s.endDate)}`,
         capacity: 25,
-        assignedSP: 0,
-        pbiCount: 0,
-      }))
+        assignedSP: progress.data.totalStoryPoints,
+        pbiCount: progress.data.totalPbis,
+      }) }))
       return cachedSprints
     } catch {
       return cachedSprints

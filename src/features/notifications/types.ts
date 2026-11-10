@@ -53,6 +53,10 @@ export interface NotificationFilterOptions {
 }
 
 export interface ActivityItem {
+  rawAction?: string
+  entityType?: string
+  actorId?: number
+  createdAt?: string
   id: string
   dateGroup: string
   dateString: string
@@ -65,6 +69,7 @@ export interface ActivityItem {
     isBot?: boolean
   }
   actionType:
+    | 'other'
     | 'task_complete'
     | 'mention_comment'
     | 'wip_warning'

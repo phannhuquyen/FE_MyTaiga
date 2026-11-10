@@ -1,3 +1,4 @@
+import { useProjectName } from '@/features/projects/useProjectName'
 import { Avatar } from '@/components/ui/Avatar'
 import { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -10,6 +11,7 @@ import { cn } from '@/lib/utils'
 export function NotificationsPage() {
   const navigate = useNavigate()
   const activeProjectId = projectService.getActiveProjectId()
+  const projectName = useProjectName(activeProjectId)
   const [activeTab, setActiveTab] = useState<NotificationCategory>('all')
   const [search, setSearch] = useState('')
   const [projectFilter, setProjectFilter] = useState('all')
@@ -39,6 +41,7 @@ export function NotificationsPage() {
   const filteredNotifications = notificationService.getNotifications({
       category: activeTab,
       search,
+      timeRange,
     })
 
   // Pagination
@@ -96,7 +99,7 @@ export function NotificationsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-xs text-neutral-500 mb-1">
-            <span>ScrumBan Core Platform</span>
+            <span>{projectName}</span>
             <span>/</span>
             <span className="font-semibold text-neutral-800 dark:text-neutral-200">Thông báo</span>
           </div>
@@ -244,12 +247,13 @@ export function NotificationsPage() {
           <div className="relative">
             <select
               value={projectFilter}
+              disabled title="BE chưa cung cấp projectId cho thông báo"
               onChange={(e) => setProjectFilter(e.target.value)}
               className="text-xs appearance-none pl-7 pr-8 py-2 bg-paper-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-neutral-700 dark:text-neutral-300 cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary-500"
             >
               <option value="all">Dự án: Tất cả</option>
-              <option value="core">ScrumBan Core Platform</option>
-              <option value="payment">Payment Gateway</option>
+              <option disabled>BE chưa hỗ trợ lọc dự án</option>
+
             </select>
             <span className="absolute left-2.5 top-2.5 text-neutral-400 pointer-events-none">
               <Icon name="folder" size={14} />
@@ -305,7 +309,7 @@ export function NotificationsPage() {
               Không có thông báo chưa đọc
             </h3>
             <p className="text-xs text-neutral-500 dark:text-neutral-400 max-w-md mx-auto leading-relaxed">
-              Bạn đã cập nhật tất cả thông tin mới nhất từ nhóm dự án ScrumBan Core Platform. Mọi thay đổi tác vụ, bình luận và hạn chót sẽ xuất hiện tại đây khi phát sinh.
+              Bạn đã cập nhật tất cả thông tin mới nhất từ nhóm dự án {projectName}. Mọi thay đổi tác vụ, bình luận và hạn chót sẽ xuất hiện tại đây khi phát sinh.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">

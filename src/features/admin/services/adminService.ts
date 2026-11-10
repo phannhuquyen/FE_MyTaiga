@@ -1,3 +1,4 @@
+import { allPages } from '@/lib/allPages'
 import type {
   AdminUser,
   CreateAdminUserPayload,
@@ -208,9 +209,9 @@ class AdminService {
     if (this.isLoading) return
     this.isLoading = true
     try {
-      const res = await api.admin.listUsers({ page: 1, pageSize: 100 })
+      const rows = await allPages(page => api.admin.listUsers({ page, pageSize: 100 }))
       const currentUserId = authStorage.getUserId()
-      this.users = res.data.items.map((u) => mapBeUserToAdminUser(u, currentUserId))
+      this.users = rows.map((u) => mapBeUserToAdminUser(u, currentUserId))
       this.isLoaded = true
       this.notify()
     } catch (err) {
@@ -223,16 +224,24 @@ class AdminService {
   /**
    * Tải cấu hình thật từ Backend
    */
-  async loadConfig(): Promise<void> {
+  async loadConfig(): Promise<boolean> {
     try {
       const res = await api.admin.getConfig()
       const values = Object.fromEntries(res.data.map(row => [row.configKey, row.configValue]))
-      if (values.MAX_FILE_SIZE_MB) {
-        this.settings.maxFileSizeMb = parseInt(values.MAX_FILE_SIZE_MB, 10) || 25
+      const fields = { MAX_FILE_SIZE_MB: 'maxFileSizeMb', DEADLINE_WARNING_HOURS: 'dueSoonHours', MAX_FAILED_LOGIN: 'maxLoginAttempts' } as const
+      for (const [key, field] of Object.entries(fields)) {
+        const value = Number(values[key])
+        if (Number.isFinite(value) && value > 0) this.settings[field] = value
       }
+      const minutes = Number(values.JWT_EXPIRE_MINUTES)
+      if (Number.isFinite(minutes) && minutes > 0) this.settings.sessionTimeout = `${minutes} phút`
+      const latest = res.data.map(row => row.updatedAt).filter(Boolean).sort().at(-1)
+      this.settings.lastUpdated = latest ? new Date(latest).toLocaleString('vi-VN') : 'Chưa có thời điểm cập nhật'
       this.notify()
+      return true
     } catch (err) {
       console.warn('⚠️ [AdminService] Lỗi khi tải config từ API thật:', err)
+      return false
     }
   }
 
@@ -420,7 +429,16 @@ class AdminService {
   async saveSettings(newSettings: Partial<SystemSettings>): Promise<{ success: boolean; error?: string }> {
     try {
       const values: Record<string, string> = {}
-      if (newSettings.maxFileSizeMb) values.MAX_FILE_SIZE_MB = String(newSettings.maxFileSizeMb)
+      const fields = { MAX_FILE_SIZE_MB: 'maxFileSizeMb', DEADLINE_WARNING_HOURS: 'dueSoonHours', MAX_FAILED_LOGIN: 'maxLoginAttempts' } as const
+      for (const [key, field] of Object.entries(fields)) {
+        if (newSettings[field] !== undefined) values[key] = String(newSettings[field])
+      }
+      if (newSettings.sessionTimeout !== undefined) {
+        const label = newSettings.sessionTimeout
+        const minutes = Number.parseInt(label, 10) * (label.includes('giờ') ? 60 : 1)
+        if (!Number.isInteger(minutes) || minutes < 1 || minutes > 10080) return { success: false, error: 'Thời hạn JWT phải từ 1 đến 10080 phút.' }
+        values.JWT_EXPIRE_MINUTES = String(minutes)
+      }
 
       if (Object.keys(values).length > 0) {
         await api.admin.updateConfig(values)
@@ -428,7 +446,10 @@ class AdminService {
 
       this.settings = {
         ...this.settings,
-        ...newSettings,
+        maxFileSizeMb: newSettings.maxFileSizeMb ?? this.settings.maxFileSizeMb,
+        dueSoonHours: newSettings.dueSoonHours ?? this.settings.dueSoonHours,
+        maxLoginAttempts: newSettings.maxLoginAttempts ?? this.settings.maxLoginAttempts,
+        sessionTimeout: newSettings.sessionTimeout ?? this.settings.sessionTimeout,
         lastUpdated: new Date().toLocaleDateString('vi-VN'),
       }
       this.notify()

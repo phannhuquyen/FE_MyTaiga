@@ -9,16 +9,19 @@ export interface EpicProgressTabProps {
 
 export function EpicProgressTab({ epic }: EpicProgressTabProps) {
   const [breakdown, setBreakdown] = useState<EpicProgressBreakdown[]>([])
+  const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     let active = true
+    setIsLoading(true)
+    setError(null)
     epicService.getProgressBreakdown(epic.id).then((data) => {
       if (active) {
         setBreakdown(data)
         setIsLoading(false)
       }
-    })
+    }).catch(() => { if (active) { setError('Không thể tải tiến độ Epic.'); setIsLoading(false) } })
     return () => {
       active = false
     }
@@ -33,6 +36,7 @@ export function EpicProgressTab({ epic }: EpicProgressTabProps) {
     totalSP > 0 ? ((completedSP / totalSP) * 100).toFixed(1) : '0.0'
   const remainingSP = totalSP - completedSP
 
+  if (error) return <p role="alert" className="p-8 text-danger-700">{error}</p>
   if (isLoading) {
     return (
       <div className="p-8 text-center text-body-sm text-neutral-500">
@@ -95,7 +99,7 @@ export function EpicProgressTab({ epic }: EpicProgressTabProps) {
             {epic.targetSprint || 'Kết thúc Sprint 16'}
           </div>
           <p className="text-caption text-neutral-500 mt-1">
-            Đạt 100% mục tiêu quý Q3/2025
+            BE chưa cung cấp kế hoạch mục tiêu
           </p>
         </div>
       </div>

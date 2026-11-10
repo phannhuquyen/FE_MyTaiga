@@ -1,4 +1,5 @@
-import { api, type EpicData, type EpicRequest } from '@/services/api'
+import { allPages } from '@/lib/allPages'
+import { api, type EpicData, type EpicRequest, type TaskData } from '@/services/api'
 import { projectService } from '@/features/projects/services/projectService'
 import type {
   Epic,
@@ -73,10 +74,10 @@ function mapBeEpicToFe(data: EpicData): Epic {
     status: statusToFe(data.status),
     priority: numberToPriority(data.priority),
     color: data.color || getColor(data.epicId),
-    targetSprint: 'Sprint hiện tại',
-    sprintRange: 'Sprint 1 - Sprint 3',
-    ownerName: 'Manager dự án',
-    ownerAvatar: 'PM',
+    targetSprint: 'Chưa có dữ liệu kế hoạch',
+    sprintRange: 'Chưa có dữ liệu kế hoạch',
+    ownerName: 'Chưa có dữ liệu owner',
+    ownerAvatar: '—',
     pbisCount: 0,
     tasksCount: 0,
     completedPoints: 0,
@@ -103,14 +104,21 @@ export const epicService = {
       const beStatus =
         filters?.status && filters.status !== 'all' ? statusToBe(filters.status as EpicStatus) : undefined
 
-      const res = await api.epics.list(projectId, {
+      const rows = await allPages(page => api.epics.list(projectId, {
         keyword: filters?.search?.trim() || undefined,
         status: beStatus,
-        page: 1,
+        page,
         pageSize: 100,
-      })
+      }))
 
-      const list = res.data.items.map(mapBeEpicToFe)
+      const pbis = await allPages(page => api.productBacklog.list({ projectId, page, pageSize: 100 }))
+      const list = rows.map(data => {
+        const epic = mapBeEpicToFe(data)
+        const items = pbis.filter(item => item.epicId === data.epicId)
+        epic.totalPoints = items.reduce((sum, item) => sum + item.storyPoint, 0)
+        epic.completedPoints = items.filter(item => item.status === 'DONE').reduce((sum, item) => sum + item.storyPoint, 0)
+        return epic
+      })
 
       // Parallel fetch progress for each epic
       await Promise.all(
@@ -159,6 +167,18 @@ export const epicService = {
       } catch {
         // ignore
       }
+      const projectId = res.data.projectId
+      const [pbis, tasks] = await Promise.all([
+        allPages(page => api.productBacklog.list({ projectId, epicId: numericId, page, pageSize: 100 })),
+        allPages(page => api.tasks.list(projectId, { page, pageSize: 100 })),
+      ])
+      mapped.totalPoints = pbis.reduce((sum, item) => sum + item.storyPoint, 0)
+      mapped.completedPoints = pbis.filter(item => item.status === 'DONE').reduce((sum, item) => sum + item.storyPoint, 0)
+      mapped.tasks = tasks.filter(item => item.epicId === numericId).map(item => ({
+        id: String(item.taskId), code: `TASK-${item.taskId}`, title: item.title,
+        status: taskStatus(item), assigneeName: item.assignee?.fullName || item.assigneeName || 'Chưa giao',
+        assigneeAvatar: item.assigneeAvatarCode || '—',
+      }))
       return mapped
     } catch {
       return cachedEpics.find((e) => e.id === id || e.code.toLowerCase() === id.toLowerCase())
@@ -171,78 +191,23 @@ export const epicService = {
   },
 
   async getProgressBreakdown(epicId: string): Promise<EpicProgressBreakdown[]> {
-    const numericId = parseInt(epicId.replace(/\D/g, ''), 10)
-    if (numericId > 0) {
-      try {
-        const res = await api.epics.progress(numericId)
-        const done = res.data.completedPbis
-        const total = res.data.totalPbis
-        const remain = Math.max(0, total - done)
-        const percent = Math.round(res.data.pbiProgressPercent)
-
-        return [
-          {
-            status: 'Hoàn thành',
-            statusKey: 'done',
-            pbiCount: done,
-            taskCount: res.data.completedTasks,
-            storyPoints: done * 3,
-            percentage: percent,
-            color: '#076859',
-          },
-          {
-            status: 'Đang thực hiện',
-            statusKey: 'in_progress',
-            pbiCount: remain,
-            taskCount: Math.max(0, res.data.totalTasks - res.data.completedTasks),
-            storyPoints: remain * 3,
-            percentage: 100 - percent,
-            color: '#2563eb',
-          },
-        ]
-      } catch {
-        // fallback
-      }
-    }
-
-    return [
-      {
-        status: 'Hoàn thành',
-        statusKey: 'done',
-        pbiCount: 6,
-        taskCount: 10,
-        storyPoints: 18,
-        percentage: 50,
-        color: '#076859',
-      },
-      {
-        status: 'Đang kiểm tra',
-        statusKey: 'testing',
-        pbiCount: 2,
-        taskCount: 3,
-        storyPoints: 5,
-        percentage: 15,
-        color: '#2563eb',
-      },
-      {
-        status: 'Đang làm',
-        statusKey: 'in_progress',
-        pbiCount: 3,
-        taskCount: 5,
-        storyPoints: 9,
-        percentage: 25,
-        color: '#0d9488',
-      },
-      {
-        status: 'Cần làm',
-        statusKey: 'todo',
-        pbiCount: 1,
-        taskCount: 2,
-        storyPoints: 4,
-        percentage: 10,
-        color: '#d1d5db',
-      },
+    const projectId = projectService.getActiveProjectId()
+    if (!projectId || !/^\d+$/.test(epicId)) return []
+    const [pbis, tasks] = await Promise.all([
+      allPages(page => api.productBacklog.list({ projectId, epicId: Number(epicId), page, pageSize: 100 })),
+      allPages(page => api.tasks.list(projectId, { page, pageSize: 100 })),
+    ])
+    const epicTasks = tasks.filter(item => item.epicId === Number(epicId))
+    const groups = [
+      { status: 'Hoàn thành', statusKey: 'done' as const, color: '#076859', pbis: pbis.filter(item => item.status === 'DONE'), tasks: epicTasks.filter(item => item.status === 'DONE') },
+      { status: 'Đang thực hiện / Còn lại', statusKey: 'in_progress' as const, color: '#2563eb', pbis: pbis.filter(item => item.status !== 'DONE'), tasks: epicTasks.filter(item => item.status !== 'DONE') },
     ]
+    return groups.map(group => ({
+      status: group.status, statusKey: group.statusKey, color: group.color,
+      pbiCount: group.pbis.length, taskCount: group.tasks.length,
+      storyPoints: group.pbis.reduce((sum, item) => sum + item.storyPoint, 0),
+      percentage: pbis.length ? Math.round(group.pbis.length / pbis.length * 100) : 0,
+    }))
   },
 
   async createEpic(payload: CreateEpicPayload): Promise<Epic> {
@@ -312,14 +277,13 @@ export const epicService = {
   },
 
   async linkTasks(epicId: string, taskIds: string[]): Promise<void> {
-    const numericEpicId = parseInt(epicId.replace(/\D/g, ''), 10)
-    if (numericEpicId > 0) {
-      for (const t of taskIds) {
-        const numericTaskId = parseInt(t.replace(/\D/g, ''), 10)
-        if (numericTaskId > 0) {
-          await api.epics.linkTask(numericTaskId, { epicId: numericEpicId })
-        }
-      }
+    if (!/^[1-9]\d*$/.test(epicId) || taskIds.some(id => !/^[1-9]\d*$/.test(id))) {
+      throw new Error('ID Epic hoặc Task không hợp lệ; vui lòng chọn dữ liệu từ dự án.')
     }
+    for (const id of taskIds) await api.epics.linkTask(Number(id), { epicId: Number(epicId) })
   },
+}
+
+function taskStatus(item: TaskData): 'todo' | 'in_progress' | 'testing' | 'done' {
+  return item.status === 'DONE' ? 'done' : item.status === 'IN_REVIEW' ? 'testing' : item.status === 'IN_PROGRESS' ? 'in_progress' : 'todo'
 }

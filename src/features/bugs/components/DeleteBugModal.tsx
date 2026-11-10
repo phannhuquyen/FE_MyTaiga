@@ -1,3 +1,4 @@
+import { useProjectContext } from '@/features/projects/projectContext'
 import { useState } from 'react'
 import { Modal, Icon } from '@/components/ui'
 import type { BugItem } from '../types'
@@ -10,6 +11,7 @@ interface DeleteBugModalProps {
 }
 
 export function DeleteBugModal({ isOpen, bug, onClose, onConfirm }: DeleteBugModalProps) {
+  const project = useProjectContext()
   const [confirmed, setConfirmed] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -62,7 +64,7 @@ export function DeleteBugModal({ isOpen, bug, onClose, onConfirm }: DeleteBugMod
             </div>
             <p className="text-danger-600 dark:text-danger-400/90 leading-relaxed pl-5">
               Các liên kết với nhiệm vụ {bug.relatedTaskCode || '#TASK-239'} sẽ bị ngắt kết nối và
-              các chỉ số Flow Metrics của {bug.sprintName || 'Sprint 14'} sẽ được tính toán lại.
+              các chỉ số Flow Metrics của {bug.sprintName || 'Task chưa có thông tin Sprint'} sẽ được tính toán lại.
             </p>
           </div>
 
@@ -74,7 +76,7 @@ export function DeleteBugModal({ isOpen, bug, onClose, onConfirm }: DeleteBugMod
               className="mt-0.5 text-danger-600 focus:ring-danger-500 rounded"
             />
             <span className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
-              Tôi hiểu rằng báo cáo lỗi này sẽ bị xóa khỏi dự án ScrumBan Core Platform và không có
+              Tôi hiểu rằng báo cáo lỗi này sẽ bị xóa khỏi dự án {project?.projectName ?? 'Dự án'} và không có
               cách nào khôi phục.
             </span>
           </label>

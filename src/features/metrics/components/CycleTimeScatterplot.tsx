@@ -5,11 +5,13 @@ import type { CycleTimeScatterPoint, SlowestTaskItem } from '../types'
 interface CycleTimeScatterplotProps {
   scatterData: CycleTimeScatterPoint[]
   slowestTasks: SlowestTaskItem[]
+  averageDays?: number | null
 }
 
 export function CycleTimeScatterplot({
   scatterData,
   slowestTasks,
+  averageDays = null,
 }: CycleTimeScatterplotProps) {
   const [hoveredPointId, setHoveredPointId] = useState<string | null>('ct-9') // default highlight #SB-133
 
@@ -23,7 +25,7 @@ export function CycleTimeScatterplot({
   const innerWidth = chartWidth - paddingLeft - paddingRight
   const innerHeight = chartHeight - paddingTop - paddingBottom
 
-  const maxY = 10
+  const maxY = Math.max(10, ...scatterData.map(item => item.cycleTimeDays), averageDays ?? 0)
   const minY = 0
 
   const getX = (index: number) => {
@@ -35,7 +37,8 @@ export function CycleTimeScatterplot({
     return paddingTop + innerHeight - (val / (maxY - minY)) * innerHeight
   }
 
-  const avgY = getY(3.2)
+  const withinTarget = scatterData.length ? Math.round(scatterData.filter(item => item.cycleTimeDays <= 5).length / scatterData.length * 100) : null
+  const avgY = getY(averageDays ?? 0)
   const slaY = getY(5.0)
 
   return (
@@ -49,11 +52,11 @@ export function CycleTimeScatterplot({
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-danger-600 inline-block" />
-            <span>Dị biệt vượt ngưỡng (&gt; 6d)</span>
+            <span>Vượt ngưỡng FE (&gt; 5d)</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-4 h-0.5 bg-emerald-600 inline-block" />
-            <span>Trung bình (3.2d)</span>
+            <span>Trung bình ({averageDays === null ? 'Chưa có dữ liệu' : `${averageDays}d`})</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-4 h-0.5 border-t border-dashed border-amber-800 dark:border-amber-400 inline-block" />
@@ -110,7 +113,7 @@ export function CycleTimeScatterplot({
             textAnchor="end"
             className="text-[9px] font-bold fill-danger-700 dark:fill-danger-400"
           >
-            85% HOÀN TẤT &le; 5.0 NGÀY (SLA CAM KẾT)
+            {withinTarget ?? '—'}% HOÀN TẤT &le; 5.0 NGÀY (NGƯỠNG FE)
           </text>
 
           {/* Average Line (3.2d) */}
@@ -128,7 +131,7 @@ export function CycleTimeScatterplot({
             textAnchor="end"
             className="text-[9px] font-bold fill-emerald-700 dark:fill-emerald-400"
           >
-            TB: 3.2 NGÀY
+            TB: {averageDays ?? '—'} NGÀY
           </text>
 
           {/* Scatter dots */}

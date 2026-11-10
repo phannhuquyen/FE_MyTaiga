@@ -1,5 +1,8 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Modal, Button, Icon, Badge } from '@/components/ui'
+import { api, type TaskData } from '@/services/api'
+import { allPages } from '@/lib/allPages'
+import { projectService } from '@/features/projects/services/projectService'
 import type { Epic, EpicTask } from '../types'
 
 export interface LinkTaskModalProps {
@@ -9,91 +12,40 @@ export interface LinkTaskModalProps {
   onConfirm: (taskIds: string[]) => Promise<void>
 }
 
-// Available tasks for selection (mock pool of technical tasks)
-const CANDIDATE_TASKS: EpicTask[] = [
-  {
-    id: 'task-301',
-    code: 'TASK-301',
-    title: 'Viết unit test cho middleware giải mã JWT token',
-    status: 'done',
-    assigneeName: 'Lê Minh Trí',
-    assigneeAvatar: 'MT',
-    parentPbiCode: 'PBI-12',
-    parentPbiTitle: 'Core Auth Engine',
-  },
-  {
-    id: 'task-302',
-    code: 'TASK-302',
-    title: 'Cập nhật schema migration bảng `user_auth_tokens`',
-    status: 'done',
-    assigneeName: 'Nguyễn Văn An',
-    assigneeAvatar: 'VA',
-    parentPbiCode: 'PBI-12',
-    parentPbiTitle: 'Core Auth Engine',
-  },
-  {
-    id: 'task-305',
-    code: 'TASK-305',
-    title: 'Cấu hình rate-limiting Redis trên cổng /auth/login',
-    status: 'in_progress',
-    assigneeName: 'Trần Bảo',
-    assigneeAvatar: 'TB',
-    parentPbiCode: 'PBI-15',
-    parentPbiTitle: 'Session Redis Layer',
-  },
-  {
-    id: 'task-308',
-    code: 'TASK-308',
-    title: 'Tích hợp dịch vụ SMS Twilio gửi OTP dự phòng',
-    status: 'todo',
-    assigneeName: 'Đặng Quốc Khánh',
-    assigneeAvatar: 'QK',
-    parentPbiCode: 'PBI-19',
-    parentPbiTitle: 'SMS 2FA Gateway',
-  },
-  {
-    id: 'task-312',
-    code: 'TASK-312',
-    title: 'Kiểm thử bảo mật Pentest endpoint xác thực 2FA',
-    status: 'todo',
-    assigneeName: 'Phạm Kim Ngân',
-    assigneeAvatar: 'KN',
-    parentPbiCode: 'PBI-22',
-    parentPbiTitle: 'Security Hardening',
-  },
-  {
-    id: 'task-315',
-    code: 'TASK-315',
-    title: 'Tối ưu hóa query indexing cho bảng audit logs',
-    status: 'todo',
-    assigneeName: 'Võ Hoàng',
-    assigneeAvatar: 'VH',
-    parentPbiCode: 'PBI-25',
-    parentPbiTitle: 'Audit Logs Optimization',
-  },
-  {
-    id: 'task-318',
-    code: 'TASK-318',
-    title: 'Thiết lập Webhook listener cho sự kiện OAuth revoke',
-    status: 'testing',
-    assigneeName: 'Lê Minh Trí',
-    assigneeAvatar: 'MT',
-    parentPbiCode: 'PBI-28',
-    parentPbiTitle: 'OAuth Revocation Hook',
-  },
-]
-
 export function LinkTaskModal({
   isOpen,
   epic,
   onClose,
   onConfirm,
 }: LinkTaskModalProps) {
+  const [candidates, setCandidates] = useState<(EpicTask & { epicId: number | null })[]>([])
+  const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([])
   const [filterType, setFilterType] = useState<'all' | 'unlinked' | 'pbi'>('all')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  useEffect(() => {
+    if (!isOpen || !epic) return
+    const projectId = projectService.getActiveProjectId()
+    if (!projectId) return
+    let cancelled = false
+    setLoading(true)
+    setSelectedTaskIds([])
+    setError(null)
+    allPages(page => api.tasks.list(projectId, { page, pageSize: 100 })).then(rows => {
+      if (cancelled) return
+      setCandidates(rows.filter(row => row.epicId !== Number(epic.id)).map(row => ({
+        id: String(row.taskId), code: `TASK-${row.taskId}`, title: row.title,
+        epicId: row.epicId, status: taskStatus(row),
+        assigneeName: row.assignee?.fullName || row.assigneeName || 'Chưa giao',
+        assigneeAvatar: row.assigneeAvatarCode || '—',
+      })))
+    }).catch(() => { if (!cancelled) { setCandidates([]); setError('Không thể tải danh sách Task.') } })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [isOpen, epic])
+
 
   const handleClose = () => {
     setSearch('')
@@ -110,7 +62,9 @@ export function LinkTaskModal({
   }
 
   const filteredTasks = useMemo(() => {
-    return CANDIDATE_TASKS.filter((task) => {
+    return candidates.filter((task) => {
+      if (filterType === 'unlinked' && task.epicId != null) return false
+      if (filterType === 'pbi' && !task.parentPbiCode) return false
       if (search) {
         const q = search.toLowerCase().trim()
         const match =
@@ -121,7 +75,7 @@ export function LinkTaskModal({
       }
       return true
     })
-  }, [search])
+  }, [search, candidates, filterType])
 
   const handleConfirm = async () => {
     if (selectedTaskIds.length === 0) {
@@ -163,7 +117,7 @@ export function LinkTaskModal({
             type="button"
             variant="primary"
             onClick={handleConfirm}
-            disabled={selectedTaskIds.length === 0 || isSubmitting}
+            disabled={selectedTaskIds.length === 0 || isSubmitting || loading}
             leftIcon={<Icon name="check" size={16} />}
           >
             {isSubmitting
@@ -174,6 +128,7 @@ export function LinkTaskModal({
       }
     >
       <div className="space-y-4">
+        {loading && <p role="status">Đang tải Task...</p>}
         <div>
           <p className="text-body-sm text-neutral-600">
             Chọn các nhiệm vụ kỹ thuật để đưa vào phạm vi theo dõi của Epic{' '}
@@ -215,7 +170,7 @@ export function LinkTaskModal({
                   : 'text-neutral-600 hover:bg-neutral-100'
               }`}
             >
-              Tất cả nhiệm vụ ({CANDIDATE_TASKS.length})
+              Tất cả nhiệm vụ ({candidates.length})
             </button>
             <button
               type="button"
@@ -230,6 +185,7 @@ export function LinkTaskModal({
             </button>
             <button
               type="button"
+              disabled title="BE chưa cung cấp quan hệ Task–PBI"
               onClick={() => setFilterType('pbi')}
               className={`px-3 py-1 text-caption font-medium rounded-full cursor-pointer transition-colors ${
                 filterType === 'pbi'
@@ -336,4 +292,8 @@ export function LinkTaskModal({
       </div>
     </Modal>
   )
+}
+
+function taskStatus(row: TaskData): EpicTask['status'] {
+  return row.status === 'DONE' ? 'done' : row.status === 'IN_REVIEW' ? 'testing' : row.status === 'IN_PROGRESS' ? 'in_progress' : 'todo'
 }

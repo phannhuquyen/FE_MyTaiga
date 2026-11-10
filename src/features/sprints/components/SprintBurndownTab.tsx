@@ -1,5 +1,8 @@
-import { useState } from 'react'
-import type { Sprint } from '../types'
+import { useState, useEffect } from 'react'
+import { api } from '@/services/api'
+import { allPages } from '@/lib/allPages'
+import { projectService } from '@/features/projects/services/projectService'
+import type { Sprint, BurndownDataPoint } from '../types'
 import { Badge } from '@/components/ui/Badge'
 import { Icon } from '@/components/ui/Icon'
 
@@ -11,8 +14,35 @@ export function SprintBurndownTab({ sprint }: SprintBurndownTabProps) {
   const [activeSubTab, setActiveSubTab] = useState<'burndown' | 'throughput'>('burndown')
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null)
 
-  const burndown = sprint.burndownPoints || []
-  const maxSP = Math.max(sprint.totalSP || 24, 24)
+  const [history, setHistory] = useState<{ id: string; points: BurndownDataPoint[]; note: string } | null>(null)
+  useEffect(() => {
+    if (sprint.burndownPoints || !/^[1-9]\d*$/.test(sprint.id)) return
+    let cancelled = false
+    api.sprints.burndown(Number(sprint.id)).then(response => {
+      if (!cancelled) setHistory({ id: sprint.id, note: response.data.note, points: response.data.points.map((point, index) => ({
+        dayLabel: `Ngày ${index + 1} (${point.date})`, dateStr: point.date,
+        idealRemaining: point.idealRemaining, actualRemaining: point.actualRemaining ?? undefined,
+        isToday: point.date.slice(0, 10) === new Date().toISOString().slice(0, 10),
+      })) })
+    }).catch(() => { if (!cancelled) setHistory({ id: sprint.id, points: [], note: 'Không thể tải Burndown từ máy chủ.' }) })
+    return () => { cancelled = true }
+  }, [sprint.id, sprint.burndownPoints])
+  const [comparison, setComparison] = useState<{ items: { id: number; name: string; done: number; total: number }[]; error?: string } | null>(null)
+  useEffect(() => {
+    if (activeSubTab !== 'throughput') return
+    const projectId = projectService.getActiveProjectId()
+    if (!projectId) return
+    let cancelled = false
+    allPages(page => api.sprints.list({ projectId, page, pageSize: 100 })).then(rows => Promise.all(rows.map(async row => {
+      const progress = await api.sprints.progress(row.sprintId)
+      return { id: row.sprintId, name: row.sprintName, done: progress.data.completedStoryPoints, total: progress.data.totalStoryPoints }
+    }))).then(items => { if (!cancelled) setComparison({ items }) })
+      .catch(() => { if (!cancelled) setComparison({ items: [], error: 'Không thể tải so sánh Sprint.' }) })
+    return () => { cancelled = true }
+  }, [activeSubTab, sprint.id])
+  const currentHistory = history?.id === sprint.id ? history : null
+  const burndown = sprint.burndownPoints || currentHistory?.points || []
+  const maxSP = Math.max(1, sprint.totalSP, ...burndown.map(point => Math.max(point.idealRemaining, point.actualRemaining ?? 0)))
 
   // SVG Chart dimensions
   const chartWidth = 720
@@ -93,13 +123,14 @@ export function SprintBurndownTab({ sprint }: SprintBurndownTabProps) {
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
             <span>Thời gian:</span>
-            <span className="font-bold">{sprint.daysLeft || '4 ngày'}</span>
+            <span className="font-bold">{sprint.endDate}</span>
           </div>
         </div>
       </div>
 
       {activeSubTab === 'burndown' ? (
         <>
+          {(sprint.burndownNote || currentHistory?.note) && <p role="status" className="text-xs text-neutral-500">{sprint.burndownNote || currentHistory?.note}</p>}
           {/* Main SVG Burndown Chart Container */}
           <div className="rounded-xl border border-border-light bg-white p-5 shadow-xs dark:border-border-dark dark:bg-neutral-800">
             <div className="flex items-center justify-between mb-4">
@@ -124,7 +155,7 @@ export function SprintBurndownTab({ sprint }: SprintBurndownTabProps) {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-1.5 h-3 bg-amber-500 rounded-2xs" />
-                  <span className="text-amber-600 dark:text-amber-400">Hôm nay (D10)</span>
+                  <span className="text-amber-600 dark:text-amber-400">Hôm nay (UTC)</span>
                 </div>
               </div>
             </div>
@@ -137,7 +168,7 @@ export function SprintBurndownTab({ sprint }: SprintBurndownTabProps) {
                   className="w-full h-64 overflow-visible"
                 >
                   {/* Grid Lines */}
-                  {[0, 6, 12, 18, 24].map((gridSp) => (
+                  {[0, 1, 2, 3, 4].map(value => value * maxSP / 4).map((gridSp) => (
                     <g key={gridSp}>
                       <line
                         x1={paddingX}
@@ -346,7 +377,7 @@ export function SprintBurndownTab({ sprint }: SprintBurndownTabProps) {
             <div className="rounded-xl border border-border-light bg-white p-5 shadow-xs dark:border-border-dark dark:bg-neutral-800 space-y-4">
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-bold text-text-primary-light dark:text-text-primary-dark uppercase tracking-wider">
-                  Nhiệm vụ còn lại trong 4 ngày tới
+                  PBI chưa hoàn thành
                 </h4>
                 <Badge variant="warning">{incompleteItems.length} thẻ ({incompleteSP} SP)</Badge>
               </div>
@@ -369,7 +400,7 @@ export function SprintBurndownTab({ sprint }: SprintBurndownTabProps) {
                       <div className="flex items-center gap-3 text-[11px] text-text-secondary-light dark:text-text-secondary-dark">
                         <span>Phụ trách: {item.assigneeName || 'Chưa gán'}</span>
                         <span>•</span>
-                        <span>{item.criteriaCount || '3/4 tiêu chí'}</span>
+                        <span>{item.criteriaCount || 'BE chưa có tiêu chí nghiệm thu'}</span>
                       </div>
                     </div>
 
@@ -389,91 +420,31 @@ export function SprintBurndownTab({ sprint }: SprintBurndownTabProps) {
               <div className="rounded-lg border border-emerald-200 bg-emerald-50/70 p-3 text-xs text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300 flex items-start gap-2.5">
                 <Icon name="check-circle" size={16} className="mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
                 <div>
-                  <span className="font-bold">Đánh giá tiến độ (On track):</span> Còn 4 ngày làm việc cho {incompleteSP} SP còn lại. Với vận tốc trung bình 1.5 SP/ngày của nhóm, Sprint hoàn toàn có khả năng hoàn thành đúng hạn 100%.
+                  <span className="font-bold">Thông tin tiến độ:</span> Còn {incompleteSP} SP. Ngày kết thúc: {sprint.endDate}. BE chưa cung cấp dữ liệu dự báo hoàn thành.
                 </div>
               </div>
             </div>
           </div>
         </>
       ) : (
-        /* Throughput & Flow Metrics View (S7-11) */
         <div className="space-y-6">
-          {/* Top flow stats */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="rounded-xl border border-border-light bg-white p-4 shadow-2xs dark:border-border-dark dark:bg-neutral-800">
-              <span className="text-xs text-text-secondary-light dark:text-text-secondary-dark">Throughput Sprint</span>
-              <div className="mt-1 flex items-baseline gap-2">
-                <span className="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">18 SP</span>
-                <span className="text-xs font-semibold text-emerald-600">6 thẻ xong</span>
-              </div>
-              <p className="mt-1 text-[11px] text-text-secondary-light dark:text-text-secondary-dark">Đạt 75% kế hoạch cam kết</p>
-            </div>
-
-            <div className="rounded-xl border border-border-light bg-white p-4 shadow-2xs dark:border-border-dark dark:bg-neutral-800">
-              <span className="text-xs text-text-secondary-light dark:text-text-secondary-dark">Hiệu suất luồng (Flow Efficiency)</span>
-              <div className="mt-1 flex items-baseline gap-2">
-                <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">78%</span>
-                <span className="text-xs font-semibold text-emerald-600">+4% vs SP13</span>
-              </div>
-              <p className="mt-1 text-[11px] text-text-secondary-light dark:text-text-secondary-dark">Thời gian chờ hàng đợi thấp</p>
-            </div>
-
-            <div className="rounded-xl border border-border-light bg-white p-4 shadow-2xs dark:border-border-dark dark:bg-neutral-800">
-              <span className="text-xs text-text-secondary-light dark:text-text-secondary-dark">Lead Time trung bình</span>
-              <div className="mt-1 flex items-baseline gap-2">
-                <span className="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">3.2 ngày</span>
-                <span className="text-xs font-semibold text-text-secondary-light">/ thẻ PBI</span>
-              </div>
-              <p className="mt-1 text-[11px] text-text-secondary-light dark:text-text-secondary-dark">Từ khi cam kết đến Done</p>
-            </div>
-
-            <div className="rounded-xl border border-border-light bg-white p-4 shadow-2xs dark:border-border-dark dark:bg-neutral-800">
-              <span className="text-xs text-text-secondary-light dark:text-text-secondary-dark">W.I.P trung bình</span>
-              <div className="mt-1 flex items-baseline gap-2">
-                <span className="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">1.8 thẻ</span>
-                <span className="text-xs text-emerald-600 font-semibold">Tối ưu (&lt; 2)</span>
-              </div>
-              <p className="mt-1 text-[11px] text-text-secondary-light dark:text-text-secondary-dark">Giới hạn nghẽn cổ chai tốt</p>
-            </div>
+            {[
+              ['Điểm PBI hoàn thành', `${sprint.completedSP} SP`, `${sprint.completedItemsCount} / ${sprint.totalItemsCount} PBI hoàn thành`],
+              ['Hiệu suất luồng (Flow Efficiency)', '—', 'BE chưa có thời gian chờ và thực hiện'],
+              ['Lead Time trung bình', '—', 'BE chưa có Lead Time của PBI'],
+              ['WIP trung bình', '—', 'BE chưa có chuỗi lịch sử WIP'],
+            ].map(([label, value, note]) => <div key={label} className="rounded-xl border border-border-light bg-white p-4 shadow-2xs dark:border-border-dark dark:bg-neutral-800">
+              <span className="text-xs text-text-secondary-light dark:text-text-secondary-dark">{label}</span>
+              <div className="mt-1 text-2xl font-bold">{value}</div><p className="mt-1 text-[11px] text-neutral-500">{note}</p>
+            </div>)}
           </div>
-
-          {/* Historical Velocity Comparison */}
           <div className="rounded-xl border border-border-light bg-white p-5 shadow-xs dark:border-border-dark dark:bg-neutral-800 space-y-4">
-            <h4 className="text-xs font-bold text-text-primary-light dark:text-text-primary-dark uppercase tracking-wider">
-              So sánh Vận tốc (Velocity) qua các Sprint gần nhất
-            </h4>
-
-            <div className="space-y-3 pt-2">
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="font-medium text-text-primary-light dark:text-text-primary-dark">Sprint 12 (Đã hoàn tất)</span>
-                  <span className="font-semibold text-text-secondary-light">19 / 20 SP (95%)</span>
-                </div>
-                <div className="w-full bg-neutral-100 dark:bg-neutral-700 h-2.5 rounded-full overflow-hidden">
-                  <div className="bg-neutral-400 h-full rounded-full" style={{ width: '95%' }} />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="font-medium text-text-primary-light dark:text-text-primary-dark">Sprint 13 (Đã hoàn tất)</span>
-                  <span className="font-semibold text-emerald-600">22 / 22 SP (100%)</span>
-                </div>
-                <div className="w-full bg-neutral-100 dark:bg-neutral-700 h-2.5 rounded-full overflow-hidden">
-                  <div className="bg-emerald-500 h-full rounded-full" style={{ width: '100%' }} />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="font-medium text-primary-700 dark:text-primary-400 font-semibold">Sprint 14 (Đang chạy - Hiện tại)</span>
-                  <span className="font-bold text-primary-600">18 / 24 SP (75%) • Dự kiến: 24 SP</span>
-                </div>
-                <div className="w-full bg-neutral-100 dark:bg-neutral-700 h-2.5 rounded-full overflow-hidden">
-                  <div className="bg-primary-600 h-full rounded-full" style={{ width: '75%' }} />
-                </div>
-              </div>
-            </div>
+            <h4 className="text-xs font-bold uppercase tracking-wider">So sánh SP hoàn thành của các Sprint</h4>
+            {!comparison ? <p role="status">Đang tải so sánh...</p> : comparison.error ? <p role="alert">{comparison.error}</p> : comparison.items.length === 0 ? <p>Chưa có dữ liệu Sprint.</p> : comparison.items.map(item => <div key={item.id}>
+              <div className="flex justify-between text-xs mb-1"><span>{item.name}</span><strong>{item.done} / {item.total} SP</strong></div>
+              <div className="bg-neutral-100 dark:bg-neutral-700 h-2.5 rounded-full overflow-hidden"><div className="bg-primary-600 h-full rounded-full" style={{ width: `${item.total ? Math.min(100, item.done / item.total * 100) : 0}%` }} /></div>
+            </div>)}
           </div>
         </div>
       )}

@@ -2,6 +2,8 @@ export type ProjectMethodology = 'scrumban' | 'kanban'
 export type ProjectStatus = 'active' | 'closed'
 
 export interface ProjectMember {
+  id?: number
+  avatarUrl?: string | null
   name: string
   avatarCode: string
   bgColor?: string
@@ -21,7 +23,7 @@ export interface Project {
   leadName: string
   leadAvatar: string
   members: ProjectMember[]
-  totalMembersCount: number
+  totalMembersCount: number | null
   status: ProjectStatus
   statusText: string
   colorClass: string

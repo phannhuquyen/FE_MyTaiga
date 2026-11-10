@@ -1,3 +1,4 @@
+import type { ThroughputPoint, SprintThroughputItem } from '@/services/api'
 export type MetricTabId = 'wip' | 'throughput' | 'cycletime' | 'workitemage'
 
 export interface WipRunPoint {
@@ -47,7 +48,7 @@ export interface WorkItemAgeTableItem {
   id: string
   taskCode: string
   taskTitle: string
-  priority: 'Critical' | 'High' | 'Medium' | 'Low'
+  priority?: 'Critical' | 'High' | 'Medium' | 'Low'
   currentColumn: string
   assigneeName: string
   assigneeRole: string
@@ -72,6 +73,12 @@ export interface FlowRiskItem {
 }
 
 export interface FlowMetricsData {
+  source?: 'api' | 'demo'
+  throughputPoints?: ThroughputPoint[]
+  throughputSprints?: SprintThroughputItem[]
+  partialHistory?: boolean
+  throughputHistoryStart?: string | null
+  importedBaselineCount?: number
   isEmpty: boolean
   sprintId: string
   sprintName: string

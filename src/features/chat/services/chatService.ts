@@ -839,6 +839,23 @@ class ChatService {
     return newDm
   }
 
+  async searchMessagesFromApi(keyword: string, conversationId: string): Promise<Array<{ message: ChatMessage; conversationName: string }>> {
+    if (!keyword.trim()) return []
+    if (!/^[1-9]\d*$/.test(conversationId)) return this.searchMessages(keyword, conversationId)
+    const roomId = Number(conversationId)
+    const messages: ChatMessageData[] = []
+    let before: number | undefined
+    for (;;) {
+      const response = await api.chat.listMessages(roomId, { keyword: keyword.trim(), before, limit: 100 })
+      messages.push(...response.data.items)
+      const cursor = response.data.nextBefore
+      if (!response.data.hasMore || cursor == null || cursor === before || !response.data.items.length) break
+      before = cursor
+    }
+    const name = this.conversations.find(item => item.id === conversationId)?.name || `Phòng #${roomId}`
+    return messages.map(item => ({ message: mapApiMessage(item, conversationId, messages), conversationName: name }))
+  }
+
   searchMessages(
     keyword: string,
     conversationId?: string,

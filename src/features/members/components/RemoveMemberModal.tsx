@@ -1,3 +1,4 @@
+import { useProjectContext } from '@/features/projects/projectContext'
 import { useState } from 'react'
 import { Icon } from '@/components/ui'
 import type { Member } from '../types'
@@ -15,6 +16,7 @@ export function RemoveMemberModal({
   member,
   onConfirmRemove,
 }: RemoveMemberModalProps) {
+  const project = useProjectContext()
   const [reassignToLead, setReassignToLead] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -62,7 +64,7 @@ export function RemoveMemberModal({
           <div className="p-3.5 rounded-lg bg-neutral-50 border border-neutral-200 text-body-sm text-neutral-700 leading-relaxed">
             Hành động này sẽ thu hồi quyền truy cập của{' '}
             <span className="font-semibold text-neutral-900">{member.name}</span> vào dự án{' '}
-            <span className="font-semibold text-primary-700">ScrumBan Core Platform</span>. Các công
+            <span className="font-semibold text-primary-700">{project?.projectName ?? 'Dự án'}</span>. Các công
             việc và nhiệm vụ đang phân công cho thành viên này sẽ được chuyển về trạng thái{' '}
             <span className="font-medium text-danger-700">Chưa gán (Unassigned)</span>.
           </div>

@@ -1,4 +1,9 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useProjectContext } from '@/features/projects/projectContext'
+import { useProjectMembers } from '@/features/projects/useProjectMembers'
+import { useAuth } from '@/features/auth/hooks/useAuth'
+import { api, type SprintData } from '@/services/api'
+import { allPages } from '@/lib/allPages'
 import { useQuickCreate } from '@/hooks/useQuickCreate'
 import { useParams, useSearchParams } from 'react-router-dom'
 import type { KanbanTask, KanbanColumnConfig, KanbanColumnId, CreateTaskPayload, WIPSettingsPayload } from './types'
@@ -13,9 +18,23 @@ import { Button, Icon } from '@/components/ui'
 export function KanbanPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const numericProjectId = projectId ? parseInt(projectId, 10) : undefined
+  const project = useProjectContext()
+  const members = useProjectMembers(numericProjectId)
+  const { user } = useAuth()
+  const currentUserId = Number(user?.id)
+  const [activeSprint, setActiveSprint] = useState<SprintData | null>(null)
+  useEffect(() => {
+    if (!numericProjectId) return
+    let cancelled = false
+    allPages(page => api.sprints.list({ projectId: numericProjectId, page, pageSize: 100 })).then(rows => {
+      if (!cancelled) setActiveSprint(rows.find(row => row.status === 'ACTIVE') ?? null)
+    }).catch(() => { if (!cancelled) setActiveSprint(null) })
+    return () => { cancelled = true }
+  }, [numericProjectId])
   const [searchParams] = useSearchParams()
   const requestedTask = searchParams.get('id')
 
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [columns, setColumns] = useState<KanbanColumnConfig[]>([])
   const [tasks, setTasks] = useState<KanbanTask[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -48,22 +67,25 @@ export function KanbanPage() {
     setTimeout(() => setToastMessage(null), 3500)
   }
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
+      setLoadError(null)
       const [cols, allTasks] = await Promise.all([
         kanbanService.getColumns(numericProjectId),
         kanbanService.getTasks(numericProjectId),
       ])
       setColumns(cols)
       setTasks(allTasks)
+    } catch {
+      setLoadError('Không thể tải bảng công việc. Vui lòng thử lại.')
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [numericProjectId])
 
   useEffect(() => {
-    loadData()
-  }, [numericProjectId])
+    void loadData()
+  }, [loadData])
 
   // Filter tasks
   const filteredTasks = useMemo(() => {
@@ -80,9 +102,9 @@ export function KanbanPage() {
     }
 
     if (onlyMyTasks) {
-      result = result.filter((t) => t.assignee.isCurrentUser || t.assignee.name.includes('Quân'))
+      result = result.filter((t) => t.assignee.id === currentUserId)
     } else if (selectedAssignee !== 'all') {
-      result = result.filter((t) => t.assignee.name === selectedAssignee)
+      result = result.filter((t) => String(t.assignee.id) === selectedAssignee)
     }
 
     if (selectedPriority !== 'all') {
@@ -90,7 +112,7 @@ export function KanbanPage() {
     }
 
     return result
-  }, [tasks, searchQuery, onlyMyTasks, selectedAssignee, selectedPriority])
+  }, [tasks, searchQuery, onlyMyTasks, selectedAssignee, selectedPriority, currentUserId])
 
   // Count per column
   const currentCounts = useMemo(() => {
@@ -193,6 +215,7 @@ export function KanbanPage() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-neutral-50/50">
+      {loadError && <p role="alert" className="p-4 text-sm text-danger-700">{loadError}</p>}
       {/* Toast alert */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 rounded-xl bg-neutral-900 text-white px-4 py-3 text-xs shadow-lg flex items-center gap-2.5 animate-in fade-in slide-in-from-bottom-2">
@@ -208,21 +231,21 @@ export function KanbanPage() {
             <div className="flex items-center gap-2.5">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
               <h1 className="text-xl font-bold text-neutral-900 tracking-tight">
-                Sprint 14: Tối ưu luồng & Đồng bộ dữ liệu
+                {project?.projectName ?? 'Bảng công việc'}
               </h1>
               <span className="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded font-bold border border-emerald-200">
-                Đang chạy
+                Tất cả Task
               </span>
             </div>
             <p className="text-xs text-neutral-500 flex items-center gap-3">
               <span className="flex items-center gap-1">
                 <Icon name="calendar" size={13} />
-                14/10/2024 — 28/10/2024
+                {activeSprint ? `${activeSprint.startDate.slice(0, 10)} — ${activeSprint.endDate.slice(0, 10)}` : 'Chưa có Sprint đang chạy'}
               </span>
               <span>•</span>
-              <span className="font-semibold text-primary-700">Còn 4 ngày</span>
+              <span className="font-semibold text-primary-700">{activeSprint?.sprintName ?? 'Chưa có Sprint đang chạy'}</span>
               <span>•</span>
-              <span>Mục tiêu: Đạt chuẩn PCI-DSS & API Gateway latency &lt; 15ms</span>
+              <span>{activeSprint?.sprintGoal || 'Chưa có mục tiêu Sprint'}</span>
             </p>
           </div>
 
@@ -255,8 +278,7 @@ export function KanbanPage() {
             <div className="flex items-center gap-2">
               <Icon name="alert-triangle" size={16} className="text-danger-600 shrink-0" />
               <span>
-                <strong className="font-bold">Cảnh báo WIP:</strong> Cột &quot;Đang làm&quot; hiện có{' '}
-                {currentCounts.in_progress} thẻ (vượt quá giới hạn 4 thẻ cho phép). Đề nghị nhóm tập trung kéo các thẻ hoàn tất sang kiểm tra trước khi nhận thêm việc mới.
+                <strong className="font-bold">Cảnh báo WIP:</strong> {columns.filter(column => column.wipLimit != null && (currentCounts[column.id] || 0) > column.wipLimit).map(column => `${column.title}: ${currentCounts[column.id]} / ${column.wipLimit} thẻ`).join(' • ')}
               </span>
             </div>
             <button
@@ -325,12 +347,7 @@ export function KanbanPage() {
                 className="py-1.5 pl-3 pr-7 bg-whiteboard border border-neutral-300 rounded-lg text-neutral-700 font-medium focus:outline-none focus:ring-1 focus:ring-primary-500 appearance-none cursor-pointer"
               >
                 <option value="all">Tất cả thành viên</option>
-                <option value="Minh Quân">Minh Quân (Tech Lead)</option>
-                <option value="Tuấn Anh">Tuấn Anh (Backend)</option>
-                <option value="Hoàng Linh">Hoàng Linh (Frontend)</option>
-                <option value="Minh Hải">Minh Hải (DevOps)</option>
-                <option value="Đỗ Thảo">Đỗ Thảo (QA)</option>
-                <option value="Thùy Trang">Thùy Trang (Frontend)</option>
+                {members.map(member => <option key={member.userId} value={member.userId}>{member.fullName}</option>)}
               </select>
               <Icon
                 name="chevron-down"

@@ -1,3 +1,4 @@
+import { useProjectContext } from '@/features/projects/projectContext'
 import { useState, useEffect, useMemo } from 'react'
 import { useQuickCreate } from '@/hooks/useQuickCreate'
 import { Link, useSearchParams } from 'react-router-dom'
@@ -19,6 +20,7 @@ import type {
 const ITEMS_PER_PAGE = 7
 
 export default function BacklogPage() {
+  const project = useProjectContext()
   const [searchParams] = useSearchParams()
   const requestedPbi = searchParams.get('id')
   const [pbis, setPbis] = useState<PBI[]>([])
@@ -231,7 +233,7 @@ export default function BacklogPage() {
               Dự án
             </Link>
             <span>&gt;</span>
-            <span className="text-neutral-700 font-medium">ScrumBan Core Platform</span>
+            <span className="text-neutral-700 font-medium">{project?.projectName ?? 'Dự án'}</span>
             <span>&gt;</span>
             <span className="font-bold text-neutral-900">Backlog</span>
           </div>

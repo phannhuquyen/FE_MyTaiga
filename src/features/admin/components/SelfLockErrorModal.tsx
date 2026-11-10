@@ -1,3 +1,4 @@
+import { useAuth } from '@/features/auth/hooks/useAuth'
 import { Icon } from '@/components/ui'
 
 interface SelfLockErrorModalProps {
@@ -6,6 +7,7 @@ interface SelfLockErrorModalProps {
 }
 
 export function SelfLockErrorModal({ isOpen, onClose }: SelfLockErrorModalProps) {
+  const { user } = useAuth()
   if (!isOpen) return null
 
   return (
@@ -39,7 +41,7 @@ export function SelfLockErrorModal({ isOpen, onClose }: SelfLockErrorModalProps)
             </div>
 
             <p className="text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed">
-              Không thể khóa tài khoản của chính bạn <strong>(Nguyễn Quốc Bảo)</strong>. Để tránh gián đoạn quản trị hệ thống, hãy bàn giao đặc quyền Quản trị viên tối cao cho thành viên khác trước khi vô hiệu hóa tài khoản này.
+              Không thể khóa tài khoản của chính bạn <strong>({user?.name ?? 'Quản trị viên'})</strong>. Để tránh gián đoạn quản trị hệ thống, hãy bàn giao đặc quyền Quản trị viên tối cao cho thành viên khác trước khi vô hiệu hóa tài khoản này.
             </p>
 
             <div className="mt-4 pt-3 border-t border-neutral-100 dark:border-neutral-800 flex items-center gap-3 text-xs">

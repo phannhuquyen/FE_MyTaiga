@@ -1,3 +1,4 @@
+import { useAuth } from '@/features/auth/hooks/useAuth'
 import { Link, useLocation } from 'react-router-dom'
 import { Icon } from '@/components/ui'
 import { NotificationBellDropdown } from '@/features/notifications'
@@ -18,6 +19,7 @@ export function Header({
   onSearchChange,
   className,
 }: HeaderProps) {
+  const { user } = useAuth()
   const location = useLocation()
   const isAdminRoute = location.pathname.startsWith('/admin')
 
@@ -133,7 +135,7 @@ export function Header({
         {isAdminRoute && (
           <div className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 border border-rose-200 text-rose-700 shadow-2xs shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-rose-600" />
-            <span>Admin: Quốc Bảo (Quản trị viên)</span>
+            <span>Admin: {user?.name ?? 'Quản trị viên'} (Quản trị viên)</span>
           </div>
         )}
 

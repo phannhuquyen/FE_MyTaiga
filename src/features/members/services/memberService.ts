@@ -3,6 +3,7 @@ import {
   type DepartmentData,
   type ProjectMemberData,
 } from '@/services/api'
+import { allPages } from '@/lib/allPages'
 import { projectService } from '@/features/projects/services/projectService'
 import type {
   Candidate,
@@ -73,13 +74,19 @@ let cachedDepartments: Department[] = []
 let cachedMembers: Member[] = []
 
 export const memberService = {
+  async getMemberTasks(memberId: string) {
+    const projectId = projectService.getActiveProjectId()
+    if (!projectId || !/^[1-9]\d*$/.test(memberId)) return []
+    const tasks = await allPages(page => api.tasks.list(projectId, { assigneeId: Number(memberId), page, pageSize: 100 }))
+    return tasks.map(task => ({ id: `TASK-${task.taskId}`, title: task.title, status: task.status }))
+  },
   getDepartments: async (): Promise<Department[]> => {
     const projectId = projectService.getActiveProjectId()
     if (!projectId) return cachedDepartments
 
     try {
-      const res = await api.projectDepartments.list(projectId, 1, 100)
-      cachedDepartments = res.data.items.map(mapBeDepartmentToFe)
+      const rows = await allPages(page => api.projectDepartments.list(projectId, page, 100))
+      cachedDepartments = rows.map(mapBeDepartmentToFe)
       return cachedDepartments
     } catch (error) {
       console.warn(`⚠️ [MemberService] Lỗi khi lấy danh sách phòng ban dự án ${projectId}:`, error)
@@ -101,14 +108,14 @@ export const memberService = {
           ? parseInt(filter.departmentId, 10)
           : undefined
 
-      const res = await api.projectMembers.list(projectId, {
+      const rows = await allPages(page => api.projectMembers.list(projectId, {
         departmentId: Number.isNaN(deptId) ? undefined : deptId,
         keyword: filter?.searchQuery?.trim() || undefined,
-        page: 1,
+        page,
         pageSize: 100,
-      })
+      }))
 
-      let list = res.data.items.map(mapBeMemberToFe)
+      let list = rows.map(mapBeMemberToFe)
       if (filter?.role && filter.role !== 'all') {
         list = list.filter((m) => m.role === filter.role)
       }

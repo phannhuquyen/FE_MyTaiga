@@ -1,3 +1,4 @@
+import { allPages } from '@/lib/allPages'
 import {
   api,
   type SprintData,
@@ -86,14 +87,14 @@ export const sprintService = {
           ? (filters.status === 'draft' ? 'PLANNED' : filters.status.toUpperCase() as 'PLANNED' | 'ACTIVE' | 'CLOSED')
           : undefined
 
-      const res = await api.sprints.list({
+      const rows = await allPages(page => api.sprints.list({
         projectId,
         status: beStatus,
-        page: 1,
+        page,
         pageSize: 100,
-      })
+      }))
 
-      const list = res.data.items.map(mapBeSprintToFe)
+      const list = rows.map(mapBeSprintToFe)
 
       // Fetch progress for each sprint
       await Promise.all(
@@ -138,6 +139,9 @@ export const sprintService = {
           mapped.totalSP = prog.data.totalStoryPoints
           mapped.completedSP = prog.data.completedStoryPoints
           mapped.progressPercent = Math.round(prog.data.progressPercent)
+          mapped.totalItemsCount = prog.data.totalPbis
+          mapped.completedItemsCount = prog.data.completedPbis
+          mapped.remainingItemsCount = Math.max(0, prog.data.totalPbis - prog.data.completedPbis)
           mapped.items = prog.data.items.map((it) => ({
             id: String(it.pbiId),
             code: `#SB-${it.pbiId}`,
@@ -148,6 +152,15 @@ export const sprintService = {
         } catch {
           // ignore
         }
+        try {
+          const response = await api.sprints.burndown(numericId)
+          mapped.burndownNote = response.data.note
+          mapped.burndownPoints = response.data.points.map((point, index) => ({
+            dayLabel: `Ngày ${index + 1} (${point.date})`, dateStr: point.date,
+            idealRemaining: point.idealRemaining, actualRemaining: point.actualRemaining ?? undefined,
+            isToday: point.date.slice(0, 10) === new Date().toISOString().slice(0, 10),
+          }))
+        } catch { mapped.burndownNote = 'Không thể tải biểu đồ Burndown từ máy chủ.' }
         return mapped
       } catch {
         // fallback
@@ -320,7 +333,7 @@ export const sprintService = {
           dateStr: p.date,
           idealRemaining: p.idealRemaining,
           actualRemaining: p.actualRemaining ?? undefined,
-          isToday: p.actualRemaining !== null,
+          isToday: p.date.slice(0, 10) === new Date().toISOString().slice(0, 10),
         }))
       } catch (err) {
         console.warn('Burndown fetch error:', err)

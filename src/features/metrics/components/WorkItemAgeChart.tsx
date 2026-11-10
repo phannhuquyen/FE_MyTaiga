@@ -7,7 +7,7 @@ interface WorkItemAgeChartProps {
 }
 
 export function WorkItemAgeChart({ chartData, tableData }: WorkItemAgeChartProps) {
-  const maxDays = 8.5
+  const maxDays = Math.max(8.5, ...chartData.map(item => item.totalAgeDays))
   const slaThreshold = 5.0
 
   return (
@@ -17,15 +17,15 @@ export function WorkItemAgeChart({ chartData, tableData }: WorkItemAgeChartProps
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-xs bg-neutral-300 dark:bg-neutral-600 inline-block" />
-            <span>Cần làm (Backlog đã nạp)</span>
+            <span>Backlog: chưa có thời gian riêng</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-xs bg-teal-600 inline-block" />
-            <span>Đang thực hiện (In Progress)</span>
+            <span>Tổng tuổi việc từ BE</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-xs bg-amber-600 inline-block" />
-            <span>Kiểm thử / Review (Testing)</span>
+            <span>Review: chưa có thời gian riêng</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-4 h-0.5 border-t border-dashed border-danger-600 inline-block" />
@@ -34,7 +34,7 @@ export function WorkItemAgeChart({ chartData, tableData }: WorkItemAgeChartProps
         </div>
 
         <div className="font-semibold text-neutral-800 dark:text-neutral-200">
-          WIP CAPACITY: 7 / 10
+          {chartData.length} công việc đang đo tuổi
         </div>
       </div>
 
@@ -197,7 +197,7 @@ export function WorkItemAgeChart({ chartData, tableData }: WorkItemAgeChartProps
                                 : 'bg-neutral-100 text-neutral-700 dark:bg-neutral-700 dark:text-neutral-300'
                             }`}
                           >
-                            {row.priority}
+                            {row.priority ?? 'Chưa có'}
                           </span>
                         </div>
                         <div className="text-neutral-600 dark:text-neutral-300 text-[11px] mt-0.5 line-clamp-1">

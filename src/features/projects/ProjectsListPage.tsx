@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar'
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Icon } from '@/components/ui'
@@ -14,7 +15,7 @@ export default function ProjectsListPage() {
   const [activeTab, setActiveTab] = useState<ProjectStatus>('active')
   const [searchTerm, setSearchTerm] = useState('')
   const [projects, setProjects] = useState<Project[]>([])
-  const [counts, setCounts] = useState({ activeCount: 4, closedCount: 2, totalMembers: 18 })
+  const [counts, setCounts] = useState<{ activeCount: number; closedCount: number; totalMembers: number | null }>({ activeCount: 0, closedCount: 0, totalMembers: null })
   const [isLoading, setIsLoading] = useState(true)
 
   // Modals state
@@ -320,12 +321,12 @@ export default function ProjectsListPage() {
                         }`}
                         title={member.name}
                       >
-                        {member.avatarCode}
+                        <Avatar src={member.avatarUrl} name={member.name} fallback={member.avatarCode} />
                       </div>
                     ))}
-                    {project.totalMembersCount > project.members.length && (
+                    {(project.totalMembersCount ?? 0) > project.members.length && (
                       <div className="h-6 px-1.5 rounded-full bg-paper-100 text-[10px] font-bold text-neutral-600 flex items-center justify-center ring-2 ring-whiteboard border border-neutral-200">
-                        +{project.totalMembersCount - project.members.length}
+                        +{(project.totalMembersCount ?? 0) - project.members.length}
                       </div>
                     )}
                   </div>
@@ -376,7 +377,7 @@ export default function ProjectsListPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-body-xs text-neutral-500 px-2 pt-2">
         <div>
           Tổng cộng: <strong className="text-neutral-700">{counts.activeCount} dự án kích hoạt</strong> •{' '}
-          {counts.totalMembers} nhân sự tham gia
+          {counts.totalMembers ?? '—'} nhân sự tham gia (không trùng lặp)
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">

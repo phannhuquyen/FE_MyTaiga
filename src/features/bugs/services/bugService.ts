@@ -1,3 +1,4 @@
+import { allPages } from '@/lib/allPages'
 import type {
   BugItem,
   BugAssignee,
@@ -239,39 +240,41 @@ class BugService {
     }
   }> {
     if (projectId) {
-      try {
-        const queryParams = {
-          keyword: filters.search,
-          status: filters.status && filters.status !== 'all' ? mapStatusToBe(filters.status) : undefined,
-          severity: filters.severity && filters.severity !== 'all' ? mapSeverityToBe(filters.severity) : undefined,
-          page: filters.page || 1,
-          pageSize: filters.pageSize || 7,
-        }
-        const res = await api.bugs.list(projectId, queryParams)
-        const fetchedItems = res.data.items.map(mapBugDataToBugItem)
-        this.bugs = fetchedItems
+      const queryParams = {
+        keyword: filters.search,
+        status: filters.status && filters.status !== 'all' ? mapStatusToBe(filters.status) : undefined,
+        assigneeId: filters.assigneeId && /^[1-9]\d*$/.test(filters.assigneeId) ? Number(filters.assigneeId) : undefined,
+        severity: filters.severity && filters.severity !== 'all' ? mapSeverityToBe(filters.severity) : undefined,
+        page: filters.page || 1,
+        pageSize: filters.pageSize || 7,
+      }
+      const res = await api.bugs.list(projectId, queryParams)
+      if (filters.assigneeId === 'unassigned') {
+        const rows = await allPages(page => api.bugs.list(projectId, { ...queryParams, page, pageSize: 100 }))
+        const unassigned = rows.filter(row => row.assigneeId == null)
+        res.data = { ...res.data, items: unassigned.slice(((filters.page || 1) - 1) * (filters.pageSize || 7), (filters.page || 1) * (filters.pageSize || 7)), total: unassigned.length }
+      }
+      const fetchedItems = res.data.items.map(mapBugDataToBugItem)
+      this.bugs = fetchedItems
 
-        const totalOpen = fetchedItems.filter((b) => b.status !== 'closed').length
-        const blockerCount = fetchedItems.filter((b) => b.severity === 'blocker').length
-        const majorCount = fetchedItems.filter((b) => b.severity === 'major').length
-        const mediumMinorCount = fetchedItems.filter(
-          (b) => b.severity === 'minor' || b.severity === 'trivial',
-        ).length
+      const totalOpen = fetchedItems.filter((b) => b.status !== 'closed').length
+      const blockerCount = fetchedItems.filter((b) => b.severity === 'blocker').length
+      const majorCount = fetchedItems.filter((b) => b.severity === 'major').length
+      const mediumMinorCount = fetchedItems.filter(
+        (b) => b.severity === 'minor' || b.severity === 'trivial',
+      ).length
 
-        return {
-          items: fetchedItems,
-          total: res.data.total,
-          page: res.data.page,
-          pageSize: res.data.pageSize,
-          stats: {
-            totalOpen,
-            blockerCount,
-            majorCount,
-            mediumMinorCount,
-          },
-        }
-      } catch (err) {
-        console.warn('⚠️ [BugService] Lỗi tải bugs từ API, dùng mock:', err)
+      return {
+        items: fetchedItems,
+        total: res.data.total,
+        page: res.data.page,
+        pageSize: res.data.pageSize,
+        stats: {
+          totalOpen,
+          blockerCount,
+          majorCount,
+          mediumMinorCount,
+        },
       }
     }
 
@@ -299,6 +302,10 @@ class BugService {
         const b = res.data.bug
         const item = mapBugDataToBugItem(b)
         if (res.data.task) {
+          item.sprintName = res.data.task.sprintId ? `Sprint #${res.data.task.sprintId}` : 'Task chưa gắn Sprint'
+          if (res.data.task.sprintId) {
+            try { item.sprintName = (await api.sprints.get(res.data.task.sprintId)).data.sprintName } catch { /* Preserve the authoritative Sprint ID when its name cannot be loaded. */ }
+          }
           item.relatedTaskTitle = res.data.task.title
           item.relatedTaskCode = `#TASK-${res.data.task.taskId}`
         }
