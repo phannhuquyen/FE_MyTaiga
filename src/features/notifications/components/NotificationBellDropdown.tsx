@@ -1,5 +1,6 @@
 import { Avatar } from '@/components/ui/Avatar'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useLayoutEffect, useId, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useNavigate } from 'react-router-dom'
 import { Icon } from '@/components/ui'
 import { notificationService, resolveNotificationLink } from '../services/notificationService'
@@ -17,7 +18,38 @@ export function NotificationBellDropdown({ className }: NotificationBellDropdown
   const [unreadCount, setUnreadCount] = useState(notificationService.getUnreadCount())
   const [notifications, setNotifications] = useState(notificationService.getNotifications())
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const panelId = useId()
   const navigate = useNavigate()
+
+  useLayoutEffect(() => {
+    if (!isOpen) return
+
+    const positionPanel = (event?: Event) => {
+      if (event?.target instanceof Node && panelRef.current?.contains(event.target)) return
+      const anchor = dropdownRef.current
+      const panel = panelRef.current
+      if (!anchor || !panel) return
+
+      const bounds = anchor.getBoundingClientRect()
+      const width = panel.getBoundingClientRect().width
+      const top = bounds.bottom + 8
+      const left = Math.max(8, Math.min(bounds.right - width, window.innerWidth - width - 8))
+      Object.assign(panel.style, {
+        top: `${top}px`,
+        left: `${left}px`,
+        maxHeight: `${Math.max(0, window.innerHeight - top - 8)}px`,
+      })
+    }
+
+    positionPanel()
+    window.addEventListener('resize', positionPanel)
+    window.addEventListener('scroll', positionPanel, { capture: true, passive: true })
+    return () => {
+      window.removeEventListener('resize', positionPanel)
+      window.removeEventListener('scroll', positionPanel, true)
+    }
+  }, [isOpen])
 
   useEffect(() => {
     notificationService.fetchFromApi()
@@ -31,15 +63,23 @@ export function NotificationBellDropdown({ className }: NotificationBellDropdown
   // Close when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (!dropdownRef.current?.contains(event.target as Node) && !panelRef.current?.contains(event.target as Node)) {
         setIsOpen(false)
+      }
+    }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsOpen(false)
+        dropdownRef.current?.querySelector('button')?.focus()
       }
     }
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener('keydown', handleKeyDown)
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleKeyDown)
     }
   }, [isOpen])
 
@@ -78,6 +118,7 @@ export function NotificationBellDropdown({ className }: NotificationBellDropdown
         )}
         aria-label="Thông báo"
         aria-expanded={isOpen}
+        aria-controls={isOpen ? panelId : undefined}
       >
         <Icon name="bell" size={20} />
         {unreadCount > 0 && (
@@ -88,11 +129,11 @@ export function NotificationBellDropdown({ className }: NotificationBellDropdown
       </button>
 
       {/* Dropdown Menu (S12-02) */}
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-whiteboard dark:bg-neutral-900 rounded-xl shadow-2xl border border-neutral-200 dark:border-neutral-700 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      {isOpen && createPortal(
+        <div ref={panelRef} id={panelId} role="region" aria-label="Bảng thông báo" className="fixed w-80 max-w-[calc(100vw-1rem)] sm:w-96 flex flex-col bg-whiteboard dark:bg-neutral-900 rounded-xl shadow-2xl border border-neutral-200 dark:border-neutral-700 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
           {actionError && <p role="alert" className="p-3 text-danger-600">{actionError}</p>}
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50/70 dark:bg-neutral-800/40">
+          <div className="flex shrink-0 items-center justify-between px-4 py-3 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50/70 dark:bg-neutral-800/40">
             <div className="flex items-center gap-2">
               <span className="font-bold text-sm text-neutral-900 dark:text-neutral-100">
                 Thông báo
@@ -115,7 +156,7 @@ export function NotificationBellDropdown({ className }: NotificationBellDropdown
           </div>
 
           {/* Tabs */}
-          <div className="flex border-b border-neutral-200 dark:border-neutral-800 px-3 pt-2 gap-4 text-xs font-semibold">
+          <div className="flex shrink-0 border-b border-neutral-200 dark:border-neutral-800 px-3 pt-2 gap-4 text-xs font-semibold">
             <button
               type="button"
               onClick={() => setTab('all')}
@@ -143,7 +184,7 @@ export function NotificationBellDropdown({ className }: NotificationBellDropdown
           </div>
 
           {/* List */}
-          <div className="max-h-[380px] overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800">
+          <div className="min-h-0 max-h-[380px] overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800">
             {displayedNotifications.length === 0 ? (
               <div className="py-8 text-center text-neutral-400 text-xs">
                 <Icon name="bell" size={28} className="mx-auto mb-2 opacity-40" />
@@ -211,7 +252,7 @@ export function NotificationBellDropdown({ className }: NotificationBellDropdown
           </div>
 
           {/* Footer (S12-02) */}
-          <div className="p-2.5 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/40 text-center">
+          <div className="shrink-0 p-2.5 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/40 text-center">
             <Link
               to="/notifications"
               onClick={() => setIsOpen(false)}
@@ -221,7 +262,7 @@ export function NotificationBellDropdown({ className }: NotificationBellDropdown
               <Icon name="arrow-right" size={14} />
             </Link>
           </div>
-        </div>
+        </div>, document.body,
       )}
     </div>
   )
